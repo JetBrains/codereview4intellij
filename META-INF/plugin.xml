@@ -1,0 +1,24 @@
+<idea-plugin version="2">
+    <name>Code Review Support for Intellij IDEA</name>
+    <id>codereview4intellij</id>
+    <description>Plugin allows to exchange source code comments with patch files.</description>
+    <version>1.0</version>
+    <vendor>JetBrains</vendor>
+    <idea-version since-build="8000"/>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+</idea-plugin>
