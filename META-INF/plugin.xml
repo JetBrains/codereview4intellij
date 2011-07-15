@@ -7,22 +7,21 @@
     <idea-version since-build="8000"/>
 
   <application-components>
-    <!-- Add your application components here -->
   </application-components>
 
   <project-components>
-    <!-- Add your project components here -->
   </project-components>
 
   <actions>
     <!-- Add your actions here -->
-      <action id="addReview" class="components.AddReviewAction" text="Add review">
+      <action id="addReview" class="ui.actions.AddReviewAction" text="Add review">
           <add-to-group group-id="RefactoringMenu" anchor="last"/>
       </action>
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="components.CodeReviewToolWindow"/>
+    <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="ui.reviewtoolwindow.CodeReviewToolWindowFactory"/>
     <projectService serviceInterface="reviewresult.ReviewManager" serviceImplementation="reviewresult.ReviewManager"/>
+    <projectService serviceInterface="ui.reviewtoolwindow.ReviewView" serviceImplementation="ui.reviewtoolwindow.ReviewView"/>
   </extensions>
 </idea-plugin>

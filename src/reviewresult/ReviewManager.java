@@ -1,15 +1,18 @@
 package reviewresult;
 
 import com.intellij.openapi.components.*;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import components.reviewpoint.ReviewPoint;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.util.xmlb.annotations.AbstractCollection;
+import com.intellij.util.xmlb.annotations.Tag;
+import ui.reviewpoint.ReviewPoint;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: Alisa.Afonina
@@ -21,50 +24,69 @@ import java.util.Map;
     name = "ReviewManager",
     storages = {
        @Storage(id = "default", file = "$PROJECT_FILE$"),
-      @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/codeReview.xml", scheme = StorageScheme.DIRECTORY_BASED)
+       @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/codeReview.xml", scheme = StorageScheme.DIRECTORY_BASED)
     }
 )
 public class ReviewManager implements PersistentStateComponent<ReviewManager.State> {
-    private Map <ReviewPoint, Review> reviews = new HashMap<ReviewPoint, Review>();
-    private static Project project;
 
     State state = new State();
+    private Map<PsiFile, Review> reviews = new HashMap<PsiFile, Review>();
+    private static Project project;
+
+
 
     public static ReviewManager getInstance(Project newProject) {
         project = newProject;
-        return ServiceManager.getService(newProject, ReviewManager.class);
+        return ServiceManager.getService(project, ReviewManager.class);
     }
 
-    public void addReview(CharSequence text, ReviewStatus status, ReviewPoint point) {
-        Review review = null;
-        if(reviews.containsKey(point)) {
-            review = reviews.get(point);
-            review.addReviewItem(text.toString(), status);
-        } else {
-            review = new Review(text.toString(), status, point.getUrl(), point.getLineNumber());
-            reviews.put(point, review);
-            state.reviews.add(review);
-        }
+    public Project getProject() {
+        return project;
     }
+
+    public void addReview(String text, ReviewStatus status, VirtualFile virtualFile, int start, int end) {
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+        Review review = new Review(project, text, status, document.createGuardedBlock(start, end), psiFile);
+        ReviewPoint point = new ReviewPoint(project, virtualFile, document.getLineNumber(review.getStart()));
+        reviews.put(psiFile, review);
+        state.reviews.add(review);
+    }
+
     public State getState() {
         return state;
     }
 
     public void loadState(State state) {
         this.state = state;
-        reviews = new HashMap<ReviewPoint, Review>();
+
+        reviews = new HashMap<PsiFile, Review>();
         for (Review review : state.reviews) {
-            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(review.getUrl());
-            ReviewPoint point = new ReviewPoint(project,file, review.getLineNumber());
-            if(!reviews.containsKey(point)) {
-                reviews.put(point, review);
+            VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(review.getUrl());
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+            if(!reviews.containsKey(psiFile)) {
+                reviews.put(psiFile, review);
             }
         }
+
+    }
+
+    public List<Review> getReviews() {
+        return state.reviews;
+    }
+
+    public Review getReviews(PsiFile psiFile) {
+        return reviews.get(psiFile);
+    }
+
+    public Set<PsiFile> getFiles() {
+        return reviews.keySet();
     }
 
     public static class State {
-        public List <Review> reviews;
-
+        @Tag("reviews")
+        @AbstractCollection(surroundWithTag = false)
+        public List<Review> reviews;
         public State() {
             reviews = new ArrayList<Review>();
         }

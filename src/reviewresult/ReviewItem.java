@@ -1,6 +1,10 @@
 package reviewresult;
 
 
+import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.annotations.Attribute;
+import com.intellij.util.xmlb.annotations.Tag;
+
 import java.util.Date;
 
 /**
@@ -8,22 +12,24 @@ import java.util.Date;
  * Date: 7/11/11
  * Time: 6:37 PM
  */
+@Tag("review_item")
 public class ReviewItem {
+    private Date date;
     private String author;
     private String text;
     private ReviewStatus status;
-    private Date date;
 
     public ReviewItem() {
     }
 
-    public ReviewItem(String text, ReviewStatus status) {
+    public ReviewItem(Project project, String text, ReviewStatus status) {
         this.author = System.getProperty("user.name");
         this.text = text;
         this.date = new Date();
         this.status = status;
     }
 
+    @Tag("author")
     public String getAuthor() {
         return author;
     }
@@ -32,6 +38,7 @@ public class ReviewItem {
         this.author = author;
     }
 
+    @Tag("text")
     public String getText() {
         return text;
     }
@@ -40,6 +47,7 @@ public class ReviewItem {
         this.text = text;
     }
 
+    @Attribute("status")
     public ReviewStatus getStatus() {
         return status;
     }
@@ -48,6 +56,7 @@ public class ReviewItem {
         this.status = status;
     }
 
+    @Tag("date")
     public Date getDate() {
         return date;
     }
@@ -55,6 +64,5 @@ public class ReviewItem {
     public void setDate(Date date) {
         this.date = date;
     }
-
 
 }
