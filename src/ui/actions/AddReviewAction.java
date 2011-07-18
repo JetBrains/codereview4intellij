@@ -34,7 +34,7 @@ public class AddReviewAction extends AnAction {
 
         final VirtualFile virtualFile = psiFile.getVirtualFile();
         if (virtualFile == null) return;
-        reviewManager.addReview(text.toString(), ReviewStatus.COMMENT, virtualFile, start, end);
+        reviewManager.addReview(null, text.toString(), ReviewStatus.COMMENT, virtualFile, start, end);
 
     }
 }

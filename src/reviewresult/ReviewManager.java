@@ -1,5 +1,6 @@
 package reviewresult;
 
+import com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -30,7 +31,7 @@ import java.util.*;
 public class ReviewManager implements PersistentStateComponent<ReviewManager.State> {
 
     State state = new State();
-    private Map<PsiFile, Review> reviews = new HashMap<PsiFile, Review>();
+    private Map<VirtualFile, List<Review>> reviews = new HashMap<VirtualFile, List<Review>>();
     private static Project project;
 
 
@@ -44,12 +45,18 @@ public class ReviewManager implements PersistentStateComponent<ReviewManager.Sta
         return project;
     }
 
-    public void addReview(String text, ReviewStatus status, VirtualFile virtualFile, int start, int end) {
-        PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+    public void addReview(String name, String text, ReviewStatus status, VirtualFile virtualFile, int start, int end) {
         Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-        Review review = new Review(project, text, status, document.createGuardedBlock(start, end), psiFile);
+
+        Review review = new Review(project, name, text, status, document.createGuardedBlock(start, end), virtualFile);
         ReviewPoint point = new ReviewPoint(project, virtualFile, document.getLineNumber(review.getStart()));
-        reviews.put(psiFile, review);
+        if(reviews.containsKey(virtualFile)) {
+            reviews.get(virtualFile).add(review);
+        } else {
+            ArrayList<Review> reviewsList = new ArrayList<Review>();
+            reviewsList.add(review);
+            reviews.put(virtualFile, reviewsList);
+        }
         state.reviews.add(review);
     }
 
@@ -60,12 +67,16 @@ public class ReviewManager implements PersistentStateComponent<ReviewManager.Sta
     public void loadState(State state) {
         this.state = state;
 
-        reviews = new HashMap<PsiFile, Review>();
+        reviews = new HashMap<VirtualFile, List<Review>>();
         for (Review review : state.reviews) {
             VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(review.getUrl());
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-            if(!reviews.containsKey(psiFile)) {
-                reviews.put(psiFile, review);
+            //PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+            if(reviews.containsKey(virtualFile)) {
+                reviews.get(virtualFile).add(review);
+            } else {
+                ArrayList<Review> reviewsList = new ArrayList<Review>();
+                reviewsList.add(review);
+                reviews.put(virtualFile, reviewsList);
             }
         }
 
@@ -75,11 +86,11 @@ public class ReviewManager implements PersistentStateComponent<ReviewManager.Sta
         return state.reviews;
     }
 
-    public Review getReviews(PsiFile psiFile) {
-        return reviews.get(psiFile);
+    public List<Review> getReviews(VirtualFile virtualFile) {
+        return reviews.get(virtualFile);
     }
 
-    public Set<PsiFile> getFiles() {
+    public Set<VirtualFile> getFiles() {
         return reviews.keySet();
     }
 

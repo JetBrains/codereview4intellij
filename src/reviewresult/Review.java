@@ -28,17 +28,22 @@ public class Review {
     private String url;
     private int start;
     private int end;
-    private String name = "Note";
-
+    private String name;
+    private static int NAME_LENGTH = 4;
     public Review() {
     }
 
-    public Review(Project project, String text, ReviewStatus status, RangeMarker rangeMarker, PsiFile psiFile) {
+    public Review(Project project, String reviewName, String text, ReviewStatus status, RangeMarker rangeMarker, VirtualFile virtualFile) {
         this.project = project;
         this.rangeMarker = rangeMarker;
         start = rangeMarker.getStartOffset();
         end = rangeMarker.getEndOffset();
-        url = psiFile.getVirtualFile().getUrl();
+        url = virtualFile.getUrl();
+        if(reviewName == null) {
+            name = (text.length() > NAME_LENGTH) ? text.trim().substring(0, NAME_LENGTH - 1) + "..." : text;
+        } else {
+            name = reviewName;
+        }
         reviewItems = new ArrayList<ReviewItem>();
         reviewItems.add(new ReviewItem(project, text, status));
     }
@@ -92,8 +97,6 @@ public class Review {
     public void setUrl(String url) {
         this.url = url;
     }
-
-
 
     public OpenFileDescriptor getElement() {
         VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(url);
