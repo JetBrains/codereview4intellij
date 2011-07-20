@@ -18,8 +18,6 @@ import java.util.List;
  */
 public class ReviewNode extends AbstractTreeNode{
     private List<ReviewItemNode> children = new ArrayList<ReviewItemNode>();
-    private String text;
-    private PsiElement element;
     private Review review;
 
     public ReviewNode(Project project, Review review) {
@@ -28,7 +26,6 @@ public class ReviewNode extends AbstractTreeNode{
             children.add(new ReviewItemNode(project, reviewItem));
         }
         this.review = review;
-        this.text = review.getName();
     }
 
     @Override
@@ -38,7 +35,7 @@ public class ReviewNode extends AbstractTreeNode{
 
     @Override
     protected void update(PresentationData presentationData) {
-        presentationData.setPresentableText(text);
+        presentationData.setPresentableText(review.getName());
     }
 
     public void addChild(ReviewItemNode child) {

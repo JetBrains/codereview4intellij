@@ -3,9 +3,11 @@ package ui.reviewtoolwindow.nodes;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.ReviewItem;
 
+import javax.swing.plaf.TreeUI;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -36,7 +38,9 @@ public class ReviewItemNode  extends AbstractTreeNode {
 
     @Override
     protected void update(PresentationData presentation) {
-        presentation.setPresentableText(reviewItem.getText());
+        presentation.addText(reviewItem.getText(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        //SimpleTextAttributes attributes = SimpleTextAttributes.GRAY_ATTRIBUTES
+        presentation.addText("(" + reviewItem.getAuthor() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
     }
 
     public ReviewItem getReviewItem() {
@@ -46,4 +50,5 @@ public class ReviewItemNode  extends AbstractTreeNode {
     public void setReviewItem(ReviewItem reviewItem) {
         this.reviewItem = reviewItem;
     }
+
 }

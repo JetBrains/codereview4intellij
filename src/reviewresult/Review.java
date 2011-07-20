@@ -29,23 +29,17 @@ public class Review {
     private int start;
     private int end;
     private String name;
-    private static int NAME_LENGTH = 4;
     public Review() {
     }
 
-    public Review(Project project, String reviewName, String text, ReviewStatus status, RangeMarker rangeMarker, VirtualFile virtualFile) {
+    public Review(Project project, String reviewName, RangeMarker rangeMarker, VirtualFile virtualFile) {
         this.project = project;
         this.rangeMarker = rangeMarker;
+        this.name = reviewName;
         start = rangeMarker.getStartOffset();
         end = rangeMarker.getEndOffset();
         url = virtualFile.getUrl();
-        if(reviewName == null) {
-            name = (text.length() > NAME_LENGTH) ? text.trim().substring(0, NAME_LENGTH - 1) + "..." : text;
-        } else {
-            name = reviewName;
-        }
         reviewItems = new ArrayList<ReviewItem>();
-        reviewItems.add(new ReviewItem(project, text, status));
     }
 
     @Tag("review_items")
@@ -59,6 +53,7 @@ public class Review {
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
+
         reviewItems.add(reviewItem);
     }
 
@@ -102,5 +97,38 @@ public class Review {
         VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(url);
         OpenFileDescriptor element = new OpenFileDescriptor(project, virtualFile, start);
         return element;
+    }
+
+    @Transient
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void addReviewItems(List<ReviewItem> reviewItems) {
+        this.reviewItems.addAll(reviewItems);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Review review = (Review) o;
+
+        if (end != review.end) return false;
+        if (start != review.start) return false;
+        if (name != null ? !name.equals(review.name) : review.name != null) return false;
+        if (url != null ? !url.equals(review.url) : review.url != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = url != null ? url.hashCode() : 0;
+        result = 31 * result + start;
+        result = 31 * result + end;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 }
