@@ -10,6 +10,9 @@
   </application-components>
 
   <project-components>
+      <component>
+            <implementation-class>reviewresult.ReviewManager</implementation-class>
+      </component>
   </project-components>
 
   <actions>
@@ -24,7 +27,6 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="ui.reviewtoolwindow.CodeReviewToolWindowFactory"/>
-    <projectService serviceInterface="reviewresult.ReviewManager" serviceImplementation="reviewresult.ReviewManager"/>
     <projectService serviceInterface="ui.reviewtoolwindow.ReviewView" serviceImplementation="ui.reviewtoolwindow.ReviewView"/>
   </extensions>
 </idea-plugin>

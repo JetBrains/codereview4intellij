@@ -7,7 +7,6 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.ReviewItem;
 
-import javax.swing.plaf.TreeUI;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -21,7 +20,7 @@ public class ReviewItemNode  extends AbstractTreeNode {
     private ReviewItem reviewItem;
 
     public ReviewItemNode(Project project, ReviewItem reviewItem) {
-        super(project, reviewItem.getText());
+        super(project, reviewItem);
         this.project = project;
         this.reviewItem = reviewItem;
     }
@@ -36,10 +35,11 @@ public class ReviewItemNode  extends AbstractTreeNode {
         return true;
     }
 
+
+
     @Override
     protected void update(PresentationData presentation) {
         presentation.addText(reviewItem.getText(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        //SimpleTextAttributes attributes = SimpleTextAttributes.GRAY_ATTRIBUTES
         presentation.addText("(" + reviewItem.getAuthor() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
     }
 

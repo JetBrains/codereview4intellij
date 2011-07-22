@@ -1,34 +1,35 @@
 package ui.reviewtoolwindow;
 
 import com.intellij.ide.OccurenceNavigator;
-import com.intellij.ide.util.treeView.AbstractTreeBuilder;
-import com.intellij.ide.util.treeView.AbstractTreeStructureBase;
-import com.intellij.ide.util.treeView.NodeDescriptor;
+import com.intellij.ide.OccurenceNavigatorSupport;
+import com.intellij.ide.util.treeView.*;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.SmartExpander;
+import com.intellij.ui.treeStructure.SimpleTree;
+import com.intellij.ui.treeStructure.SimpleTreeBuilder;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
-import ui.reviewtoolwindow.nodes.DirectoryNode;
 import ui.reviewtoolwindow.nodes.FileNode;
-import ui.reviewtoolwindow.nodes.ReviewItemNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 /**
@@ -38,25 +39,45 @@ import javax.swing.tree.TreePath;
  */
 public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator {
     public static final String ACTION_GROUP = "TreeReviewItemActions";
-    private Tree reviewTree;
-    private Project project;
+    private JTree reviewTree;
+    private ReviewTreeStructure reviewTreeStructure;
+    @Nullable
+    private OccurenceNavigatorSupport reviewNavigatorSupport;
 
-    public ReviewPanel(ReviewManager reviewManager) {
+    public ReviewPanel(Project project) {
         super(false);
-        AbstractTreeStructureBase reviewTreeStructure = createTreeStructure(reviewManager);
+        reviewTreeStructure = createTreeStructure(project);
         final DefaultTreeModel model = new DefaultTreeModel(new DefaultMutableTreeNode());
-        reviewTree = new Tree(model);
-        AbstractTreeBuilder reviewTreeBuilder = new AbstractTreeBuilder(reviewTree, model, reviewTreeStructure, null);
-        reviewTree.invalidate();
+        reviewTree = new SimpleTree(model);
+        SmartExpander.installOn(reviewTree);
+        final AbstractTreeBuilder reviewTreeBuilder = new SimpleTreeBuilder(reviewTree, model, reviewTreeStructure, null);
+        reviewTree.revalidate();
+
+        reviewNavigatorSupport = new OccurenceNavigatorSupport(reviewTree) {
+        protected Navigatable createDescriptorForNode(DefaultMutableTreeNode node) {
+          if (node.getChildCount() > 0)  {return null;}
+          return getNavigatableForNode(node);
+        }
+
+          @Override
+        public String getNextOccurenceActionName() {
+            return IdeActions.ACTION_NEXT_OCCURENCE ;
+        }
+
+        @Override
+        public String getPreviousOccurenceActionName() {
+            return IdeActions.ACTION_PREVIOUS_OCCURENCE;
+
+        }
+      };
         PopupHandler.installPopupHandler(reviewTree, ACTION_GROUP, ActionPlaces.TODO_VIEW_POPUP);
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(reviewTree);
         setContent(scrollPane);
     }
 
-    private AbstractTreeStructureBase createTreeStructure(ReviewManager reviewManager) {
-        project = reviewManager.getProject();
+    private ReviewTreeStructure createTreeStructure(Project project) {
         VirtualFile virtualFile = project.getBaseDir();
-        DirectoryNode rootNode = new DirectoryNode(project, virtualFile);
+        FileNode rootNode = new FileNode(project, virtualFile);
         return new ReviewTreeStructure(project, rootNode);
     }
 
@@ -78,173 +99,44 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 return null;
             }
             Review review = ((ReviewNode) element).getReview();
-            VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(review.getUrl());
-            return new OpenFileDescriptor(project,virtualFile, review.getStart());
+            VirtualFile virtualFile = review.getVirtualFile();
+            return new OpenFileDescriptor(review.getProject(), virtualFile, review.getStart());
         }
      return null;
     }
 
-    @Override
+    @Nullable
+    private static Navigatable getNavigatableForNode(@NotNull DefaultMutableTreeNode node) {
+        Object userObject = node.getUserObject();
+        if (userObject instanceof Navigatable) {
+            final Navigatable navigatable = (Navigatable)userObject;
+            return navigatable.canNavigate() ? navigatable : null;
+        }
+        return null;
+
+    }
+
     public boolean hasNextOccurence() {
-        TreePath selectionPath = reviewTree.getSelectionPath();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-
-        Object userObject = node.getUserObject();
-        int childrenSize = node.getChildCount();
-        int rowCount = reviewTree.getRowCount();
-        int rowForPath = reviewTree.getRowForPath(selectionPath);
-
-        if (userObject instanceof NodeDescriptor) {
-            Object element = ((NodeDescriptor) userObject).getElement();
-
-            if (element instanceof ReviewItemNode) {
-                TreePath parentPath = selectionPath.getParentPath();
-                DefaultMutableTreeNode parent = (DefaultMutableTreeNode) parentPath.getLastPathComponent();
-                int rowForParentPath = reviewTree.getRowForPath(parentPath);
-                return rowCount > rowForParentPath + parent.getChildCount();
-            }
-            if(element instanceof ReviewNode) {
-                return rowCount > rowForPath + childrenSize + 1;
-            }
-
-            else {
-                return true;
-            }
-        }
-        return false;
+        return reviewNavigatorSupport != null && reviewNavigatorSupport.hasNextOccurence();
     }
 
-    @Override
     public boolean hasPreviousOccurence() {
-        TreePath selectionPath = reviewTree.getSelectionPath();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-        Object userObject = node.getUserObject();
-        return userObject instanceof NodeDescriptor && !isFirst(node);
+      return reviewNavigatorSupport != null && reviewNavigatorSupport.hasPreviousOccurence();
     }
 
-    private boolean isFirst(final TreeNode node) {
-      final TreeNode parent = node.getParent();
-      return parent == null || parent.getIndex(node) == 0 && isFirst(parent);
-    }
-
-    @Override
     public OccurenceInfo goNextOccurence() {
-         TreePath selectionPath = reviewTree.getSelectionPath();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-        return goOccurence(getNextReview(node));
+      return reviewNavigatorSupport != null ? reviewNavigatorSupport.goNextOccurence() : null;
     }
 
-    private DefaultMutableTreeNode getNextReview(DefaultMutableTreeNode node) {
-        Object userObject = node.getUserObject();
-        if (userObject instanceof NodeDescriptor) {
-            Object element = ((NodeDescriptor) userObject).getElement();
-
-            if(element instanceof FileNode){
-                    return (DefaultMutableTreeNode) node.getFirstChild();
-            }
-
-            if(element instanceof DirectoryNode) {
-                        return getNextReview((DefaultMutableTreeNode)node.getFirstChild());
-            }
-            if(element instanceof ReviewItemNode) {
-                return getNextReview((DefaultMutableTreeNode) node.getParent());
-            }
-
-            if(element instanceof ReviewNode) {
-                DefaultMutableTreeNode sibling = node.getNextSibling();
-
-                if(sibling != null) {
-                    Object siblingNodeDescriptor = sibling.getUserObject();
-
-                    if(siblingNodeDescriptor instanceof NodeDescriptor) {
-                        if(((NodeDescriptor) siblingNodeDescriptor).getElement() instanceof ReviewNode) {
-                            return sibling;
-                        } else {
-                            return getNextReview(sibling);
-                        }
-                    }
-                }
-                else {
-                    DefaultMutableTreeNode nextNode = node.getLastLeaf().getNextNode();
-                    return getNextReview(nextNode);
-                }
-
-            }
-        }
-        return null;
-    }
-
-    private DefaultMutableTreeNode getPrevReview(DefaultMutableTreeNode node) {
-        Object userObject = node.getUserObject();
-        if (userObject instanceof NodeDescriptor) {
-            Object element = ((NodeDescriptor) userObject).getElement();
-            DefaultMutableTreeNode sibling = node.getPreviousSibling();
-            if(sibling != null) {
-                Object siblingNodeDescriptor = sibling.getUserObject();
-                if(element instanceof FileNode){
-                    if(siblingNodeDescriptor instanceof NodeDescriptor) {
-                        if(((NodeDescriptor) siblingNodeDescriptor).getElement() instanceof FileNode) {
-                            return (DefaultMutableTreeNode) sibling.getLastChild();
-                        } else {
-                            return getPrevReview(sibling);
-                        }
-                    }
-                }
-
-                if(element instanceof DirectoryNode) {
-                    if(siblingNodeDescriptor instanceof NodeDescriptor) {
-                            return (DefaultMutableTreeNode) sibling.getLastLeaf().getParent();
-                    }
-                }
-
-                if(element instanceof ReviewNode) {
-                    if(siblingNodeDescriptor instanceof NodeDescriptor) {
-                        if(((NodeDescriptor) siblingNodeDescriptor).getElement() instanceof ReviewNode) {
-                            return sibling;
-                        } else {
-                            return getPrevReview(sibling);
-                        }
-                    }
-                }
-            } else {
-                DefaultMutableTreeNode prevNode = (DefaultMutableTreeNode) node.getParent();
-                return getPrevReview(prevNode);
-            }
-
-            if(element instanceof ReviewItemNode) {
-                return getPrevReview((DefaultMutableTreeNode) node.getParent());
-            }
-
-
-        }
-        return null;
-    }
-
-    @Override
     public OccurenceInfo goPreviousOccurence() {
-        TreePath selectionPath = reviewTree.getSelectionPath();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-        return goOccurence(getPrevReview(node));
+      return reviewNavigatorSupport != null ? reviewNavigatorSupport.goPreviousOccurence() : null;
     }
 
-    private OccurenceInfo goOccurence( DefaultMutableTreeNode reviewNodeDescriptor) {
-        Object reviewNode = reviewNodeDescriptor.getUserObject();
-        if(reviewNode instanceof ReviewNode) {
-            TreeUtil.selectNode(reviewTree, reviewNodeDescriptor);
-            Review review = ((ReviewNode) reviewNode).getReview();
-            return new OccurenceInfo(review.getElement(), -1, -1);
-        }
-        return null;
-    }
-
-    @Override
     public String getNextOccurenceActionName() {
-        return IdeActions.ACTION_NEXT_OCCURENCE ;
+      return reviewNavigatorSupport != null ? reviewNavigatorSupport.getNextOccurenceActionName() : "";
     }
 
-    @Override
     public String getPreviousOccurenceActionName() {
-        return IdeActions.ACTION_PREVIOUS_OCCURENCE;
-
+      return reviewNavigatorSupport != null ? reviewNavigatorSupport.getPreviousOccurenceActionName() : "";
     }
 }

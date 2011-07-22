@@ -1,12 +1,10 @@
 package reviewresult;
 
 
-import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 
 import java.util.Date;
-import java.util.Random;
 
 /**
  * User: Alisa.Afonina
@@ -15,18 +13,17 @@ import java.util.Random;
  */
 @Tag("review_item")
 public class ReviewItem {
-    private Date date;
-    private String author;
-    private String text;
+    private Date date = new Date();
+    private String author;//= System.getProperty("user.name");
+    private String text;// = "Add comment";
     private ReviewStatus status;
 
     public ReviewItem() {
     }
 
-    public ReviewItem(Project project, String text, ReviewStatus status) {
+    public ReviewItem(String text, ReviewStatus status) {
         this.author = System.getProperty("user.name");
-        Random random = new Random();
-        this.text = text;// + " " + String.valueOf(random.nextLong());
+        this.text = text;
         this.date = new Date();
         this.status = status;
     }
@@ -46,8 +43,7 @@ public class ReviewItem {
     }
 
     public void setText(String text) {
-        //Random random = new Random();
-        this.text = text;// + " " + String.valueOf(random.nextLong());
+        this.text = text;
     }
 
     @Attribute("status")

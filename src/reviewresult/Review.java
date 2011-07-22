@@ -1,8 +1,12 @@
 package reviewresult;
 
+import com.intellij.codeInsight.documentation.DocumentationManager;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
@@ -11,6 +15,7 @@ import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 import com.intellij.util.xmlb.annotations.Transient;
 
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,93 +24,71 @@ import java.util.List;
  * Date: 7/11/11
  * Time: 7:02 PM
  */
-@Tag("review")
+
 public class Review {
-    private List<ReviewItem> reviewItems = new ArrayList<ReviewItem>();
+    private ReviewBean reviewBean;
     private Project project;
-    @Transient
-    private RangeMarker rangeMarker;
-    private String url;
-    private int start;
-    private int end;
-    private String name;
-    public Review() {
-    }
+    //private RangeMarker rangeMarker;
+    private VirtualFile virtualFile;
 
-    public Review(Project project, String reviewName, RangeMarker rangeMarker, VirtualFile virtualFile) {
+    public Review(ReviewBean reviewBean, Project project) {
+        this.reviewBean = reviewBean;
         this.project = project;
-        this.rangeMarker = rangeMarker;
-        this.name = reviewName;
-        start = rangeMarker.getStartOffset();
-        end = rangeMarker.getEndOffset();
-        url = virtualFile.getUrl();
-        reviewItems = new ArrayList<ReviewItem>();
+        this.virtualFile = VirtualFileManager.getInstance().findFileByUrl(reviewBean.getUrl());
+        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+        if(document == null) return;
+        //this.rangeMarker = document.createRangeMarker(reviewBean.getStart(), reviewBean.getEnd());
     }
 
-    @Tag("review_items")
-    @AbstractCollection(surroundWithTag = false)
-    public List<ReviewItem> getReviewItems(){
-        return reviewItems;
-    }
+    public Review(Project project, String reviewName, int start, int end,/* RangeMarker rangeMarker,*/ VirtualFile virtualFile) {
+        this.project = project;
+        //this.rangeMarker = rangeMarker; rangeMarker.getStartOffset(), rangeMarker.getEndOffset(),
+        this.virtualFile = virtualFile;
 
-    public void setReviewItems(List<ReviewItem> reviewItems) {
-        this.reviewItems = reviewItems;
+        this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
-
-        reviewItems.add(reviewItem);
+        reviewBean.addReviewItem(reviewItem);
     }
 
-    @Attribute("name")
+    public List<ReviewItem> getReviewItems(){
+        return reviewBean.getReviewItems();
+    }
+
     public String getName() {
-        return name;
+        return reviewBean.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.reviewBean.setName(name);
     }
 
-    @Tag("start")
     public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-    @Tag("end")
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
-    @Tag("url")
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
+        return reviewBean.getStart();
     }
 
     public OpenFileDescriptor getElement() {
-        VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(url);
-        OpenFileDescriptor element = new OpenFileDescriptor(project, virtualFile, start);
-        return element;
+        return new OpenFileDescriptor(project, virtualFile, reviewBean.getStart());
     }
 
-    @Transient
-    public void setProject(Project project) {
-        this.project = project;
+    public int getLine() {
+            Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+            if(document == null) return -1;
+            return document.getLineNumber(reviewBean.getStart());
     }
 
-    public void addReviewItems(List<ReviewItem> reviewItems) {
-        this.reviewItems.addAll(reviewItems);
+
+    public Project getProject() {
+        return project;
+    }
+
+    public VirtualFile getVirtualFile() {
+        return virtualFile;
+    }
+
+    public ReviewBean getReviewBean() {
+        return reviewBean;
     }
 
     @Override
@@ -114,21 +97,8 @@ public class Review {
         if (o == null || getClass() != o.getClass()) return false;
 
         Review review = (Review) o;
+        return !(reviewBean != null ? !reviewBean.equals(review.reviewBean) : review.reviewBean != null);
 
-        if (end != review.end) return false;
-        if (start != review.start) return false;
-        if (name != null ? !name.equals(review.name) : review.name != null) return false;
-        if (url != null ? !url.equals(review.url) : review.url != null) return false;
-
-        return true;
     }
 
-    @Override
-    public int hashCode() {
-        int result = url != null ? url.hashCode() : 0;
-        result = 31 * result + start;
-        result = 31 * result + end;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
 }

@@ -1,16 +1,18 @@
 package reviewresult;
 
-import com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode;
+import com.intellij.ide.startup.StartupManagerEx;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl;
+import org.jetbrains.annotations.NotNull;
 import ui.reviewpoint.ReviewPoint;
 
 import java.util.*;
@@ -28,64 +30,50 @@ import java.util.*;
        @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/codeReview.xml", scheme = StorageScheme.DIRECTORY_BASED)
     }
 )
-public class ReviewManager implements PersistentStateComponent<ReviewManager.State> {
-
+public class ReviewManager extends AbstractProjectComponent implements PersistentStateComponent<ReviewManager.State> {
+    private final StartupManagerEx startupManager;
+    private static ReviewManager component = null;
     State state = new State();
     private Map<VirtualFile, List<Review>> reviews = new HashMap<VirtualFile, List<Review>>();
-    private static Project project;
+    private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
 
 
-
-    public static ReviewManager getInstance(Project newProject) {
-        project = newProject;
-        return ServiceManager.getService(project, ReviewManager.class);
+    public ReviewManager(Project project, final StartupManager startupManager) {
+        super(project);
+        this.startupManager = (StartupManagerEx)startupManager;
     }
 
-    public Project getProject() {
-        return project;
+
+    public static ReviewManager getInstance(@NotNull Project project) {
+        return project.getComponent(ReviewManager.class);
     }
 
-    public void addReview(String reviewName, String text, ReviewStatus status, VirtualFile virtualFile, int start, int end) {
-        if(reviewName == null) {
-            int NAME_LENGTH = 4;
-            reviewName = (text.length() > NAME_LENGTH) ? text.trim().substring(0, NAME_LENGTH - 1) + "..." : text;
-        }
-        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-        ReviewItem item = new ReviewItem(project, text, status);
-        Review newReview = new Review(project, reviewName, document.createRangeMarker(start, end), virtualFile);
-        newReview.addReviewItem(item);
-        addReview(newReview, virtualFile);
-
-    }
-
-    private void addReview(Review newReview, VirtualFile virtualFile) {
-
-        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+    public void addReview(Review newReview) {
+        VirtualFile virtualFile = newReview.getVirtualFile();
 
         if(reviews.containsKey(virtualFile)) {
             List<Review> reviewList = reviews.get(virtualFile);
             boolean reviewExists = false;
             for (Review review : reviewList) {
                 if(newReview.equals(review)) {
-                    review.addReviewItems(newReview.getReviewItems());
                     reviewExists = true;
                     break;
                 }
             }
             if(!reviewExists) {
-                ReviewPoint point = new ReviewPoint(project, virtualFile, document.getLineNumber(newReview.getStart()));
                 reviewList.add(newReview);
-                if(!state.reviews.contains(newReview)) {
-                    state.reviews.add(newReview);
+                ReviewBean reviewBean = newReview.getReviewBean();
+                if(!state.reviews.contains(reviewBean)) {
+                    state.reviews.add(reviewBean);
                 }
             }
         } else {
             ArrayList<Review> reviewsList = new ArrayList<Review>();
-            ReviewPoint point = new ReviewPoint(project, virtualFile, document.getLineNumber(newReview.getStart()));
             reviewsList.add(newReview);
             reviews.put(virtualFile, reviewsList);
-            if(!state.reviews.contains(newReview)) {
-                state.reviews.add(newReview);
+            ReviewBean reviewBean = newReview.getReviewBean();
+            if(!state.reviews.contains(reviewBean)) {
+                state.reviews.add(reviewBean);
             }
         }
     }
@@ -96,18 +84,31 @@ public class ReviewManager implements PersistentStateComponent<ReviewManager.Sta
 
     public void loadState(State state) {
         this.state = state;
-
         reviews = new HashMap<VirtualFile, List<Review>>();
-        for (Review review : state.reviews) {
-            VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(review.getUrl());
-            review.setProject(project);
-            addReview(review, virtualFile);
+        for (ReviewBean reviewBean : state.reviews) {
+            Review review = new Review(reviewBean, myProject);
+            ReviewPoint point = new ReviewPoint(review);
+            reviewPoints.put(review, point);
+            addReview(review);
         }
-
+        updateUI();
     }
 
-    public List<Review> getReviews() {
-        return state.reviews;
+    public void updateUI() {
+        Runnable runnable = new Runnable() {
+            public void run() {
+                for (ReviewPoint point : reviewPoints.values()) {
+                    point.updateUI();
+//                    System.out.println("test");
+                }
+            }
+        };
+        if (startupManager.startupActivityPassed()) {
+          runnable.run();
+        }
+        else {
+          startupManager.registerPostStartupActivity(runnable);
+        }
     }
 
     public List<Review> getReviews(VirtualFile virtualFile) {
@@ -118,13 +119,49 @@ public class ReviewManager implements PersistentStateComponent<ReviewManager.Sta
         return reviews.keySet();
     }
 
+    public ReviewPoint findOrCreateReviewPoint(Review review) {
+        if(reviewPoints.containsKey(review)) {
+            return reviewPoints.get(review);
+        }
+        ReviewPoint point = new ReviewPoint(review);
+        reviewPoints.put(review, point);
+        updateUI();
+        return point;
+
+    }
+
+    @Override
+    public void projectOpened() {
+    }
+
+    @Override
+    public void projectClosed() {
+
+    }
+
+    @Override
+    public void initComponent() {
+
+    }
+
+    @Override
+    public void disposeComponent() {
+
+    }
+
+    @NotNull
+    @Override
+    public String getComponentName() {
+        return "ReviewManager";
+    }
+
+
     public static class State {
         @Tag("reviews")
         @AbstractCollection(surroundWithTag = false)
-        public List<Review> reviews;
+        public List<ReviewBean> reviews;
         public State() {
-            reviews = new ArrayList<Review>();
+            reviews = new ArrayList<ReviewBean>();
         }
     }
-
 }

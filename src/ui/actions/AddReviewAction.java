@@ -3,14 +3,26 @@ package ui.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.awt.RelativePoint;
+import reviewresult.Review;
 import reviewresult.ReviewManager;
-import reviewresult.ReviewStatus;
+import ui.forms.EditReviewForm;
+import ui.reviewpoint.ReviewPoint;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * User: Alisa.Afonina
@@ -18,23 +30,43 @@ import reviewresult.ReviewStatus;
  * Time: 4:06 PM
  */
 public class AddReviewAction extends AnAction {
+
     public void actionPerformed(AnActionEvent e) {
         Project project = e.getData(PlatformDataKeys.PROJECT);
-        ReviewManager reviewManager = ReviewManager.getInstance(project);
+        if(project == null) return;
+
         Editor editor = PlatformDataKeys.EDITOR.getData(e.getDataContext());
-        int offset = editor.getCaretModel().getOffset();
+        if (editor == null) return;
+
         Document document = editor.getDocument();
-        int line = document.getLineNumber(offset);
-        int start = document.getLineStartOffset(line);
-        int end = document.getLineEndOffset(line);
-        CharSequence text = document.getCharsSequence().subSequence(start, end);
 
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
         if (psiFile == null) return;
 
         final VirtualFile virtualFile = psiFile.getVirtualFile();
         if (virtualFile == null) return;
-        reviewManager.addReview(null, text.toString(), ReviewStatus.COMMENT, virtualFile, start, end);
+
+        CaretModel caretModel = editor.getCaretModel();
+        int offset = caretModel.getOffset();
+        int line = document.getLineNumber(offset);
+        int start = document.getLineStartOffset(line);
+        int end = document.getLineEndOffset(line);
+
+        //ReviewPoint reviewPoint = ReviewManager.getInstance(project).findOrCreateReviewPoint(new Review(project, null, start, end, virtualFile));
+
+        //final EditorGutterComponentEx gutterComponent = ((EditorEx)editor).getGutterComponentEx();
+        Point point = editor.visualPositionToXY(editor.getCaretModel().getVisualPosition());
+        if (point != null) {
+            EditReviewForm editReviewForm = new EditReviewForm(new Review(project, null, start, end, virtualFile));
+            BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(editReviewForm.getContent(), "Add Comment");
+            Balloon balloon = balloonBuilder.createBalloon();
+            editReviewForm.setBalloon(balloon);
+            //Point centerIconPoint = new Point(point.x, point.y + icon.getIconHeight() / 2);
+            balloon.show(new RelativePoint(editor.getContentComponent(), point), Balloon.Position.atRight);
+
+
+           //
+        }
 
     }
 }

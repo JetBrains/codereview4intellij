@@ -1,16 +1,19 @@
 package ui.reviewpoint;
 
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import reviewresult.Review;
+import ui.actions.EditReviewAction;
 
 import javax.swing.*;
 
@@ -20,54 +23,37 @@ import javax.swing.*;
  * Time: 4:54 PM
  */
 public class ReviewPoint {
-    private OpenFileDescriptor target;
-    private RangeHighlighter highlighter = null;
-    private String url;
-    private int line;
+    private Review review;
+    private GutterIconRenderer gutterIconRenderer;
 
-    public ReviewPoint(Project project, VirtualFile file, int line) {
-        target = new OpenFileDescriptor(project, file, line, -1, true);
-        if (line >= 0) {
-            Document document = FileDocumentManager.getInstance().getDocument(target.getFile());
-            MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
-            highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
-            highlighter.setGutterIconRenderer(new ReviewGutterIconRenderer());
-        }
-
-       this.line = line;
-       this.url = file.getUrl();
+    public ReviewPoint(Review review) {
+        this.review = review;
     }
 
-    public String getUrl() {
-        return url;
+    public void updateUI() {
+        Document document = FileDocumentManager.getInstance().getDocument(review.getElement().getFile());
+        Project project = review.getProject();
+        if(project == null) return;
+        if(document == null) return;
+        MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
+        RangeHighlighter highlighter = markup.addPersistentLineHighlighter(review.getLine(), HighlighterLayer.ERROR + 1, null);
+        if(highlighter == null) return;
+
+        gutterIconRenderer = new ReviewGutterIconRenderer();
+        highlighter.setGutterIconRenderer(gutterIconRenderer);
     }
 
-    public int getLine() {
-        return line;
+    public GutterIconRenderer getGutterIconRenderer() {
+        return gutterIconRenderer;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ReviewPoint that = (ReviewPoint) o;
-
-        if (line != that.line) return false;
-        if (!url.equals(that.url)) return false;
-
-        return true;
+    public Review getReview() {
+        return review;
     }
 
-    @Override
-    public int hashCode() {
-        int result = url.hashCode();
-        result = 31 * result + line;
-        return result;
-    }
-
-    class ReviewGutterIconRenderer extends GutterIconRenderer {
+    private class ReviewGutterIconRenderer extends GutterIconRenderer {
         private final Icon icon = IconLoader.getIcon("/actions/cleanHeavy.png");
+
         @NotNull
         @Override
         public Icon getIcon() {
@@ -87,5 +73,12 @@ public class ReviewPoint {
           public int hashCode() {
            return getIcon().hashCode();
         }
+
+         @Nullable
+    public ActionGroup getPopupMenuActions() {
+      DefaultActionGroup group = new DefaultActionGroup();
+      group.add(new EditReviewAction("Add review", ReviewPoint.this));
+      return group;
+    }
     }
 }

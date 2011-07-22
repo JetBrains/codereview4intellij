@@ -5,7 +5,11 @@ import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.ide.util.treeView.AbstractTreeStructureBase;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.ui.treeStructure.SimpleNode;
+import com.intellij.ui.treeStructure.SimpleTreeStructure;
 
+import javax.xml.bind.NotIdentifiableEvent;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,31 +18,16 @@ import java.util.List;
  * Date: 7/13/11
  * Time: 4:01 PM
  */
-public class ReviewTreeStructure extends AbstractTreeStructureBase {
-    protected AbstractTreeNode rootElement;
+public class ReviewTreeStructure extends SimpleTreeStructure {
+    protected SimpleNode rootElement;
 
-    protected ReviewTreeStructure(Project project, AbstractTreeNode root) {
-        super(project);
+    protected ReviewTreeStructure(Project project, SimpleNode root) {
+        super();
         rootElement = root;
     }
 
     @Override
-    public List<TreeStructureProvider> getProviders() {
-        return Collections.emptyList();
-    }
-
-    public AbstractTreeNode getRootElement() {
+    public Object getRootElement() {
         return rootElement;
     }
-
-    @Override
-    public void commit() {
-        PsiDocumentManager.getInstance(myProject).commitAllDocuments();
-    }
-
-    @Override
-    public boolean hasSomethingToCommit() {
-        return PsiDocumentManager.getInstance(myProject).hasUncommitedDocuments();
-    }
-
 }
