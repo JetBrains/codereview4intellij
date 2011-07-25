@@ -15,7 +15,7 @@ import java.util.Date;
 public class ReviewItem {
     private Date date = new Date();
     private String author;//= System.getProperty("user.name");
-    private String text;// = "Add comment";
+    private String text = "";// = "Add comment";
     private ReviewStatus status;
 
     public ReviewItem() {

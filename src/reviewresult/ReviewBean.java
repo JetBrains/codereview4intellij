@@ -99,11 +99,16 @@ public class ReviewBean {
 
         if (end != that.end) return false;
         if (start != that.start) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (url != null ? !url.equals(that.url) : that.url != null) return false;
 
         return true;
     }
 
-
+    @Override
+    public int hashCode() {
+        int result = start;
+        result = 31 * result + end;
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        return result;
+    }
 }

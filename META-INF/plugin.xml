@@ -17,11 +17,14 @@
 
   <actions>
       <group id="TreeReviewItemActions">
-      <reference ref="EditSource"/>
+            <reference ref="EditSource"/>
       </group>
 
       <action id="addReview" class="ui.actions.AddReviewAction" text="Add review">
           <add-to-group group-id="RefactoringMenu" anchor="last"/>
+      </action>
+
+      <action id="previewReview" class="ui.actions.PreviewAction" text="Preview">
       </action>
   </actions>
 

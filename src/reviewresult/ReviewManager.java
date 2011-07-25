@@ -32,7 +32,6 @@ import java.util.*;
 )
 public class ReviewManager extends AbstractProjectComponent implements PersistentStateComponent<ReviewManager.State> {
     private final StartupManagerEx startupManager;
-    private static ReviewManager component = null;
     State state = new State();
     private Map<VirtualFile, List<Review>> reviews = new HashMap<VirtualFile, List<Review>>();
     private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
@@ -99,7 +98,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
             public void run() {
                 for (ReviewPoint point : reviewPoints.values()) {
                     point.updateUI();
-//                    System.out.println("test");
                 }
             }
         };
@@ -119,15 +117,16 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         return reviews.keySet();
     }
 
-    public ReviewPoint findOrCreateReviewPoint(Review review) {
+    public ReviewPoint findReviewPoint(Review review) {
         if(reviewPoints.containsKey(review)) {
             return reviewPoints.get(review);
         }
+        return null;
+    }
+    public void createReviewPoint(Review review) {
         ReviewPoint point = new ReviewPoint(review);
         reviewPoints.put(review, point);
-        updateUI();
-        return point;
-
+        point.updateUI();
     }
 
     @Override
@@ -153,6 +152,18 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
     @Override
     public String getComponentName() {
         return "ReviewManager";
+    }
+
+    public void removeReview(Review review) {
+        ReviewPoint pointToRemove = reviewPoints.get(review);
+        if(pointToRemove == null) return;
+        pointToRemove.release();
+        reviewPoints.remove(review);
+        VirtualFile virtualFile = review.getVirtualFile();
+        List<Review> reviewsList = reviews.get(virtualFile);
+        reviewsList.remove(review);
+        if(reviewsList.isEmpty()) reviews.remove(virtualFile);
+        state.reviews.remove(review.getReviewBean());
     }
 
 

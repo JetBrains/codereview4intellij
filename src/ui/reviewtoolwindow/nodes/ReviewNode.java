@@ -46,8 +46,8 @@ public class ReviewNode extends SimpleNode implements Navigatable{
     @Override
     protected void update(PresentationData presentationData) {
         presentationData.addText(review.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-        int lineNumber = review.getLine();
-        presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES);
+        int lineNumber = review.getLine() + 1;
+        presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
     }
 
     public Review getReview() {

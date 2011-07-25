@@ -37,17 +37,7 @@ public class EditReviewAction extends AnAction {
         if (project == null) return;
         Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (editor != null) {
-            final EditorGutterComponentEx gutterComponent = ((EditorEx)editor).getGutterComponentEx();
-            Point point = gutterComponent.getPoint(reviewPoint.getGutterIconRenderer());
-            if (point != null) {
-                final Icon icon = reviewPoint.getGutterIconRenderer().getIcon();
-                EditReviewForm editReviewForm = new EditReviewForm(reviewPoint.getReview());
-                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(editReviewForm.getContent(), "Add Comment");
-                Balloon balloon = balloonBuilder.createBalloon();
-                editReviewForm.setBalloon(balloon);
-                Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
-                balloon.show(new RelativePoint(gutterComponent, centerIconPoint), Balloon.Position.atRight);
-            }
+            ReviewActionManager.addToExistingComments(editor, reviewPoint);
         }
     }
 }

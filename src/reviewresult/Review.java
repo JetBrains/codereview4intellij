@@ -35,16 +35,11 @@ public class Review {
         this.reviewBean = reviewBean;
         this.project = project;
         this.virtualFile = VirtualFileManager.getInstance().findFileByUrl(reviewBean.getUrl());
-        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-        if(document == null) return;
-        //this.rangeMarker = document.createRangeMarker(reviewBean.getStart(), reviewBean.getEnd());
     }
 
-    public Review(Project project, String reviewName, int start, int end,/* RangeMarker rangeMarker,*/ VirtualFile virtualFile) {
+    public Review(Project project, String reviewName, int start, int end, VirtualFile virtualFile) {
         this.project = project;
-        //this.rangeMarker = rangeMarker; rangeMarker.getStartOffset(), rangeMarker.getEndOffset(),
         this.virtualFile = virtualFile;
-
         this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
     }
 
@@ -101,4 +96,8 @@ public class Review {
 
     }
 
+    @Override
+    public int hashCode() {
+        return reviewBean != null ? reviewBean.hashCode() : 0;
+    }
 }

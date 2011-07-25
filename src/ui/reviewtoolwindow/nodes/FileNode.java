@@ -2,6 +2,7 @@ package ui.reviewtoolwindow.nodes;
 
 
 import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -10,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.util.IconUtil;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +20,7 @@ import reviewresult.ReviewManager;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -30,16 +33,23 @@ public class FileNode extends SimpleNode implements Navigatable{
     private Project project;
     private VirtualFile file;
     private List<SimpleNode> children = new ArrayList<SimpleNode>();
-    public FileNode(Project project, VirtualFile value) {
-        super(project);
+    public FileNode(Project project, VirtualFile value/*, NodeDescriptor parentDescriptor*/) {
+        super(project/*, parentDescriptor*/);
         this.project = project;
         file = value;
+    }
+
+    @Override
+    public Object[] getEqualityObjects() {
+        Object[] equalityObjects = new Object[1];
+        equalityObjects[0] = file;
+        return equalityObjects;
     }
 
     @NotNull
     @Override
     public SimpleNode[] getChildren() {
-        if(children.isEmpty()) {
+        if(!children.isEmpty()) children.clear();
             if(file.isDirectory()) {
                 Project project = getProject();
                 Set<VirtualFile> filesWithReview = ReviewManager.getInstance(project).getFiles();
@@ -53,7 +63,7 @@ public class FileNode extends SimpleNode implements Navigatable{
                     children.add(new ReviewNode(project, review));
                 }
              }
-        }
+        //}
         return children.toArray(new SimpleNode[children.size()]);
     }
 
@@ -82,13 +92,23 @@ public class FileNode extends SimpleNode implements Navigatable{
                 }
 
 
-
+    @Override
+    public boolean isAutoExpandNode() {
+        return true;
+    }
 
     @Override
     public void update(PresentationData data) {
-        data.setPresentableText(file.getName());
+
+        data.addText(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        if(!file.isDirectory()) {
+            int number =  ReviewManager.getInstance(project).getReviews(file).size();
+            String text = " " + String.valueOf(number) + ((number == 1)?" review":" reviews");
+            data.addText( text, SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES);
+        }
         Icon icon  = IconUtil.getIcon(file, Iconable.ICON_FLAG_OPEN, project);
         data.setIcons(icon);
+
     }
 
 
@@ -113,5 +133,10 @@ public class FileNode extends SimpleNode implements Navigatable{
 
     public VirtualFile getFile() {
         return file;
+    }
+
+
+    //todo : do real update, not rebuilding all children
+    public void updateContent() {
     }
 }

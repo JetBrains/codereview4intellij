@@ -6,6 +6,8 @@ import reviewresult.ReviewStatus;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Date;
@@ -20,8 +22,10 @@ public class ReviewItemForm {
     private JTextField dateTextField;
     private JTextArea reviewItemText;
     private JPanel reviewItemContent;
+    private ReviewItem reviewItem;
 
     public ReviewItemForm(ReviewItem data) {
+        reviewItem = data;
         data.setAuthor(System.getProperty("user.name"));
         authorTextField.setText(data.getAuthor());
         dateTextField.setText(data.getDate().toString());
@@ -33,6 +37,7 @@ public class ReviewItemForm {
             @Override
             public void keyTyped(KeyEvent e) {
                 reviewItemText.setBorder(BorderFactory.createEmptyBorder());
+                reviewItem.setText(reviewItemText.getText() + e.getKeyChar());
             }
         });
     }
@@ -43,7 +48,7 @@ public class ReviewItemForm {
     }
 
     public ReviewItem getReviewItem() {
-        return new ReviewItem(reviewItemText.getText(), ReviewStatus.COMMENT);
+        return reviewItem;
     }
 
     public void setEmptyComment() {
