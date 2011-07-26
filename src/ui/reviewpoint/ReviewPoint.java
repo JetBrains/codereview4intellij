@@ -102,7 +102,7 @@ public class ReviewPoint {
         public ActionGroup getPopupMenuActions() {
             DefaultActionGroup group = new DefaultActionGroup();
             group.add(new EditReviewAction("Add review", ReviewPoint.this));
-            group.add(new DeleteReviewsAction("Delete review", ReviewPoint.this.review));
+            group.add(new DeleteReviewsAction("Delete review", ReviewPoint.this));
             return group;
         }
     }

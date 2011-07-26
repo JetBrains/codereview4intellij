@@ -154,10 +154,9 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         return "ReviewManager";
     }
 
-    public void removeReview(Review review) {
-        ReviewPoint pointToRemove = reviewPoints.get(review);
-        if(pointToRemove == null) return;
+    public void removeReview(ReviewPoint pointToRemove) {
         pointToRemove.release();
+        Review review = pointToRemove.getReview();
         reviewPoints.remove(review);
         VirtualFile virtualFile = review.getVirtualFile();
         List<Review> reviewsList = reviews.get(virtualFile);

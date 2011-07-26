@@ -99,10 +99,15 @@ public class FileNode extends SimpleNode implements Navigatable{
 
     @Override
     public void update(PresentationData data) {
-
+        //if(children.isEmpty()) return;
         data.addText(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         if(!file.isDirectory()) {
-            int number =  ReviewManager.getInstance(project).getReviews(file).size();
+            List<Review> reviews = ReviewManager.getInstance(project).getReviews(file);
+            if(reviews == null || reviews.isEmpty()) {
+                data.clear();
+                return;
+            }
+            int number =  reviews.size();
             String text = " " + String.valueOf(number) + ((number == 1)?" review":" reviews");
             data.addText( text, SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES);
         }

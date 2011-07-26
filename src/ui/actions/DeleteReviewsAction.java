@@ -13,6 +13,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
+import ui.reviewpoint.ReviewPoint;
 import ui.reviewtoolwindow.ReviewView;
 
 /**
@@ -22,38 +23,17 @@ import ui.reviewtoolwindow.ReviewView;
  */
 public class DeleteReviewsAction extends AnAction{
 
-    private Review review;
+    private ReviewPoint reviewPoint;
 
-    public DeleteReviewsAction(String title, Review review) {
+    public DeleteReviewsAction(String title, ReviewPoint reviewPoint) {
         super(title);
-        this.review = review;
+        this.reviewPoint = reviewPoint;
     }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-       /* Project project = e.getData(PlatformDataKeys.PROJECT);
-        if(project == null) return;
-
-        Editor editor = PlatformDataKeys.EDITOR.getData(e.getDataContext());
-        if (editor == null) return;
-
-        Document document = editor.getDocument();
-
-        PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
-        if (psiFile == null) return;
-
-        final VirtualFile virtualFile = psiFile.getVirtualFile();
-        if (virtualFile == null) return;
-
-        CaretModel caretModel = editor.getCaretModel();
-        int offset = caretModel.getOffset();
-        int line = document.getLineNumber(offset);
-        int start = document.getLineStartOffset(line);
-        int end = document.getLineEndOffset(line);
-
-        Review review = new Review(project, null, start, end, virtualFile);*/
-        Project project = review.getProject();
-        ReviewManager.getInstance(project).removeReview(review);
+        Project project = reviewPoint.getReview().getProject();
+        ReviewManager.getInstance(project).removeReview(reviewPoint);
         ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
         reviewView.updateUI();
     }
