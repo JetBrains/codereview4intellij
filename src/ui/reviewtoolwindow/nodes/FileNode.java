@@ -2,12 +2,12 @@ package ui.reviewtoolwindow.nodes;
 
 
 import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
@@ -20,7 +20,6 @@ import reviewresult.ReviewManager;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -52,8 +51,9 @@ public class FileNode extends SimpleNode implements Navigatable{
         if(!children.isEmpty()) children.clear();
             if(file.isDirectory()) {
                 Project project = getProject();
-                Set<VirtualFile> filesWithReview = ReviewManager.getInstance(project).getFiles();
-                for (VirtualFile virtualFile : filesWithReview) {
+                Set<String> filesWithReview = ReviewManager.getInstance(project).getFileNames();
+                for (String virtualFileName : filesWithReview) {
+                   VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(virtualFileName);
                    FileNode newNode = new FileNode(project, virtualFile);
                    addNode(newNode);
                 }

@@ -53,17 +53,21 @@ public class AddReviewAction extends AnAction {
         int end = document.getLineEndOffset(line);
 
         Review review = new Review(project, null, start, end, virtualFile);
-        ReviewPoint reviewPoint = ReviewManager.getInstance(project).findReviewPoint(review);
-        if(reviewPoint != null) {
-            ReviewActionManager.addToExistingComments(editor, reviewPoint);
+        if(review.isValid()) {
+            ReviewPoint reviewPoint = ReviewManager.getInstance(project).findReviewPoint(review);
+            if(reviewPoint != null) {
+                ReviewActionManager.addToExistingComments(editor, reviewPoint);
+            } else {
+                Point point = editor.visualPositionToXY(editor.getCaretModel().getVisualPosition());
+                EditReviewForm editReviewForm = new EditReviewForm(review);
+                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(editReviewForm.getContent(), "Add Comment");
+                Balloon balloon = balloonBuilder.createBalloon();
+                editReviewForm.setBalloon(balloon);
+                balloon.show(new RelativePoint(editor.getContentComponent(), point), Balloon.Position.atRight);
             }
+        }
         else {
-            Point point = editor.visualPositionToXY(editor.getCaretModel().getVisualPosition());
-            EditReviewForm editReviewForm = new EditReviewForm(review);
-            BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(editReviewForm.getContent(), "Add Comment");
-            Balloon balloon = balloonBuilder.createBalloon();
-            editReviewForm.setBalloon(balloon);
-            balloon.show(new RelativePoint(editor.getContentComponent(), point), Balloon.Position.atRight);
+            ReviewManager.getInstance(project).logInvalidReview(review);
         }
     }
 

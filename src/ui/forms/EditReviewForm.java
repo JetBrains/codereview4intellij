@@ -77,9 +77,9 @@ public class EditReviewForm {
                 }
                 if(newReview.getReviewItems().isEmpty()) {
                     ReviewManager.getInstance(newReview.getProject()).createReviewPoint(newReview);
+                    //ReviewManager.getInstance(newReview.getProject()).addReview(newReview);
                 }
                 newReview.addReviewItem(item);
-                ReviewManager.getInstance(newReview.getProject()).addReview(newReview);
                 balloon.dispose();
                 ReviewView reviewView = ServiceManager.getService(newReview.getProject(), ReviewView.class);
                 reviewView.updateUI();

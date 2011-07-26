@@ -43,7 +43,9 @@ public class ReviewPoint {
         if(project == null) return;
         if(document == null) return;
         MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
-        highlighter = markup.addPersistentLineHighlighter(review.getLine(), HighlighterLayer.ERROR + 1, null);
+        int line = review.getLine();
+        if(line < 0) return;
+        highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
         if(highlighter == null) return;
         gutterIconRenderer = new ReviewGutterIconRenderer();
         highlighter.setGutterIconRenderer(gutterIconRenderer);
@@ -65,6 +67,7 @@ public class ReviewPoint {
 
 
     public void release() {
+        if(highlighter == null) return;
         highlighter.dispose();
     }
     public GutterIconRenderer getGutterIconRenderer() {

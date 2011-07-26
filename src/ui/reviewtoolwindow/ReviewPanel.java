@@ -12,6 +12,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
+import com.intellij.psi.impl.search.ThrowSearchUtil;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SmartExpander;
@@ -20,14 +21,11 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.SimpleTreeBuilder;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
-import org.apache.log4j.chainsaw.Main;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
-import sun.java2d.pipe.SpanShapeRenderer;
-import ui.actions.PreviewAction;
 import ui.forms.EditReviewForm;
 import ui.reviewtoolwindow.nodes.FileNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
@@ -50,7 +48,6 @@ import java.awt.event.KeyEvent;
 public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator {
     public static final String ACTION_GROUP = "TreeReviewItemActions";
     private SimpleTree reviewTree;
-    private ReviewTreeStructure reviewTreeStructure;
     @Nullable
     private OccurenceNavigatorSupport reviewNavigatorSupport;
     private AbstractTreeBuilder reviewTreeBuilder;
@@ -58,10 +55,12 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     private boolean isShowPreview;
     private JPanel mainPanel;
     private JScrollPane previewScrollPane;
+    private Project project;
 
     public ReviewPanel(Project project) {
         super(false);
-        reviewTreeStructure = createTreeStructure(project);
+        this.project = project;
+        ReviewTreeStructure reviewTreeStructure = createTreeStructure(project);
         final DefaultTreeModel model = new DefaultTreeModel(new PatchedDefaultMutableTreeNode());
         reviewTree = new SimpleTree(model);
         SmartExpander.installOn(reviewTree);
@@ -76,7 +75,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
                     if (node instanceof FileNode) {
                         ((FileNode) node).navigate(false);
-                    } else {
+                    }
+                    if (node instanceof ReviewNode) {
                         ((ReviewNode) node).navigate(true);
                     }
                 }
@@ -135,7 +135,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         SimpleNode rootNode = new SimpleNode() {
             @Override
             public SimpleNode[] getChildren() {
-                if(ReviewManager.getInstance(project).getFiles().isEmpty()) {
+                if(ReviewManager.getInstance(project).getFileNames().isEmpty()) {
                     return new SimpleNode[] {};
                 }
                 else {
@@ -208,9 +208,11 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         super.updateUI();
         if(reviewTreeBuilder == null) return;
         reviewTreeBuilder.getUi().doUpdateFromRoot();
+        previewScrollPane.setVisible(!ReviewManager.getInstance(project).getFileNames().isEmpty() && isShowPreview);
     }
 
     public void showPreview(SimpleNode element) {
+
         Review review = null;
         if (element instanceof FileNode) {
             showPreview(element.getChildAt(0));
@@ -223,6 +225,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         previewPanel.removeAll();
         previewPanel.add(new EditReviewForm(review).getItemsContent());
         previewPanel.updateUI();
+
     }
 
     private final class PreviewAction extends ToggleAction {
@@ -230,6 +233,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         public PreviewAction() {
             super("Preview reviews", null, IconLoader.getIcon("/actions/preview.png"));
         }
+
+
 
         @Override
         public boolean isSelected(AnActionEvent e) {
