@@ -3,7 +3,6 @@ package reviewresult;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
-import org.eclipse.jdt.internal.core.INamingRequestor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,9 +98,8 @@ public class ReviewBean {
 
         if (end != that.end) return false;
         if (start != that.start) return false;
-        if (url != null ? !url.equals(that.url) : that.url != null) return false;
+        return !(url != null ? !url.equals(that.url) : that.url != null);
 
-        return true;
     }
 
     @Override

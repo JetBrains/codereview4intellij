@@ -75,9 +75,8 @@ public class ReviewItem {
         if (!author.equals(that.author)) return false;
         if (!date.equals(that.date)) return false;
         if (status != that.status) return false;
-        if (!text.equals(that.text)) return false;
+        return text.equals(that.text);
 
-        return true;
     }
 
     @Override

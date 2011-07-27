@@ -9,11 +9,9 @@ import com.intellij.openapi.vfs.*;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.jetbrains.annotations.NotNull;
-import sun.management.FileSystem;
 import ui.reviewpoint.ReviewPoint;
 import ui.reviewtoolwindow.ReviewView;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -31,7 +29,7 @@ import java.util.*;
 )
 public class ReviewManager extends AbstractProjectComponent implements PersistentStateComponent<ReviewManager.State>, VirtualFileListener {
     private final StartupManagerEx startupManager;
-    State state = new State();
+    private State state = new State();
     private Map<String, List<Review>> reviews = new HashMap<String, List<Review>>();
     private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
     private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
@@ -39,6 +37,7 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
     public ReviewManager(Project project, final StartupManager startupManager) {
         super(project);
         this.startupManager = (StartupManagerEx)startupManager;
+        VirtualFileManager.getInstance().addVirtualFileListener(this);
     }
 
     public static ReviewManager getInstance(@NotNull Project project) {
@@ -137,23 +136,17 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
 
     @Override
     public void projectOpened() {
-        VirtualFileManager.getInstance().addVirtualFileListener(this);
-    }
-
-    @Override
-    public void projectClosed() {
 
     }
 
     @Override
-    public void initComponent() {
-
-    }
+    public void projectClosed() {}
 
     @Override
-    public void disposeComponent() {
+    public void initComponent() {}
 
-    }
+    @Override
+    public void disposeComponent() {}
 
     @NotNull
     @Override
@@ -182,18 +175,13 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         String message = "Review with start offset " + String.valueOf(review.getStart())
                     + " and file \"" + review.getReviewBean().getUrl() + "\" became invalid";
         LOG.warn(message);
-        System.out.println(message);
     }
 
     @Override
-    public void propertyChanged(VirtualFilePropertyEvent event) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public void propertyChanged(VirtualFilePropertyEvent event) {}
 
     @Override
-    public void contentsChanged(VirtualFileEvent event) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public void contentsChanged(VirtualFileEvent event) {}
 
     @Override
     public void fileCreated(VirtualFileEvent event) {}
@@ -224,6 +212,8 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
                 reviewPoints.remove(review);
                 state.reviews.remove(review.getReviewBean());
             }
+            //ReviewView reviewView = ServiceManager.getService(myProject, ReviewView.class);
+            //reviewView.updateUI();
         }
     }
 
@@ -231,8 +221,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
     public void beforeFileMovement(VirtualFileMoveEvent event) {
         String  url  = event.getOldParent().getUrl() + "/" + event.getFileName();
         String  newUrl  = event.getNewParent().getUrl() + "/"  + event.getFileName();
-        //VirtualFile newFile = event.getFile();
-
         if(reviews.containsKey(url)) {
             List<Review> reviewList = reviews.get(url);
             reviews.remove(url);
@@ -241,8 +229,8 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
                 review.getReviewBean().setUrl(newUrl);
             }
         }
-        ReviewView reviewView = ServiceManager.getService(myProject, ReviewView.class);
-        reviewView.updateUI();
+        //ReviewView reviewView = ServiceManager.getService(myProject, ReviewView.class);
+        //reviewView.updateUI();
     }
 
     public static class State {

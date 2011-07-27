@@ -53,8 +53,9 @@ public class AddReviewAction extends AnAction {
         int end = document.getLineEndOffset(line);
 
         Review review = new Review(project, null, start, end, virtualFile);
+        ReviewManager instance = ReviewManager.getInstance(project);
         if(review.isValid()) {
-            ReviewPoint reviewPoint = ReviewManager.getInstance(project).findReviewPoint(review);
+            ReviewPoint reviewPoint = instance.findReviewPoint(review);
             if(reviewPoint != null) {
                 ReviewActionManager.addToExistingComments(editor, reviewPoint);
             } else {
@@ -67,7 +68,7 @@ public class AddReviewAction extends AnAction {
             }
         }
         else {
-            ReviewManager.getInstance(project).logInvalidReview(review);
+            instance.logInvalidReview(review);
         }
     }
 

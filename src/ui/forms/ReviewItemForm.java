@@ -43,7 +43,8 @@ public class ReviewItemForm {
     }
 
 
-    public JPanel getContent() {
+    public JPanel getContent(boolean editable) {
+        reviewItemText.setEditable(editable);
         return reviewItemContent;
     }
 

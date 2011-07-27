@@ -2,6 +2,7 @@ package ui.reviewtoolwindow.nodes;
 
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -27,8 +28,8 @@ import java.util.Collections;
 public class ReviewNode extends SimpleNode implements Navigatable{
     private Review review;
 
-    public ReviewNode(Project project, Review review) {
-        super(project);
+    public ReviewNode(Project project, Review review, NodeDescriptor parent) {
+        super(project, parent);
         this.review = review;
     }
 

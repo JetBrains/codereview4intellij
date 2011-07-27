@@ -6,9 +6,13 @@ import com.intellij.ide.actions.NextOccurenceToolbarAction;
 import com.intellij.ide.actions.PreviousOccurenceToolbarAction;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.NodeDescriptor;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
@@ -16,11 +20,9 @@ import com.intellij.psi.impl.search.ThrowSearchUtil;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SmartExpander;
-import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
-import com.intellij.ui.treeStructure.SimpleTree;
-import com.intellij.ui.treeStructure.SimpleNode;
-import com.intellij.ui.treeStructure.SimpleTreeBuilder;
+import com.intellij.ui.treeStructure.*;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,33 +41,39 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.List;
 
 /**
  * User: Alisa.Afonina
  * Date: 7/13/11
  * Time: 2:39 PM
  */
-public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator {
+public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator, Disposable {
     public static final String ACTION_GROUP = "TreeReviewItemActions";
+
+    private Project project;
+    private JPanel mainPanel;
     private SimpleTree reviewTree;
+    private AbstractTreeBuilder reviewTreeBuilder;
+    private boolean isShowPreview;
+    private JScrollPane previewScrollPane;
+    private JPanel previewPanel = new JPanel();
+
     @Nullable
     private OccurenceNavigatorSupport reviewNavigatorSupport;
-    private AbstractTreeBuilder reviewTreeBuilder;
-    private JPanel previewPanel = new JPanel();
-    private boolean isShowPreview;
-    private JPanel mainPanel;
-    private JScrollPane previewScrollPane;
-    private Project project;
 
     public ReviewPanel(Project project) {
         super(false);
         this.project = project;
-        ReviewTreeStructure reviewTreeStructure = createTreeStructure(project);
+        SimpleTreeStructure reviewTreeStructure = createTreeStructure(project);
         final DefaultTreeModel model = new DefaultTreeModel(new PatchedDefaultMutableTreeNode());
         reviewTree = new SimpleTree(model);
         SmartExpander.installOn(reviewTree);
         reviewTreeBuilder = new SimpleTreeBuilder(reviewTree, model, reviewTreeStructure, null);
         reviewTree.revalidate();
+        TreeUtil.expandAll(reviewTree);
         EditSourceOnDoubleClickHandler.install(reviewTree);
         reviewTree.setRootVisible(false);
         reviewTree.addKeyListener(new KeyAdapter() {
@@ -73,12 +81,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 if (KeyEvent.VK_ENTER == e.getKeyCode()) {
                     SimpleNode node = reviewTree.getSelectedNode();
 
-                    if (node instanceof FileNode) {
-                        ((FileNode) node).navigate(false);
-                    }
-                    if (node instanceof ReviewNode) {
-                        ((ReviewNode) node).navigate(true);
-                    }
+                    if(node instanceof Navigatable)
+                        ((Navigatable) node).navigate(true);
                 }
             }
         });
@@ -130,7 +134,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     return toolBar;
     }
 
-    private ReviewTreeStructure createTreeStructure(final Project project) {
+    public ReviewTreeStructure createTreeStructure(final Project project) {
 
         SimpleNode rootNode = new SimpleNode() {
             @Override
@@ -139,8 +143,11 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                     return new SimpleNode[] {};
                 }
                 else {
-                    VirtualFile virtualFile = project.getBaseDir();
-                    return new FileNode[]{new FileNode(project, virtualFile)};
+                    List<FileNode> roots = new ArrayList<FileNode>();
+                    for(VirtualFile contentRoot : ProjectRootManager.getInstance(project).getContentRoots()) {
+                        roots.add(new FileNode(project, contentRoot));
+                    }
+                    return roots.toArray(new SimpleNode[roots.size()]);
                 }
             }
         };
@@ -226,6 +233,19 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         previewPanel.add(new EditReviewForm(review).getItemsContent());
         previewPanel.updateUI();
 
+    }
+
+    @Override
+    public void dispose() {
+        reviewTreeBuilder.dispose();
+    }
+
+    public SimpleTree getReviewTree() {
+        return reviewTree;
+    }
+
+    public AbstractTreeBuilder getReviewTreeBuilder() {
+        return reviewTreeBuilder;
     }
 
     private final class PreviewAction extends ToggleAction {

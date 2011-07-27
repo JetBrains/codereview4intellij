@@ -43,10 +43,10 @@ public class EditReviewForm {
 
     public JComponent getContent() {
         itemsPanel.setLayout(new GridLayout(-1, 1));
-        createItemsContent();
+        createItemsContent(true);
         ReviewItem reviewItem = new ReviewItem();
         reviewItemForm = new ReviewItemForm(reviewItem);
-        panel.add(reviewItemForm.getContent());
+        panel.add(reviewItemForm.getContent(true));
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,20 +94,18 @@ public class EditReviewForm {
     }
 
     public JPanel getItemsContent() {
-        createItemsContent();
+        createItemsContent(false);
         return panel;
     }
 
-    private void createItemsContent() {
+    private void createItemsContent(boolean editable) {
         panel = new JPanel(new GridLayout(-1, 1));
         if(newReview.getName() != null) {
             reviewName.setText(newReview.getName());
-            //reviewName.setEnabled(false);
-            //reviewName.setEditable(false);
         }
         for (ReviewItem reviewItem : newReview.getReviewItems()) {
             ReviewItemForm itemForm = new ReviewItemForm(reviewItem);
-            panel.add(itemForm.getContent());
+            panel.add(itemForm.getContent(editable));
         }
     }
 }

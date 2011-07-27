@@ -30,9 +30,7 @@ public class ReviewManagerTest extends IdeaTestCase {
 
     public ReviewManagerTest() {
         super();
-        //PlatformTestCase.initPlatformLangPrefix();//
         IdeaTestCase.initPlatformPrefix();
-
     }
 
     public void setUp() throws Exception {
@@ -241,6 +239,31 @@ public class ReviewManagerTest extends IdeaTestCase {
         if(reviews != null) {
             assertFalse(reviews.contains(firstReview));
         }
+    }
+
+
+    public void testFindReviewPoint() throws Exception {
+        Project project = getProject();
+
+        VirtualFile firstFile = project.getProjectFile();
+        assertNotNull(firstFile);
+
+        VirtualFile[] children = firstFile.getChildren();
+        VirtualFile secondFile;
+        if(children.length > 0) {
+            secondFile = children[0];
+        }
+        else {
+            secondFile = firstFile.getParent();
+        }
+        //find existing
+        Review firstReview = new Review(new ReviewBean("test review", 1, 1, secondFile.getUrl()), project);
+        reviewManager.createReviewPoint(firstReview);
+        assertNotNull(reviewManager.findReviewPoint(firstReview));
+
+        //no result for nonexistent
+        Review secondReview = new Review(new ReviewBean("test review review", 11, 1, secondFile.getUrl()), project);
+        assertNull(reviewManager.findReviewPoint(secondReview));
     }
 
     public void testRemoveOneOfManyReviewPoints() throws Exception {

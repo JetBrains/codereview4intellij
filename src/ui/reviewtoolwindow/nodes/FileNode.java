@@ -5,6 +5,9 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.impl.ProjectFileIndexImpl;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -32,9 +35,12 @@ public class FileNode extends SimpleNode implements Navigatable{
     private Project project;
     private VirtualFile file;
     private List<SimpleNode> children = new ArrayList<SimpleNode>();
+    private ProjectFileIndex fileIndex;
+
     public FileNode(Project project, VirtualFile value/*, NodeDescriptor parentDescriptor*/) {
         super(project/*, parentDescriptor*/);
         this.project = project;
+        fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
         file = value;
     }
 
@@ -60,7 +66,7 @@ public class FileNode extends SimpleNode implements Navigatable{
             } else {
                 List<Review> reviews = ReviewManager.getInstance(project).getReviews(file);
                 for(Review review : reviews) {
-                    children.add(new ReviewNode(project, review));
+                    children.add(new ReviewNode(project, review, this));
                 }
              }
         //}
@@ -69,10 +75,10 @@ public class FileNode extends SimpleNode implements Navigatable{
 
         private void addNode(FileNode newNode) {
             VirtualFile parentDirectory = newNode.file.getParent();
-            VirtualFile baseDir = project.getBaseDir();
-            if(baseDir == null) return;
+            VirtualFile contentRoot = fileIndex.getContentRootForFile(file);
+            //if(baseDir == null || parentDirectory == null) return;
             if(!parentDirectory.equals(file)) {
-                if(baseDir.equals(parentDirectory)) return;
+                if(contentRoot.equals(parentDirectory)) return;
                     FileNode parentNode = new FileNode(project, parentDirectory);
                     parentNode.addNode(newNode);
                     addNode(parentNode);

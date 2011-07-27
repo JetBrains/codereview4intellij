@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class ReviewTreeStructure extends SimpleTreeStructure {
     private Project project;
-    protected SimpleNode rootElement;
+    private SimpleNode rootElement;
 
     protected ReviewTreeStructure(Project project, SimpleNode root) {
         super();
@@ -35,8 +35,4 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         return rootElement;
     }
 
-    public void update() {
-        VirtualFile virtualFile = project.getBaseDir();
-        rootElement = new FileNode(project, virtualFile);
-    }
 }

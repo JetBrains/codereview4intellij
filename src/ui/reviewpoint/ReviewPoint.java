@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
@@ -49,12 +50,7 @@ public class ReviewPoint {
         if(highlighter == null) return;
         gutterIconRenderer = new ReviewGutterIconRenderer();
         highlighter.setGutterIconRenderer(gutterIconRenderer);
-        document.addDocumentListener(new DocumentListener(){
-
-            @Override
-            public void beforeDocumentChange(DocumentEvent event) {
-            }
-
+        document.addDocumentListener(new DocumentAdapter(){
             @Override
             public void documentChanged(DocumentEvent event) {
                 review.getReviewBean().setStart(highlighter.getStartOffset());

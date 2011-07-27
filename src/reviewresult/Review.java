@@ -1,24 +1,12 @@
 package reviewresult;
 
-import com.intellij.codeInsight.documentation.DocumentationManager;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.wm.IdeaFrameTitleBuilder;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.filters.TrueFilter;
-import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.Attribute;
-import com.intellij.util.xmlb.annotations.Tag;
-import com.intellij.util.xmlb.annotations.Transient;
 
-import java.security.PrivateKey;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,13 +28,11 @@ public class Review {
         isValid = (virtualFile != null && virtualFile.isValid());
     }
 
-
-
     public Review(Project project, String reviewName, int start, int end, VirtualFile virtualFile) {
         this.project = project;
         this.virtualFile = virtualFile;
         this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
-        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start < end);
+        isValid = (virtualFile.isValid() && start > 0 && end > 0 && start < end && end < virtualFile.getLength());
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
@@ -78,10 +64,6 @@ public class Review {
 
     public boolean isValid() {
         return isValid;
-    }
-
-    public void setValid(boolean valid) {
-        isValid = valid;
     }
 
     public int getLine() {
@@ -116,17 +98,5 @@ public class Review {
     @Override
     public int hashCode() {
         return reviewBean != null ? reviewBean.hashCode() : 0;
-    }
-
-    private class ReviewException extends Exception {
-        private Review review;
-
-        private ReviewException(Review review) {
-            this.review = review;
-        }
-
-        public Review getReview() {
-            return review;
-        }
     }
 }
