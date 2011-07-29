@@ -21,7 +21,7 @@
       </group>
 
       <action id="addReview" class="ui.actions.AddReviewAction" text="Add review">
-          <add-to-group group-id="RefactoringMenu" anchor="last"/>
+          <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
       </action>
 
       <action id="previewReview" class="ui.reviewtoolwindow.ReviewPanel.PreviewAction" text="Preview">
@@ -31,6 +31,6 @@
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="ui.reviewtoolwindow.CodeReviewToolWindowFactory"/>
     <projectService serviceInterface="ui.reviewtoolwindow.ReviewView" serviceImplementation="ui.reviewtoolwindow.ReviewView"/>
-    <patch.extension implementation=""></patch.extension>
+    <patch.extension implementation="reviewresult.ReviewPatchExtensionPoint" />
   </extensions>
 </idea-plugin>

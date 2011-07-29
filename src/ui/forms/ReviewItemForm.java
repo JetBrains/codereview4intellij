@@ -1,5 +1,6 @@
 package ui.forms;
 
+import com.intellij.openapi.wm.IdeFocusManager;
 import reviewresult.ReviewItem;
 import reviewresult.ReviewStatus;
 
@@ -24,7 +25,7 @@ public class ReviewItemForm {
     private JPanel reviewItemContent;
     private ReviewItem reviewItem;
 
-    public ReviewItemForm(ReviewItem data) {
+    public ReviewItemForm(ReviewItem data, boolean focused) {
         reviewItem = data;
         data.setAuthor(System.getProperty("user.name"));
         authorTextField.setText(data.getAuthor());
@@ -33,6 +34,7 @@ public class ReviewItemForm {
         if(text != null) {
             reviewItemText.setText(text);
         }
+        //IdeFocusManager.getInstance().requestFocus()
         reviewItemText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -40,7 +42,11 @@ public class ReviewItemForm {
                 reviewItem.setText(reviewItemText.getText() + e.getKeyChar());
             }
         });
+        /*if(focused) {
+            reviewItemText.requestFocusInWindow();
+        } */
     }
+
 
 
     public JPanel getContent(boolean editable) {
@@ -55,5 +61,9 @@ public class ReviewItemForm {
     public void setEmptyComment() {
         reviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
         reviewItemContent.invalidate();
+    }
+
+    public Component getItemTextField() {
+        return reviewItemText;
     }
 }

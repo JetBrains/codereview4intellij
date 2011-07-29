@@ -69,7 +69,6 @@ public class FileNode extends SimpleNode implements Navigatable{
                     children.add(new ReviewNode(project, review, this));
                 }
              }
-        //}
         return children.toArray(new SimpleNode[children.size()]);
     }
 

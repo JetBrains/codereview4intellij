@@ -3,9 +3,11 @@ package reviewresult;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
+import com.sun.jna.platform.win32.Guid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User: Alisa.Afonina
@@ -15,6 +17,7 @@ import java.util.List;
 
 @Tag("review")
 public class ReviewBean {
+    private String guid = UUID.randomUUID().toString();
     private String name;
     private int start;
     private int end;
@@ -89,6 +92,15 @@ public class ReviewBean {
         reviewItems.addAll(reviewItems);
     }
 
+    @Attribute("id")
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -96,17 +108,13 @@ public class ReviewBean {
 
         ReviewBean that = (ReviewBean) o;
 
-        if (end != that.end) return false;
-        if (start != that.start) return false;
-        return !(url != null ? !url.equals(that.url) : that.url != null);
+        if (guid != null ? !guid.equals(that.guid) : that.guid != null) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = start;
-        result = 31 * result + end;
-        result = 31 * result + (url != null ? url.hashCode() : 0);
-        return result;
+        return guid != null ? guid.hashCode() : 0;
     }
 }

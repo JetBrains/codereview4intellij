@@ -8,6 +8,7 @@ import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.Result;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -17,18 +18,20 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.impl.search.ThrowSearchUtil;
-import com.intellij.ui.PopupHandler;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.SmartExpander;
+import com.intellij.ui.*;
+import com.intellij.ui.speedSearch.SpeedSearch;
 import com.intellij.ui.treeStructure.*;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
+import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
+import reviewresult.ReviewItem;
 import reviewresult.ReviewManager;
 import ui.forms.EditReviewForm;
+import ui.reviewpoint.ReviewPoint;
 import ui.reviewtoolwindow.nodes.FileNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
 
@@ -81,7 +84,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 if (KeyEvent.VK_ENTER == e.getKeyCode()) {
                     SimpleNode node = reviewTree.getSelectedNode();
 
-                    if(node instanceof Navigatable)
+                    if (node instanceof Navigatable)
                         ((Navigatable) node).navigate(true);
                 }
             }
@@ -91,8 +94,22 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             public void valueChanged(TreeSelectionEvent e) {
                 SimpleNode node = reviewTree.getSelectedNode();
                 showPreview(node);
-                }
+            }
         });
+        /*TreeSpeedSearch treeSpeedSearch = new TreeSpeedSearch(reviewTree, new Convertor<TreePath, String>() {
+            @Override
+            public String convert(TreePath treePath) {
+                SimpleNode node = reviewTree.getNodeFor(treePath);
+                Object reviewNode = node.getElement();
+                String result = "";
+                if(!(reviewNode instanceof ReviewNode)) return null;
+                for (ReviewItem item : ((ReviewNode) reviewNode).getReview().getReviewItems()){
+                    result += item.getText() + "\n";
+                }
+                return result;
+            }
+        });*/
+
         reviewNavigatorSupport = new OccurenceNavigatorSupport(reviewTree) {
         protected Navigatable createDescriptorForNode(DefaultMutableTreeNode node) {
           if (node.getChildCount() > 0)  {return null;}
@@ -230,7 +247,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         if(review == null) return;
         previewPanel.setVisible(isShowPreview);
         previewPanel.removeAll();
-        previewPanel.add(new EditReviewForm(review).getItemsContent());
+        ReviewPoint point = ReviewManager.getInstance(project).findReviewPoint(review);
+        if(point == null) return;
+        EditReviewForm editReviewForm = new EditReviewForm(review);
+        previewPanel.add(editReviewForm.getItemsContent());
         previewPanel.updateUI();
 
     }

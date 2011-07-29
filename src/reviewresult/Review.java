@@ -1,11 +1,15 @@
 package reviewresult;
 
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.file.exclude.PersistentFileSetManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.ManagingFS;
+import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS;
 
 import java.util.List;
 
@@ -20,19 +24,22 @@ public class Review {
     private Project project;
     private VirtualFile virtualFile;
     private boolean isValid = true;
+    private boolean activated = false;
 
     public Review(ReviewBean reviewBean, Project project){
         this.reviewBean = reviewBean;
         this.project = project;
-        this.virtualFile = VirtualFileManager.getInstance().findFileByUrl(reviewBean.getUrl());
-        isValid = (virtualFile != null && virtualFile.isValid());
+        this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getUrl());
+        int start = reviewBean.getStart();
+        int end = reviewBean.getEnd();
+        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start < end && end < virtualFile.getLength());
     }
 
     public Review(Project project, String reviewName, int start, int end, VirtualFile virtualFile) {
         this.project = project;
         this.virtualFile = virtualFile;
         this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
-        isValid = (virtualFile.isValid() && start > 0 && end > 0 && start < end && end < virtualFile.getLength());
+        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start < end && end < virtualFile.getLength());
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
@@ -83,6 +90,14 @@ public class Review {
 
     public ReviewBean getReviewBean() {
         return reviewBean;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public boolean isActivated() {
+        return activated;
     }
 
     @Override

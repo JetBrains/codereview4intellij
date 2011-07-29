@@ -1,6 +1,9 @@
 package ui.reviewpoint;
 
+import com.intellij.execution.ui.layout.actions.RestoreViewAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
@@ -18,11 +21,14 @@ import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
+import reviewresult.ReviewManager;
 import ui.actions.DeleteReviewsAction;
 import ui.actions.EditReviewAction;
+import ui.actions.ReviewActionManager;
 import ui.reviewtoolwindow.ReviewView;
 
 import javax.swing.*;
+import javax.swing.text.StyledEditorKit;
 
 /**
  * User: Alisa.Afonina
@@ -32,33 +38,40 @@ import javax.swing.*;
 public class ReviewPoint {
     private Review review;
     private GutterIconRenderer gutterIconRenderer;
-    private RangeHighlighter highlighter;
+    private RangeHighlighter highlighter = null;
 
     public ReviewPoint(Review review) {
         this.review = review;
     }
 
     public void updateUI() {
-        Document document = FileDocumentManager.getInstance().getDocument(review.getElement().getFile());
-        final Project project = review.getProject();
-        if(project == null) return;
-        if(document == null) return;
-        MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
-        int line = review.getLine();
-        if(line < 0) return;
-        highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
-        if(highlighter == null) return;
-        gutterIconRenderer = new ReviewGutterIconRenderer();
-        highlighter.setGutterIconRenderer(gutterIconRenderer);
-        document.addDocumentListener(new DocumentAdapter(){
-            @Override
-            public void documentChanged(DocumentEvent event) {
-                review.getReviewBean().setStart(highlighter.getStartOffset());
-                review.getReviewBean().setEnd(highlighter.getEndOffset());
-                ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
-                reviewView.updateUI();
-            }
-        },  project);
+        if(review.isValid()) {
+            if(highlighter == null) {
+            Document document = FileDocumentManager.getInstance().getDocument(review.getElement().getFile());
+            final Project project = review.getProject();
+            if(project == null) return;
+            if(document == null) return;
+            MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
+            int line = review.getLine();
+            if(line < 0) return;
+            highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
+            if(highlighter == null) return;
+            gutterIconRenderer = new ReviewGutterIconRenderer();
+            highlighter.setGutterIconRenderer(gutterIconRenderer);
+            document.addDocumentListener(new DocumentAdapter(){
+                @Override
+                public void documentChanged(DocumentEvent event) {
+                    review.getReviewBean().setStart(highlighter.getStartOffset());
+                    review.getReviewBean().setEnd(highlighter.getEndOffset());
+                    ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
+                    reviewView.updateUI();
+                }
+            },  project);
+            return;
+        }
+
+        }
+        ReviewManager.getInstance(review.getProject()).logInvalidReview(review);
     }
 
 
@@ -74,9 +87,10 @@ public class ReviewPoint {
         return review;
     }
 
+
     private class ReviewGutterIconRenderer extends GutterIconRenderer {
         private final Icon icon = IconLoader.getIcon("/actions/cleanHeavy.png");
-
+        private boolean activated = false;
         @NotNull
         @Override
         public Icon getIcon() {
@@ -90,6 +104,22 @@ public class ReviewPoint {
 
             ReviewGutterIconRenderer that = (ReviewGutterIconRenderer) o;
             return icon.equals(that.getIcon());
+        }
+
+        @Override
+        public AnAction getClickAction() {
+            activated = !activated;
+            if(activated) {
+                return ReviewPoint.this.getReview().isActivated() ? null : new EditReviewAction("Add review", ReviewPoint.this);
+            } else {
+                return  new AnAction() {
+                    @Override
+                    public void actionPerformed(AnActionEvent e) {
+                        ReviewActionManager.disposeActiveBalloon();
+                        ReviewPoint.this.getReview().setActivated(false);
+                    }
+                };
+            }
         }
 
         @Override

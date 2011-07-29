@@ -14,6 +14,7 @@ import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.awt.RelativePoint;
 import reviewresult.Review;
@@ -43,7 +44,8 @@ public class AddReviewAction extends AnAction {
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
         if (psiFile == null) return;
 
-        final VirtualFile virtualFile = psiFile.getVirtualFile();
+        PsiElement context = psiFile.getContext();
+        final VirtualFile virtualFile = (context == null) ? psiFile.getVirtualFile() : context.getContainingFile().getVirtualFile();
         if (virtualFile == null) return;
 
         CaretModel caretModel = editor.getCaretModel();
@@ -57,20 +59,17 @@ public class AddReviewAction extends AnAction {
         if(review.isValid()) {
             ReviewPoint reviewPoint = instance.findReviewPoint(review);
             if(reviewPoint != null) {
-                ReviewActionManager.addToExistingComments(editor, reviewPoint);
+                ReviewActionManager.getInstance(reviewPoint.getReview()).addToExistingComments(editor, reviewPoint);
             } else {
-                Point point = editor.visualPositionToXY(editor.getCaretModel().getVisualPosition());
-                EditReviewForm editReviewForm = new EditReviewForm(review);
-                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(editReviewForm.getContent(), "Add Comment");
-                Balloon balloon = balloonBuilder.createBalloon();
-                editReviewForm.setBalloon(balloon);
-                balloon.show(new RelativePoint(editor.getContentComponent(), point), Balloon.Position.atRight);
+                 ReviewActionManager.getInstance(review).addNewComment(editor);
             }
         }
         else {
             instance.logInvalidReview(review);
         }
     }
+
+
 
 
 }

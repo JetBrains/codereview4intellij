@@ -2,17 +2,21 @@ package ui.forms;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.util.ActionCallback;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.ScrollPaneFactory;
 import reviewresult.Review;
 import reviewresult.ReviewItem;
 import reviewresult.ReviewManager;
-import ui.reviewpoint.ReviewPoint;
 import ui.reviewtoolwindow.ReviewView;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 /**
  * User: Alisa.Afonina
@@ -27,30 +31,21 @@ public class EditReviewForm {
     private JPanel mainPanel;
     private JPanel itemsPanel;
 
-    private Review newReview;
     private ReviewItemForm reviewItemForm;
     private Balloon balloon;
     private JPanel panel;
+    private final Review review;
+    private JPanel content;
 
     public EditReviewForm(final Review review) {
-        this.newReview = review;
-
-    }
-
-    public void setNewReview(Review newReview) {
-        this.newReview = newReview;
-    }
-
-    public JComponent getContent() {
-        itemsPanel.setLayout(new GridLayout(-1, 1));
-        createItemsContent(true);
-        ReviewItem reviewItem = new ReviewItem();
-        reviewItemForm = new ReviewItemForm(reviewItem);
-        panel.add(reviewItemForm.getContent(true));
+        this.review = review;
+        review.setActivated(true);
+        resetItemsContent(true);
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 balloon.dispose();
+                review.setActivated(false);
             }
         });
         JScrollPane itemsScrollPane = ScrollPaneFactory.createScrollPane(panel);
@@ -70,21 +65,27 @@ public class EditReviewForm {
                 if("".equals(name)) {
                     int nameLength = 6;
                     String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength):text;
-                    newReview.setName(forcedName);
+                    review.setName(forcedName);
                 }
                 else {
-                    newReview.setName(name);
+                    review.setName(name);
                 }
-                if(newReview.getReviewItems().isEmpty()) {
-                    ReviewManager.getInstance(newReview.getProject()).createReviewPoint(newReview);
+                if(review.getReviewItems().isEmpty()) {
+                    ReviewManager.getInstance(review.getProject()).createReviewPoint(review);
                     //ReviewManager.getInstance(newReview.getProject()).addReview(newReview);
                 }
-                newReview.addReviewItem(item);
+                review.addReviewItem(item);
                 balloon.dispose();
-                ReviewView reviewView = ServiceManager.getService(newReview.getProject(), ReviewView.class);
+                review.setActivated(false);
+                ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
                 reviewView.updateUI();
             }
         });
+    }
+
+    public JComponent getContent() {
+        mainPanel.setFocusable(true);
+
         return mainPanel;
     }
 
@@ -94,18 +95,31 @@ public class EditReviewForm {
     }
 
     public JPanel getItemsContent() {
-        createItemsContent(false);
+        resetItemsContent(false);
         return panel;
     }
 
-    private void createItemsContent(boolean editable) {
+    private void resetItemsContent(boolean editable) {
+        itemsPanel.setLayout(new GridLayout(-1, 1));
         panel = new JPanel(new GridLayout(-1, 1));
-        if(newReview.getName() != null) {
-            reviewName.setText(newReview.getName());
+        if(review.getName() != null) {
+            reviewName.setText(review.getName());
         }
-        for (ReviewItem reviewItem : newReview.getReviewItems()) {
-            ReviewItemForm itemForm = new ReviewItemForm(reviewItem);
+        for (ReviewItem reviewItem : review.getReviewItems()) {
+            ReviewItemForm itemForm = new ReviewItemForm(reviewItem, true);
             panel.add(itemForm.getContent(editable));
         }
+        ReviewItem reviewItem = new ReviewItem();
+        reviewItemForm = new ReviewItemForm(reviewItem, true);
+        content = reviewItemForm.getContent(true);
+        panel.add(content);
+    }
+
+    public Component getItemTextField() {
+        return reviewItemForm.getItemTextField();
+    }
+
+    public Component getNameTextField() {
+        return reviewName;
     }
 }

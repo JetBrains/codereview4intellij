@@ -37,7 +37,7 @@ public class EditReviewAction extends AnAction {
         if (project == null) return;
         Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (editor != null) {
-            ReviewActionManager.addToExistingComments(editor, reviewPoint);
+            ReviewActionManager.getInstance(reviewPoint.getReview()).addToExistingComments(editor, reviewPoint);
         }
     }
 }
