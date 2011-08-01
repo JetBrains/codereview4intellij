@@ -6,6 +6,11 @@ import reviewresult.ReviewStatus;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicTextUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,10 +26,11 @@ import java.util.Date;
 public class ReviewItemForm {
     private JTextField authorTextField;
     private JTextField dateTextField;
-    private JTextArea reviewItemText;
+    private JTextPane reviewItemText;
     private JPanel reviewItemContent;
     private ReviewItem reviewItem;
 
+    private Highlighter highlighter;
     public ReviewItemForm(ReviewItem data, boolean focused) {
         reviewItem = data;
         data.setAuthor(System.getProperty("user.name"));
@@ -33,7 +39,11 @@ public class ReviewItemForm {
         String text = data.getText();
         if(text != null) {
             reviewItemText.setText(text);
+
         }
+        highlighter = new BasicTextUI.BasicHighlighter();
+        reviewItemText.setHighlighter(highlighter);
+        updateSelection();
         //IdeFocusManager.getInstance().requestFocus()
         reviewItemText.addKeyListener(new KeyAdapter() {
             @Override
@@ -47,7 +57,27 @@ public class ReviewItemForm {
         } */
     }
 
-
+    public void updateSelection() {
+        int searchStart = reviewItem.getSearchStart();
+        if(searchStart >= 0) {
+            //reviewItemText.requestFocus();
+            //int searchEnd = reviewItem.getSearchEnd();
+            //reviewItemText.setSelectionColor(Color.YELLOW);
+            //reviewItemText.select(searchStart, searchEnd);
+            if(highlighter.getHighlights().length > 0) {
+                highlighter.removeAllHighlights();
+            }
+            if(highlighter != null) {
+                try {
+                    highlighter.addHighlight(searchStart,
+                                                reviewItem.getSearchEnd(),
+                                                new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW));
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     public JPanel getContent(boolean editable) {
         reviewItemText.setEditable(editable);

@@ -1,20 +1,14 @@
 package ui.actions;
 
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.event.EditorMouseMotionAdapter;
-import com.intellij.openapi.editor.event.VisibleAreaEvent;
-import com.intellij.openapi.editor.event.VisibleAreaListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
 import com.intellij.openapi.ui.popup.*;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.wm.IdeFocusManager;
-import com.intellij.ui.BalloonImpl;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.PositionTracker;
 import reviewresult.Review;
-import reviewresult.ReviewManager;
-import sun.security.jca.GetInstance;
 import ui.forms.EditReviewForm;
 import ui.reviewpoint.ReviewPoint;
 

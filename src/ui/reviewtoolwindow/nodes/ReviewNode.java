@@ -1,9 +1,14 @@
 package ui.reviewtoolwindow.nodes;
 
+import com.intellij.codeInsight.highlighting.HighlightManager;
+import com.intellij.find.findUsages.FindUsagesManager;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -28,8 +33,8 @@ import java.util.Collections;
 public class ReviewNode extends SimpleNode implements Navigatable{
     private Review review;
 
-    public ReviewNode(Project project, Review review, NodeDescriptor parent) {
-        super(project, parent);
+    public ReviewNode(Project project, Review review) {
+        super(project);
         this.review = review;
     }
 
@@ -47,7 +52,19 @@ public class ReviewNode extends SimpleNode implements Navigatable{
     @Override
     protected void update(PresentationData presentationData) {
         if(review.isValid()) {
-            presentationData.addText(review.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            int searchStart = review.getSearchStart();
+            String name = review.getName();
+            if(searchStart >= 0) {
+                EditorColorsManager colorManager = EditorColorsManager.getInstance();
+                TextAttributes attributes = colorManager.getGlobalScheme().getAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
+                presentationData.addText(name.substring(0, searchStart), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                presentationData.addText(name.substring(searchStart, review.getSearchEnd()), SimpleTextAttributes.fromTextAttributes(attributes));
+                presentationData.addText(name.substring(review.getSearchEnd(), name.length()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            }
+            else {
+                presentationData.addText(name, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+
+            }
             int line = review.getLine();
             if(line < 0) {
                 presentationData.clear();

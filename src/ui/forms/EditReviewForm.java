@@ -2,9 +2,6 @@ package ui.forms;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.util.ActionCallback;
-import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.ScrollPaneFactory;
 import reviewresult.Review;
 import reviewresult.ReviewItem;
@@ -15,8 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * User: Alisa.Afonina
@@ -31,6 +28,7 @@ public class EditReviewForm {
     private JPanel mainPanel;
     private JPanel itemsPanel;
 
+    private List<ReviewItemForm> reviewItemFormsList;
     private ReviewItemForm reviewItemForm;
     private Balloon balloon;
     private JPanel panel;
@@ -100,6 +98,7 @@ public class EditReviewForm {
     }
 
     private void resetItemsContent(boolean editable) {
+        reviewItemFormsList = new ArrayList<ReviewItemForm>();
         itemsPanel.setLayout(new GridLayout(-1, 1));
         panel = new JPanel(new GridLayout(-1, 1));
         if(review.getName() != null) {
@@ -108,6 +107,7 @@ public class EditReviewForm {
         for (ReviewItem reviewItem : review.getReviewItems()) {
             ReviewItemForm itemForm = new ReviewItemForm(reviewItem, true);
             panel.add(itemForm.getContent(editable));
+            reviewItemFormsList.add(itemForm);
         }
         ReviewItem reviewItem = new ReviewItem();
         reviewItemForm = new ReviewItemForm(reviewItem, true);
@@ -121,5 +121,10 @@ public class EditReviewForm {
 
     public Component getNameTextField() {
         return reviewName;
+    }
+    public void updateSelection() {
+        for(ReviewItemForm form : reviewItemFormsList) {
+            form.updateSelection();
+        }
     }
 }

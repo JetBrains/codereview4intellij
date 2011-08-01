@@ -3,6 +3,7 @@ package reviewresult;
 
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.util.xmlb.annotations.Transient;
 
 import java.util.Date;
 
@@ -17,6 +18,10 @@ public class ReviewItem {
     private String author;//= System.getProperty("user.name");
     private String text = "";// = "Add comment";
     private ReviewStatus status;
+
+
+    private int searchStart = -1;
+    private int searchEnd = -1;
 
     public ReviewItem() {
     }
@@ -64,6 +69,23 @@ public class ReviewItem {
         this.date = date;
     }
 
+    @Transient
+    public int getSearchStart() {
+        return searchStart;
+    }
+
+    public void setSearchStart(int searchStart) {
+        this.searchStart = searchStart;
+    }
+
+    @Transient
+     public int getSearchEnd() {
+        return searchEnd;
+    }
+
+    public void setSearchEnd(int searchEnd) {
+        this.searchEnd = searchEnd;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -37,7 +37,7 @@ public class FileNode extends SimpleNode implements Navigatable{
     private List<SimpleNode> children = new ArrayList<SimpleNode>();
     private ProjectFileIndex fileIndex;
 
-    public FileNode(Project project, VirtualFile value/*, NodeDescriptor parentDescriptor*/) {
+    public FileNode(Project project, VirtualFile value) {
         super(project/*, parentDescriptor*/);
         this.project = project;
         fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
@@ -64,9 +64,9 @@ public class FileNode extends SimpleNode implements Navigatable{
                    addNode(newNode);
                 }
             } else {
-                List<Review> reviews = ReviewManager.getInstance(project).getReviews(file);
+                List<Review> reviews = ReviewManager.getInstance(project).getFilteredReviews(file.getUrl());
                 for(Review review : reviews) {
-                    children.add(new ReviewNode(project, review, this));
+                    children.add(new ReviewNode(project, review));
                 }
              }
         return children.toArray(new SimpleNode[children.size()]);
@@ -107,7 +107,7 @@ public class FileNode extends SimpleNode implements Navigatable{
         //if(children.isEmpty()) return;
         data.addText(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         if(!file.isDirectory()) {
-            List<Review> reviews = ReviewManager.getInstance(project).getReviews(file);
+            List<Review> reviews = ReviewManager.getInstance(project).getFilteredReviews(file.getUrl());
             if(reviews == null || reviews.isEmpty()) {
                 data.clear();
                 return;

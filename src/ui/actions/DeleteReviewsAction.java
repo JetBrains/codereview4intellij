@@ -7,6 +7,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -21,7 +22,7 @@ import ui.reviewtoolwindow.ReviewView;
  * Date: 7/25/11
  * Time: 1:41 PM
  */
-public class DeleteReviewsAction extends AnAction{
+public class DeleteReviewsAction extends AnAction  implements DumbAware {
 
     private ReviewPoint reviewPoint;
 

@@ -26,6 +26,9 @@ public class Review {
     private boolean isValid = true;
     private boolean activated = false;
 
+    private int searchStart = -1;
+    private int searchEnd = -1;
+
     public Review(ReviewBean reviewBean, Project project){
         this.reviewBean = reviewBean;
         this.project = project;
@@ -39,7 +42,7 @@ public class Review {
         this.project = project;
         this.virtualFile = virtualFile;
         this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
-        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start < end && end < virtualFile.getLength());
+        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start <= end && end < virtualFile.getLength());
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
@@ -100,6 +103,14 @@ public class Review {
         return activated;
     }
 
+    public int getSearchStart() {
+        return searchStart;
+    }
+
+    public void setSearchStart(int searchStart) {
+        this.searchStart = searchStart;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,5 +124,17 @@ public class Review {
     @Override
     public int hashCode() {
         return reviewBean != null ? reviewBean.hashCode() : 0;
+    }
+
+    public int getSearchEnd() {
+        return searchEnd;
+    }
+
+    public void setSearchEnd(int searchEnd) {
+        this.searchEnd = searchEnd;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 }

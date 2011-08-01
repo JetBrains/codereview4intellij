@@ -8,9 +8,9 @@ import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
-import org.eclipse.jdt.core.dom.ThisExpression;
 import org.jetbrains.annotations.NotNull;
 import ui.reviewpoint.ReviewPoint;
+import utils.Util;
 
 import java.util.*;
 
@@ -31,9 +31,10 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
     private final StartupManagerEx startupManager;
     private State state = new State();
     private Map<String, List<Review>> reviews = new HashMap<String, List<Review>>();
+    private Map<String, List<Review>> filteredReviews = new HashMap<String, List<Review>>();
     private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
     private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
-    public Map<String, List<ReviewBean>> removed = new HashMap<String, List<ReviewBean>>();
+    private Map<String, List<ReviewBean>> removed = new HashMap<String, List<ReviewBean>>();
     public ReviewManager(Project project, final StartupManager startupManager) {
         super(project);
         this.startupManager = (StartupManagerEx)startupManager;
@@ -102,7 +103,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         updateUI();
     }
 
-
     public Map<Review, ReviewPoint> getReviewPoints() {
         return reviewPoints;
     }
@@ -112,6 +112,7 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
             updateUI(point);
         }
     }
+
     public void updateUI(final ReviewPoint point) {
         Runnable runnable = new Runnable() {
             public void run() {
@@ -131,7 +132,68 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
     }
 
     public Set<String> getFileNames() {
-        return reviews.keySet();
+        if(filteredReviews.isEmpty()) {
+            return reviews.keySet();
+        }
+        return filteredReviews.keySet();
+    }
+
+    public void createFilter(String text) {
+        if(text == null || "".equals(text)) {
+            filteredReviews = reviews;
+        }
+        else {
+            filteredReviews = new HashMap<String, List<Review>>();
+            for(String url : reviews.keySet()) {
+                for(Review review : reviews.get(url)) {
+                    boolean contains = false;
+                    for(ReviewItem item : review.getReviewItems()) {
+                        int itemStart = Util.find(item.getText(), text);
+                        int reviewStart = Util.find(review.getName(), text);
+                        int itemEnd = -1;
+                        int reviewEnd = -1;
+                        if(itemStart != -1 || reviewStart != -1) {
+                            contains = true;
+
+                            if(itemStart >= 0) {
+                                itemEnd = itemStart + text.length();
+                            }
+                            if(reviewStart >= 0) {
+                                reviewEnd = reviewStart + text.length();
+                            }
+                        }
+                        item.setSearchStart(itemStart);
+                        item.setSearchEnd(itemEnd);
+                        review.setSearchStart(reviewStart);
+                        review.setSearchEnd(reviewEnd);
+                    }
+                    if(contains) {
+                        if(filteredReviews.containsKey(url)) {
+                            List<Review> reviewList = filteredReviews.get(url);
+                            reviewList.add(review);
+                        } else {
+                            ArrayList<Review> reviewsList = new ArrayList<Review>();
+                            reviewsList.add(review);
+                            filteredReviews.put(url, reviewsList);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void emptyFilter() {
+         for(String url : reviews.keySet()) {
+            for(Review review : reviews.get(url)) {
+                review.setSearchStart(-1);
+                review.setSearchEnd(-1);
+                for(ReviewItem item : review.getReviewItems()) {
+                    item.setSearchStart(-1);
+                    item.setSearchEnd(-1);
+                }
+            }
+          }
+         filteredReviews = reviews;
     }
 
     public ReviewPoint findReviewPoint(Review review) {
@@ -272,7 +334,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         }
     }
 
-
     public List<ReviewBean> getAddedForFile(VirtualFile file) {
         List<Review> reviewsPart = reviews.get(file.getUrl());
         if(reviewsPart != null && !reviewsPart.isEmpty()) {
@@ -284,9 +345,17 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         }
         return null;
     }
+
     public List<ReviewBean> getRemovedForFile(VirtualFile file) {
         return removed.get(file.getUrl());
     }
+
+    public List<Review> getFilteredReviews(String fileName) {
+        return filteredReviews.get(fileName);
+    }
+
+
+
     public static class State {
         @Tag("reviews")
         @AbstractCollection(surroundWithTag = false)

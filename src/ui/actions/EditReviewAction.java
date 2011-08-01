@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
@@ -23,7 +24,7 @@ import java.awt.*;
  * Date: 7/20/11
  * Time: 5:03 PM
  */
-public class EditReviewAction extends AnAction {
+public class EditReviewAction extends AnAction  implements DumbAware {
     private ReviewPoint reviewPoint;
     public EditReviewAction(String title, ReviewPoint reviewPoint) {
         super(title);
