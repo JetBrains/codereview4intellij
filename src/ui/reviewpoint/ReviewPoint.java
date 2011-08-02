@@ -89,7 +89,7 @@ public class ReviewPoint {
 
 
     private class ReviewGutterIconRenderer extends GutterIconRenderer {
-        private final Icon icon = IconLoader.getIcon("/actions/cleanHeavy.png");
+        private final Icon icon = IconLoader.getIcon("/images/note.png");
         private boolean activated = false;
         @NotNull
         @Override

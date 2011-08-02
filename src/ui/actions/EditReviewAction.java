@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.awt.RelativePoint;
 import ui.forms.EditReviewForm;
 import ui.reviewpoint.ReviewPoint;
@@ -25,9 +26,11 @@ import java.awt.*;
  * Time: 5:03 PM
  */
 public class EditReviewAction extends AnAction  implements DumbAware {
+  private static final Icon ICON = IconLoader.getIcon("/images/note_edit.png");
+
     private ReviewPoint reviewPoint;
     public EditReviewAction(String title, ReviewPoint reviewPoint) {
-        super(title);
+        super(title, title, ICON);
         this.reviewPoint = reviewPoint;
     }
 

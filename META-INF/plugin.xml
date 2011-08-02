@@ -20,7 +20,7 @@
             <reference ref="EditSource"/>
       </group>
 
-      <action id="addReview" class="ui.actions.AddReviewAction" text="Add review">
+      <action id="addReview" class="ui.actions.AddReviewAction" text="Add review" icon="/images/note_add.png">
           <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
       </action>
 
