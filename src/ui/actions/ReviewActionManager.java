@@ -3,6 +3,7 @@ package ui.actions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.*;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.wm.IdeFocusManager;
@@ -20,7 +21,7 @@ import java.awt.*;
  * Date: 7/25/11
  * Time: 1:14 PM
  */
-public class ReviewActionManager {
+public class ReviewActionManager implements DumbAware {
     private static Balloon activeBalloon = null;
     private BalloonBuilder balloonBuilder;
     private EditReviewForm editReviewForm;
@@ -102,30 +103,6 @@ public class ReviewActionManager {
             }, Balloon.Position.atRight);
 
         ActionCallback callback = IdeFocusManager.getInstance(review.getProject()).requestFocus(editReviewForm.getNameTextField(), true);
-        /*editor.getScrollingModel().addVisibleAreaListener(new VisibleAreaListener() {
-            @Override
-            public void visibleAreaChanged(VisibleAreaEvent e) {
-                if(e.getNewRectangle().contains(point)) {
-                    if(activeBalloon != null)  activeBalloon.hide();
-                    if(review.isActivated() && (activeBalloon == null  || activeBalloon.isDisposed()))
-                    {
-                        activeBalloon = balloonBuilder.createBalloon();
-                        editReviewForm.setBalloon(activeBalloon);
-                        activeBalloon.show(new RelativePoint(editor.getContentComponent(), point), Balloon.Position.atRight);
-                    }
-                    else {
-                      if(activeBalloon != null) {
-                          activeBalloon.dispose();
-                      }
-                    }
-                }
-                else {
-                    if(activeBalloon != null) activeBalloon.hide();
-                    activeBalloon = null;
-                }
-
-            }
-        });     */
     }
 
     public static void disposeActiveBalloon() {

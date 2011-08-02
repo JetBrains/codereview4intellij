@@ -10,6 +10,7 @@ import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.jetbrains.annotations.NotNull;
 import ui.reviewpoint.ReviewPoint;
+import ui.reviewpoint.ReviewPointManager;
 import utils.Util;
 
 import java.util.*;
@@ -28,16 +29,19 @@ import java.util.*;
     }
 )
 public class ReviewManager extends AbstractProjectComponent implements PersistentStateComponent<ReviewManager.State>, VirtualFileListener {
-    private final StartupManagerEx startupManager;
+    //private final StartupManagerEx startupManager;
     private State state = new State();
     private Map<String, List<Review>> reviews = new HashMap<String, List<Review>>();
     private Map<String, List<Review>> filteredReviews = new HashMap<String, List<Review>>();
-    private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
-    private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
     private Map<String, List<ReviewBean>> removed = new HashMap<String, List<ReviewBean>>();
+    private boolean saveReviewsToPatch;
+
+    private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
+
+
     public ReviewManager(Project project, final StartupManager startupManager) {
         super(project);
-        this.startupManager = (StartupManagerEx)startupManager;
+        //this.startupManager = (StartupManagerEx)startupManager;
         VirtualFileManager.getInstance().addVirtualFileListener(this);
     }
 
@@ -88,9 +92,8 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         for (ReviewBean reviewBean : state.reviews) {
             Review review = new Review(reviewBean, myProject);
             if(review.isValid()) {
-                if(findReviewPoint(review) == null) {
-                    makeReviewPoint(review);
-                }
+                addReview(review);
+                ReviewPointManager.getInstance(myProject).loadReviewPoint(review);
             }
             else {
                 toRemove.add(review.getReviewBean());
@@ -100,32 +103,12 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         if(!toRemove.isEmpty()) {
             state.reviews.removeAll(toRemove);
         }
-        updateUI();
+        ReviewPointManager.getInstance(myProject).updateUI();
     }
 
-    public Map<Review, ReviewPoint> getReviewPoints() {
-        return reviewPoints;
-    }
 
-    public void updateUI() {
-        for (ReviewPoint point : reviewPoints.values()) {
-            updateUI(point);
-        }
-    }
 
-    public void updateUI(final ReviewPoint point) {
-        Runnable runnable = new Runnable() {
-            public void run() {
-                    point.updateUI();
-            }
-        };
-        if (startupManager.startupActivityPassed()) {
-          runnable.run();
-        }
-        else {
-          startupManager.registerPostStartupActivity(runnable);
-        }
-    }
+
 
     public List<Review> getReviews(VirtualFile virtualFile) {
         return reviews.get(virtualFile.getUrl());
@@ -192,34 +175,10 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
                     item.setSearchEnd(-1);
                 }
             }
-          }
+         }
          filteredReviews = reviews;
     }
 
-    public ReviewPoint findReviewPoint(Review review) {
-        if(reviewPoints.containsKey(review)) {
-            return reviewPoints.get(review);
-        }
-        return null;
-    }
-
-    public void createReviewPoint(Review review) {
-        if(review.isValid()) {
-            ReviewPoint point = makeReviewPoint(review);
-            if(point != null) {
-                updateUI(point);
-            }
-        } else {
-            logInvalidReview(review);
-        }
-    }
-
-    private ReviewPoint makeReviewPoint(Review review) {
-        ReviewPoint point = new ReviewPoint(review);
-        reviewPoints.put(review, point);
-        addReview(review);
-        return point;
-    }
 
     @Override
     public void projectOpened() {
@@ -244,14 +203,11 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
     public void clearAll() {
         state = new State();
         reviews = new HashMap<String, List<Review>>();
-        reviewPoints = new HashMap<Review, ReviewPoint>();
+       // reviewPoints = new HashMap<Review, ReviewPoint>();
     }
 
-    public void removeReview(ReviewPoint pointToRemove) {
-        if(pointToRemove != null) {
-            pointToRemove.release();
-            Review review = pointToRemove.getReview();
-            reviewPoints.remove(review);
+    public void removeReview(Review review) {
+            ReviewPointManager.getInstance(myProject).removePoint(review);
             ReviewBean reviewBean = review.getReviewBean();
             String url = reviewBean.getUrl();
             List<Review> reviewsList = reviews.get(url);
@@ -267,7 +223,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
             } else {
                 reviewBeans.add(reviewBean);
             }
-        }
     }
 
     public void logInvalidReview(Review review) {
@@ -308,7 +263,7 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
             List<Review> reviewList = reviews.get(url);
             reviews.remove(url);
             for (Review review : reviewList) {
-                reviewPoints.remove(review);
+                ReviewPointManager.getInstance(myProject).removePoint(review);
                 state.reviews.remove(review.getReviewBean());
             }
         }
@@ -330,7 +285,7 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
 
     public void unloadReviewsForFile(State state) {
         for (ReviewBean reviewBean : state.reviews) {
-            removeReview(findReviewPoint(new Review(reviewBean, myProject)));
+            removeReview(new Review(reviewBean, myProject));
         }
     }
 
@@ -354,7 +309,23 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         return filteredReviews.get(fileName);
     }
 
+    public int getReviewCount(Collection<VirtualFile> virtualFiles) {
+        int reviewCount = 0;
+        for(VirtualFile file : virtualFiles) {
+            if(reviews.containsKey(file.getUrl())) {
+               reviewCount += reviews.get(file.getUrl()).size();
+            }
+        }
+        return reviewCount;
+    }
 
+    public void setSaveReviewsToPatch(boolean saveReviewsToPatch) {
+        this.saveReviewsToPatch = saveReviewsToPatch;
+    }
+
+    public boolean isSaveReviewsToPatch() {
+        return saveReviewsToPatch;
+    }
 
     public static class State {
         @Tag("reviews")

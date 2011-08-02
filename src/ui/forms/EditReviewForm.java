@@ -6,6 +6,8 @@ import com.intellij.ui.ScrollPaneFactory;
 import reviewresult.Review;
 import reviewresult.ReviewItem;
 import reviewresult.ReviewManager;
+import reviewresult.ReviewStatus;
+import ui.reviewpoint.ReviewPointManager;
 import ui.reviewtoolwindow.ReviewView;
 
 import javax.swing.*;
@@ -27,18 +29,22 @@ public class EditReviewForm {
     private JButton cancelButton;
     private JPanel mainPanel;
     private JPanel itemsPanel;
+    private JTextArea newReviewItemText;
+    private JScrollPane newItemScrollPane;
 
     private List<ReviewItemForm> reviewItemFormsList;
-    private ReviewItemForm reviewItemForm;
     private Balloon balloon;
     private JPanel panel;
     private final Review review;
-    private JPanel content;
 
     public EditReviewForm(final Review review) {
         this.review = review;
         review.setActivated(true);
+        reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
         resetItemsContent(true);
+        JScrollPane itemsScrollPane = ScrollPaneFactory.createScrollPane(panel);
+        itemsScrollPane.setMaximumSize(itemsScrollPane.getPreferredSize());
+        itemsPanel.add(itemsScrollPane);
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -46,17 +52,16 @@ public class EditReviewForm {
                 review.setActivated(false);
             }
         });
-        JScrollPane itemsScrollPane = ScrollPaneFactory.createScrollPane(panel);
-        itemsScrollPane.setMaximumSize(itemsScrollPane.getPreferredSize());
-        itemsPanel.add(itemsScrollPane);
+
         OKButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ReviewItem item = reviewItemForm.getReviewItem();
-                String text = item.getText().trim();
+                //ReviewItem item = reviewItemForm.getReviewItem();
+                String text = newReviewItemText.getText().trim();
                 if("".equals(text)) {
-                            reviewItemForm.setEmptyComment();
-                            return;
+                    newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
+                    newReviewItemText.invalidate();
+                    return;
                 }
 
                 String name = reviewName.getText();
@@ -69,10 +74,10 @@ public class EditReviewForm {
                     review.setName(name);
                 }
                 if(review.getReviewItems().isEmpty()) {
-                    ReviewManager.getInstance(review.getProject()).createReviewPoint(review);
-                    //ReviewManager.getInstance(newReview.getProject()).addReview(newReview);
+                    ReviewManager.getInstance(review.getProject()).addReview(review);
+                    ReviewPointManager.getInstance(review.getProject()).createReviewPoint(review);
                 }
-                review.addReviewItem(item);
+                review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
                 balloon.dispose();
                 review.setActivated(false);
                 ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
@@ -83,7 +88,6 @@ public class EditReviewForm {
 
     public JComponent getContent() {
         mainPanel.setFocusable(true);
-
         return mainPanel;
     }
 
@@ -102,29 +106,34 @@ public class EditReviewForm {
         itemsPanel.setLayout(new GridLayout(-1, 1));
         panel = new JPanel(new GridLayout(-1, 1));
         if(review.getName() != null) {
+            reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
             reviewName.setText(review.getName());
         }
         for (ReviewItem reviewItem : review.getReviewItems()) {
-            ReviewItemForm itemForm = new ReviewItemForm(reviewItem, true);
+            ReviewItemForm itemForm = new ReviewItemForm(reviewItem);
             panel.add(itemForm.getContent(editable));
             reviewItemFormsList.add(itemForm);
         }
-        ReviewItem reviewItem = new ReviewItem();
-        reviewItemForm = new ReviewItemForm(reviewItem, true);
-        content = reviewItemForm.getContent(true);
-        panel.add(content);
     }
 
     public Component getItemTextField() {
-        return reviewItemForm.getItemTextField();
+        newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
+        //newReviewItemText.
+        return newReviewItemText;
     }
 
     public Component getNameTextField() {
+        reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
         return reviewName;
     }
     public void updateSelection() {
         for(ReviewItemForm form : reviewItemFormsList) {
             form.updateSelection();
         }
+    }
+
+    private void createUIComponents() {
+        newItemScrollPane = ScrollPaneFactory.createScrollPane();
+        newItemScrollPane.setMaximumSize(newItemScrollPane.getPreferredSize());
     }
 }

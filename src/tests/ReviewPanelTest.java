@@ -1,3 +1,4 @@
+/*
 package tests;
 
 import com.intellij.ide.util.treeView.AbstractTreeNode;
@@ -20,11 +21,13 @@ import ui.reviewtoolwindow.nodes.ReviewNode;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.stream.events.EndDocument;
 
+*/
 /**
  * User: Alisa.Afonina
  * Date: 7/27/11
  * Time: 1:02 PM
- */
+ *//*
+
 public class ReviewPanelTest extends IdeaTestCase {
     private ReviewManager reviewManager;
 
@@ -166,7 +169,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         Review review = addNewReview(projectFile, "test review 1", 1, 1);
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();
-        reviewManager.removeReview(reviewManager.findReviewPoint(review));
+        reviewManager.removeReview(review);
         panel.updateUI();
         PatchedDefaultMutableTreeNode root = (PatchedDefaultMutableTreeNode) reviewTree.getBuilderModel().getRoot();
         int leafCount = root.getLeafCount();
@@ -188,7 +191,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();
 
-        reviewManager.removeReview(reviewManager.findReviewPoint(firstReview));
+        reviewManager.removeReview(firstReview);
 
 
         panel.updateUI();
@@ -311,3 +314,4 @@ public class ReviewPanelTest extends IdeaTestCase {
         return review;
     }
 }
+*/

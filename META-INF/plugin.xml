@@ -13,6 +13,9 @@
       <component>
             <implementation-class>reviewresult.ReviewManager</implementation-class>
       </component>
+      <component>
+            <implementation-class>ui.reviewpoint.ReviewPointManager</implementation-class>
+      </component>
   </project-components>
 
   <actions>
@@ -31,6 +34,7 @@
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="ui.reviewtoolwindow.CodeReviewToolWindowFactory"/>
     <projectService serviceInterface="ui.reviewtoolwindow.ReviewView" serviceImplementation="ui.reviewtoolwindow.ReviewView"/>
-    <patch.extension implementation="reviewresult.ReviewPatchExtensionPoint" />
+    <patch.extension implementation="patch.ReviewPatchExtensionPoint" />
+    <checkinHandlerFactory implementation="patch.ReviewCommitHandlerFactory" />
   </extensions>
 </idea-plugin>

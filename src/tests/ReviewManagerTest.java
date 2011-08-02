@@ -1,3 +1,4 @@
+/*
 package tests;
 
 import com.intellij.openapi.editor.Document;
@@ -19,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+*/
 /**
  * User: Alisa.Afonina
  * Date: 7/26/11
  * Time: 12:22 PM
- */
+ *//*
+
 public class ReviewManagerTest extends IdeaTestCase {
 
     private ReviewManager reviewManager;
@@ -324,8 +327,8 @@ public class ReviewManagerTest extends IdeaTestCase {
         Review review = new Review(new ReviewBean(name, start, end, file.getUrl()), myProject);
         review.setValid(true);
         reviewManager.createReviewPoint(review);
-        //reviewManager.addReview(review);
-
+        //reviewManager.addReview(review)
         return review;
     }
 }
+*/

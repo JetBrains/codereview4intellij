@@ -1,6 +1,5 @@
 package ui.reviewpoint;
 
-import com.intellij.execution.ui.layout.actions.RestoreViewAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -9,9 +8,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
-import com.intellij.openapi.editor.ex.RangeHighlighterEx;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
@@ -22,13 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
-import ui.actions.DeleteReviewsAction;
+import ui.actions.DeleteReviewAction;
 import ui.actions.EditReviewAction;
 import ui.actions.ReviewActionManager;
 import ui.reviewtoolwindow.ReviewView;
 
 import javax.swing.*;
-import javax.swing.text.StyledEditorKit;
 
 /**
  * User: Alisa.Afonina
@@ -131,7 +127,7 @@ public class ReviewPoint {
         public ActionGroup getPopupMenuActions() {
             DefaultActionGroup group = new DefaultActionGroup();
             group.add(new EditReviewAction("Add review", ReviewPoint.this));
-            group.add(new DeleteReviewsAction("Delete review", ReviewPoint.this));
+            group.add(new DeleteReviewAction("Delete review", ReviewPoint.this));
             return group;
         }
     }

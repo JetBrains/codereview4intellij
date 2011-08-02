@@ -33,6 +33,7 @@ import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.forms.EditReviewForm;
 import ui.reviewpoint.ReviewPoint;
+import ui.reviewpoint.ReviewPointManager;
 import ui.reviewtoolwindow.nodes.FileNode;
 import ui.reviewtoolwindow.nodes.ModuleNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
@@ -282,8 +283,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         if(review == null) return;
         previewPanel.setVisible(isShowPreview);
         previewPanel.removeAll();
-        ReviewPoint point = ReviewManager.getInstance(project).findReviewPoint(review);
-        if(point == null) return;
+        //ReviewPoint point = ReviewPointManager.getInstance(project).findReviewPoint(review);
+        //if(point == null) return;
         editReviewForm = new EditReviewForm(review);
         previewPanel.add(editReviewForm.getItemsContent());
         previewPanel.updateUI();

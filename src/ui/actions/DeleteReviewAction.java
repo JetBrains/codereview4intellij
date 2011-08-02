@@ -22,11 +22,11 @@ import ui.reviewtoolwindow.ReviewView;
  * Date: 7/25/11
  * Time: 1:41 PM
  */
-public class DeleteReviewsAction extends AnAction  implements DumbAware {
+public class DeleteReviewAction extends AnAction  implements DumbAware {
 
     private ReviewPoint reviewPoint;
 
-    public DeleteReviewsAction(String title, ReviewPoint reviewPoint) {
+    public DeleteReviewAction(String title, ReviewPoint reviewPoint) {
         super(title);
         this.reviewPoint = reviewPoint;
     }
@@ -34,7 +34,7 @@ public class DeleteReviewsAction extends AnAction  implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent e) {
         Project project = reviewPoint.getReview().getProject();
-        ReviewManager.getInstance(project).removeReview(reviewPoint);
+        ReviewManager.getInstance(project).removeReview(reviewPoint.getReview());
         ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
         reviewView.updateUI();
     }

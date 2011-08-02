@@ -1,4 +1,4 @@
-package reviewresult;
+package patch;
 
 import com.intellij.openapi.diff.impl.patch.PatchEP;
 import com.intellij.openapi.project.Project;
@@ -12,6 +12,8 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
+import reviewresult.ReviewManager;
+import ui.reviewpoint.ReviewPointManager;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,20 +32,24 @@ public class ReviewPatchExtensionPoint implements PatchEP{
 
     @Override
     public CharSequence provideContent(@NotNull String path) {
+
+
         String result = "";
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
             VirtualFile file = project.getBaseDir().findFileByRelativePath(path);
             if(file == null) return "";
 
             ReviewManager.State state = new ReviewManager.State();
-
-            state.reviews = ReviewManager.getInstance(project).getAddedForFile(file);
-            state.removed = ReviewManager.getInstance(project).getRemovedForFile(file);
-            if((state.reviews == null || state.reviews.isEmpty()) && (state.removed == null || state.removed.isEmpty()) ) return "";
-            Element addedElement = XmlSerializer.serialize(state);
-            XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-            result += outputter.outputString(addedElement);
-            break;
+            ReviewManager instance = ReviewManager.getInstance(project);
+            if(instance.isSaveReviewsToPatch()) {
+                state.reviews = instance.getAddedForFile(file);
+                state.removed = instance.getRemovedForFile(file);
+                if((state.reviews == null || state.reviews.isEmpty()) && (state.removed == null || state.removed.isEmpty()) ) return "";
+                Element addedElement = XmlSerializer.serialize(state);
+                XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
+                result += outputter.outputString(addedElement);
+                break;
+            }
         }
         return new StringBuilder(result);
     }
@@ -62,7 +68,7 @@ public class ReviewPatchExtensionPoint implements PatchEP{
                 ReviewManager reviewManager = ReviewManager.getInstance(project);
                 reviewManager.loadReviewsForFile(state);
                // ReviewManager.getInstance(project).unloadReviewsForFile(state);
-                reviewManager.updateUI();
+                //ReviewPointManager.getInstance(project).updateUI();
             } catch(JDOMException e) {
                 e.printStackTrace();
             } catch(NullPointerException e) {

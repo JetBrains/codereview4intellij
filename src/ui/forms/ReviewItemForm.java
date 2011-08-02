@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Date;
+import java.util.jar.Attributes;
 
 /**
  * User: Alisa.Afonina
@@ -26,44 +27,40 @@ import java.util.Date;
 public class ReviewItemForm {
     private JTextField authorTextField;
     private JTextField dateTextField;
-    private JTextPane reviewItemText;
+    private JTextArea reviewItemText;
     private JPanel reviewItemContent;
     private ReviewItem reviewItem;
 
     private Highlighter highlighter;
-    public ReviewItemForm(ReviewItem data, boolean focused) {
+    public ReviewItemForm(ReviewItem data) {
         reviewItem = data;
-        data.setAuthor(System.getProperty("user.name"));
         authorTextField.setText(data.getAuthor());
         dateTextField.setText(data.getDate().toString());
         String text = data.getText();
+        reviewItemText.setBorder(BorderFactory.createEmptyBorder());
+        reviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
         if(text != null) {
             reviewItemText.setText(text);
-
         }
         highlighter = new BasicTextUI.BasicHighlighter();
         reviewItemText.setHighlighter(highlighter);
         updateSelection();
-        //IdeFocusManager.getInstance().requestFocus()
         reviewItemText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 reviewItemText.setBorder(BorderFactory.createEmptyBorder());
-                reviewItem.setText(reviewItemText.getText() + e.getKeyChar());
+                if(Character.isDigit(e.getKeyChar()) ||
+                   Character.isLetter(e.getKeyChar()) ||
+                   Character.isWhitespace(e.getKeyChar()) ) {
+                        reviewItem.setText(reviewItemText.getText() + e.getKeyChar());
+                }
             }
         });
-        /*if(focused) {
-            reviewItemText.requestFocusInWindow();
-        } */
     }
 
     public void updateSelection() {
         int searchStart = reviewItem.getSearchStart();
         if(searchStart >= 0) {
-            //reviewItemText.requestFocus();
-            //int searchEnd = reviewItem.getSearchEnd();
-            //reviewItemText.setSelectionColor(Color.YELLOW);
-            //reviewItemText.select(searchStart, searchEnd);
             if(highlighter.getHighlights().length > 0) {
                 highlighter.removeAllHighlights();
             }

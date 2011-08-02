@@ -22,6 +22,7 @@ import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.forms.EditReviewForm;
 import ui.reviewpoint.ReviewPoint;
+import ui.reviewpoint.ReviewPointManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,7 +59,7 @@ public class AddReviewAction extends AnAction implements DumbAware{
         Review review = new Review(project, null, start, end, virtualFile);
         ReviewManager instance = ReviewManager.getInstance(project);
         if(review.isValid()) {
-            ReviewPoint reviewPoint = instance.findReviewPoint(review);
+            ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(review);
             if(reviewPoint != null) {
                 ReviewActionManager.getInstance(reviewPoint.getReview()).addToExistingComments(editor, reviewPoint);
             } else {
