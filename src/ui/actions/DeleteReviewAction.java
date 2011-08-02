@@ -2,20 +2,16 @@ package ui.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
+import com.intellij.openapi.util.IconLoader;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.reviewpoint.ReviewPoint;
 import ui.reviewtoolwindow.ReviewView;
+
+import javax.swing.*;
 
 /**
  * User: Alisa.Afonina
@@ -24,17 +20,19 @@ import ui.reviewtoolwindow.ReviewView;
  */
 public class DeleteReviewAction extends AnAction  implements DumbAware {
 
-    private ReviewPoint reviewPoint;
+    private static final Icon ICON = IconLoader.getIcon("/images/note_delete.png");
 
-    public DeleteReviewAction(String title, ReviewPoint reviewPoint) {
-        super(title);
-        this.reviewPoint = reviewPoint;
+    private Review review;
+
+    public DeleteReviewAction(String title, Review review) {
+        super(title, title, ICON);
+        this.review = review;
     }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        Project project = reviewPoint.getReview().getProject();
-        ReviewManager.getInstance(project).removeReview(reviewPoint.getReview());
+        Project project = review.getProject();
+        ReviewManager.getInstance(project).removeReview(review);
         ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
         reviewView.updateUI();
     }

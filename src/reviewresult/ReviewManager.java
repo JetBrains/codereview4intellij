@@ -28,8 +28,7 @@ import java.util.*;
        @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/codeReview.xml", scheme = StorageScheme.DIRECTORY_BASED)
     }
 )
-public class ReviewManager extends AbstractProjectComponent implements PersistentStateComponent<ReviewManager.State>, VirtualFileListener {
-    //private final StartupManagerEx startupManager;
+public class ReviewManager extends AbstractProjectComponent implements PersistentStateComponent<ReviewManager.State>{
     private State state = new State();
     private Map<String, List<Review>> reviews = new HashMap<String, List<Review>>();
     private Map<String, List<Review>> filteredReviews = new HashMap<String, List<Review>>();
@@ -38,11 +37,9 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
 
     private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
 
-
-    public ReviewManager(Project project, final StartupManager startupManager) {
+    public ReviewManager(Project project) {
         super(project);
-        //this.startupManager = (StartupManagerEx)startupManager;
-        VirtualFileManager.getInstance().addVirtualFileListener(this);
+        VirtualFileManager.getInstance().addVirtualFileListener(new ReviewVirtualFileListener(), project);
     }
 
     public static ReviewManager getInstance(@NotNull Project project) {
@@ -55,18 +52,14 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         if(reviews.containsKey(url)) {
             List<Review> reviewList = reviews.get(url);
             reviewList.add(newReview);
-            ReviewBean reviewBean = newReview.getReviewBean();
-            if(!state.reviews.contains(reviewBean)) {
-                state.reviews.add(reviewBean);
-            }
         } else {
             ArrayList<Review> reviewsList = new ArrayList<Review>();
             reviewsList.add(newReview);
             reviews.put(url, reviewsList);
-            ReviewBean reviewBean = newReview.getReviewBean();
-            if(!state.reviews.contains(reviewBean)) {
-                state.reviews.add(reviewBean);
-            }
+        }
+        ReviewBean reviewBean = newReview.getReviewBean();
+        if(!state.reviews.contains(reviewBean)) {
+            state.reviews.add(reviewBean);
         }
     }
 
@@ -105,10 +98,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         }
         ReviewPointManager.getInstance(myProject).updateUI();
     }
-
-
-
-
 
     public List<Review> getReviews(VirtualFile virtualFile) {
         return reviews.get(virtualFile.getUrl());
@@ -179,21 +168,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
          filteredReviews = reviews;
     }
 
-
-    @Override
-    public void projectOpened() {
-
-    }
-
-    @Override
-    public void projectClosed() {}
-
-    @Override
-    public void initComponent() {}
-
-    @Override
-    public void disposeComponent() {}
-
     @NotNull
     @Override
     public String getComponentName() {
@@ -212,6 +186,7 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
             String url = reviewBean.getUrl();
             List<Review> reviewsList = reviews.get(url);
             reviewsList.remove(review);
+            review.setValid(false);
             if(reviewsList.isEmpty()) reviews.remove(url);
             state.reviews.remove(reviewBean);
             List<ReviewBean> reviewBeans = removed.get(reviewBean.getUrl());
@@ -229,58 +204,6 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         String message = "Review with start offset " + String.valueOf(review.getStart())
                     + " and file \"" + review.getReviewBean().getUrl() + "\" became invalid";
         LOG.warn(message);
-    }
-
-    @Override
-    public void propertyChanged(VirtualFilePropertyEvent event) {}
-
-    @Override
-    public void contentsChanged(VirtualFileEvent event) {}
-
-    @Override
-    public void fileCreated(VirtualFileEvent event) {}
-
-    @Override
-    public void fileDeleted(VirtualFileEvent event) {}
-
-    @Override
-    public void fileMoved(VirtualFileMoveEvent event) {}
-
-    @Override
-    public void fileCopied(VirtualFileCopyEvent event) {}
-
-    @Override
-    public void beforePropertyChange(VirtualFilePropertyEvent event) {}
-
-    @Override
-    public void beforeContentsChange(VirtualFileEvent event) {}
-
-    @Override
-    public void beforeFileDeletion(VirtualFileEvent event) {
-        VirtualFile oldFile = event.getFile();
-        String url = oldFile.getUrl();
-        if(reviews.containsKey(url)) {
-            List<Review> reviewList = reviews.get(url);
-            reviews.remove(url);
-            for (Review review : reviewList) {
-                ReviewPointManager.getInstance(myProject).removePoint(review);
-                state.reviews.remove(review.getReviewBean());
-            }
-        }
-    }
-
-    @Override
-    public void beforeFileMovement(VirtualFileMoveEvent event) {
-        String  url  = event.getOldParent().getUrl() + "/" + event.getFileName();
-        String  newUrl  = event.getNewParent().getUrl() + "/"  + event.getFileName();
-        if(reviews.containsKey(url)) {
-            List<Review> reviewList = reviews.get(url);
-            reviews.remove(url);
-            reviews.put(newUrl, reviewList);
-            for (Review review : reviewList) {
-                review.getReviewBean().setUrl(newUrl);
-            }
-        }
     }
 
     public void unloadReviewsForFile(State state) {
@@ -334,5 +257,35 @@ public class ReviewManager extends AbstractProjectComponent implements Persisten
         @Tag("removed_reviews")
         @AbstractCollection(surroundWithTag = false)
         public List<ReviewBean> removed = new ArrayList<ReviewBean>();
+    }
+
+    private class ReviewVirtualFileListener extends VirtualFileAdapter {
+        @Override
+        public void beforeFileMovement(VirtualFileMoveEvent event) {
+            String  url  = event.getOldParent().getUrl() + "/" + event.getFileName();
+            String  newUrl  = event.getNewParent().getUrl() + "/"  + event.getFileName();
+            if(reviews.containsKey(url)) {
+                List<Review> reviewList = reviews.get(url);
+                reviews.remove(url);
+                reviews.put(newUrl, reviewList);
+                for (Review review : reviewList) {
+                    review.getReviewBean().setUrl(newUrl);
+                }
+            }
+        }
+
+        @Override
+        public void beforeFileDeletion(VirtualFileEvent event) {
+            VirtualFile oldFile = event.getFile();
+            String url = oldFile.getUrl();
+            if(reviews.containsKey(url)) {
+                List<Review> reviewList = reviews.get(url);
+                reviews.remove(url);
+                for (Review review : reviewList) {
+                    ReviewPointManager.getInstance(myProject).removePoint(review);
+                    state.reviews.remove(review.getReviewBean());
+                }
+            }
+        }
     }
 }

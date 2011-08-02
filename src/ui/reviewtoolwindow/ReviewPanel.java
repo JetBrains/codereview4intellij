@@ -285,8 +285,9 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         previewPanel.removeAll();
         //ReviewPoint point = ReviewPointManager.getInstance(project).findReviewPoint(review);
         //if(point == null) return;
+
         editReviewForm = new EditReviewForm(review);
-        previewPanel.add(editReviewForm.getItemsContent());
+        previewPanel.add(editReviewForm.getItemsContent(false));
         previewPanel.updateUI();
 
     }

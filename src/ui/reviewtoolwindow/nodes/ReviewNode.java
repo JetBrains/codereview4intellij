@@ -67,10 +67,14 @@ public class ReviewNode extends SimpleNode implements Navigatable{
             }
             int line = review.getLine();
             if(line < 0) {
-                presentationData.clear();
+                presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
+                return;
             }
             int lineNumber = line + 1;
             presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+        } else {
+            presentationData.addText(review.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
         }
     }
 

@@ -75,7 +75,7 @@ public class ReviewBean {
         this.reviewItems = reviewItems;
     }
 
-    @Tag("url")
+    @Tag("filepath")
     public String getUrl() {
         return url;
     }

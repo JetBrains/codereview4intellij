@@ -47,6 +47,7 @@ public class ReviewActionManager implements DumbAware {
             editReviewForm = new EditReviewForm(reviewPoint.getReview());
             JComponent content = editReviewForm.getContent();
             balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(content, "Add Comment");
+            balloonBuilder.setHideOnClickOutside(true);
             Balloon balloon = balloonBuilder.createBalloon();
             editReviewForm.setBalloon(balloon);
             activeBalloon = balloon;
@@ -106,6 +107,41 @@ public class ReviewActionManager implements DumbAware {
     }
 
     public static void disposeActiveBalloon() {
-        activeBalloon.dispose();
+        if(activeBalloon != null) {
+            activeBalloon.dispose();
+        }
+    }
+
+     public void showExistingComments(final Editor editor, ReviewPoint reviewPoint) {
+        final EditorGutterComponentEx gutterComponent = ((EditorEx)editor).getGutterComponentEx();
+        final Point point = gutterComponent.getPoint(reviewPoint.getGutterIconRenderer());
+        if (point != null) {
+            final Icon icon = reviewPoint.getGutterIconRenderer().getIcon();
+            editReviewForm = new EditReviewForm(reviewPoint.getReview());
+            JComponent content = editReviewForm.getItemsContent(true);
+            balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(content, "View Comment");
+            balloonBuilder.setHideOnClickOutside(true);
+            Balloon balloon = balloonBuilder.createBalloon();
+            editReviewForm.setBalloon(balloon);
+            activeBalloon = balloon;
+
+            final Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
+            balloon.show(new PositionTracker<Balloon>(editor.getContentComponent()){
+                @Override
+                public RelativePoint recalculateLocation(Balloon object) {
+                    if(editor.getScrollingModel().getVisibleArea().contains(point)) {
+                        if(object.isDisposed()) activeBalloon = balloonBuilder.createBalloon();
+                        object = activeBalloon;
+                        editReviewForm.setBalloon(activeBalloon);
+                        return new RelativePoint(gutterComponent, centerIconPoint);
+                    }
+                    else {
+                        object.hide();
+                        return null;
+                    }
+                }
+            }, Balloon.Position.atRight);
+            ActionCallback callback = IdeFocusManager.getInstance(review.getProject()).requestFocus(editReviewForm.getNameTextField(), true);
+        }
     }
 }

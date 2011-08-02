@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.ManagingFS;
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -20,9 +21,9 @@ import java.util.List;
  */
 
 public class Review {
-    private ReviewBean reviewBean;
-    private Project project;
-    private VirtualFile virtualFile;
+    private final ReviewBean reviewBean;
+    private final Project project;
+    private final VirtualFile virtualFile;
     private boolean isValid = true;
     private boolean activated = false;
 
@@ -35,14 +36,19 @@ public class Review {
         this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getUrl());
         int start = reviewBean.getStart();
         int end = reviewBean.getEnd();
-        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start < end && end < virtualFile.getLength());
+        if(virtualFile == null) isValid = false;
+        checkValid(start, end, virtualFile);
     }
 
     public Review(Project project, String reviewName, int start, int end, VirtualFile virtualFile) {
         this.project = project;
         this.virtualFile = virtualFile;
         this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
-        isValid = (virtualFile != null && virtualFile.isValid() && start > 0 && end > 0 && start <= end && end < virtualFile.getLength());
+        checkValid(start, end, virtualFile);
+    }
+
+    private void checkValid(int start, int end, VirtualFile virtualFile) {
+        isValid = (isValid && virtualFile.isValid() && start > 0 && end > 0 && start <= end && end < virtualFile.getLength());
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
@@ -65,6 +71,7 @@ public class Review {
         return reviewBean.getStart();
     }
 
+    @Nullable
     public OpenFileDescriptor getElement() {
         if(isValid)
             return new OpenFileDescriptor(project, virtualFile, reviewBean.getStart());
@@ -77,9 +84,11 @@ public class Review {
     }
 
     public int getLine() {
-            Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-            if(!isValid || document == null) return -1;
-            return document.getLineNumber(reviewBean.getStart());
+        if(!isValid) return -1;
+        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+        if(document == null) return -1;
+        if(reviewBean.getStart()  > document.getText().length()) return -1;
+        return document.getLineNumber(reviewBean.getStart());
     }
 
 
