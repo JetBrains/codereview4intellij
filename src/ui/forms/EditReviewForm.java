@@ -2,11 +2,9 @@ package ui.forms;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.ui.GuiUtils;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.util.ui.GridBag;
 import reviewresult.Review;
-import reviewresult.ReviewItem;
+import reviewresult.persistent.ReviewItem;
 import reviewresult.ReviewManager;
 import reviewresult.ReviewStatus;
 import ui.reviewpoint.ReviewPointManager;
@@ -41,79 +39,73 @@ public class EditReviewForm {
 
     private final Review review;
 
-    public EditReviewForm(final Review review) {
+    public EditReviewForm(final Review review, boolean showNewItem) {
 
         this.review = review;
         review.setActivated(true);
 
         JPanel contentPanel = new JPanel(new GridLayout(2, 1));
         resetItemsContent(true);
-
-        JPanel newReviewItemPanel = new JPanel(new GridLayout(1, 1));
-        newReviewItemPanel.add(newReviewItemText);
-        JScrollPane newItemScrollPane = ScrollPaneFactory.createScrollPane(newReviewItemPanel);
-
-        /*GroupLayout layout = new GroupLayout(contentPanel);
-        contentPanel.setLayout(layout);
-        layout.setHorizontalGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup()
-                                            .addComponent(panel)
-                                            .addComponent(newItemScrollPane)
-                                ));
-
-        layout.setVerticalGroup(layout.createSequentialGroup()
-                                .addComponent(panel)
-                                .addComponent(newItemScrollPane));
-        layout.linkSize(SwingConstants.HORIZONTAL, panel, newItemScrollPane);*/
-
         contentPanel.add(panel);
-        contentPanel.add(newItemScrollPane);
 
-        JPanel OKCancelPanel = new JPanel(new GridLayout(1,2));
-        OKCancelPanel.add(OKButton);
-        OKCancelPanel.add(cancelButton);
+        if(showNewItem) {
+            JPanel newReviewItemPanel = new JPanel(new GridLayout(1, 1));
 
-        mainPanel.add(contentPanel);
-        mainPanel.add(OKCancelPanel, BorderLayout.SOUTH);
+            newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 27));
+            reviewName.setFont(new Font("Verdana", Font.PLAIN, 27));
 
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                balloon.dispose();
-                review.setActivated(false);
-            }
-        });
+            newReviewItemPanel.add(newReviewItemText);
+            JScrollPane newItemScrollPane = ScrollPaneFactory.createScrollPane(newReviewItemPanel);
 
-        OKButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String text = newReviewItemText.getText().trim();
-                if("".equals(text)) {
-                    newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
-                    newReviewItemText.invalidate();
-                    return;
+            contentPanel.add(newItemScrollPane);
+
+            JPanel OKCancelPanel = new JPanel(new GridLayout(1,2));
+            OKCancelPanel.add(OKButton);
+            OKCancelPanel.add(cancelButton);
+
+            mainPanel.add(contentPanel);
+            mainPanel.add(OKCancelPanel, BorderLayout.SOUTH);
+
+            cancelButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    balloon.dispose();
+                    review.setActivated(false);
                 }
+            });
 
-                String name = reviewName.getText();
-                if("".equals(name)) {
-                    int nameLength = 6;
-                    String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength):text;
-                    review.setName(forcedName);
+            OKButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String text = newReviewItemText.getText().trim();
+                    if("".equals(text)) {
+                        newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
+                        newReviewItemText.invalidate();
+                        return;
+                    }
+
+                    String name = reviewName.getText();
+                    if("".equals(name)) {
+                        int nameLength = 6;
+                        String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength):text;
+                        review.setName(forcedName);
+                    }
+                    else {
+                        review.setName(name);
+                    }
+                    if(review.getReviewItems().isEmpty()) {
+                        ReviewManager.getInstance(review.getProject()).addReview(review);
+                        //ReviewPointManager.getInstance(review.getProject()).createReviewPoint(review);
+                    }
+                    review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
+                    balloon.dispose();
+                    review.setActivated(false);
+                    ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
+                    reviewView.updateUI();
                 }
-                else {
-                    review.setName(name);
-                }
-                if(review.getReviewItems().isEmpty()) {
-                    ReviewManager.getInstance(review.getProject()).addReview(review);
-                    ReviewPointManager.getInstance(review.getProject()).createReviewPoint(review);
-                }
-                review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
-                balloon.dispose();
-                review.setActivated(false);
-                ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
-                reviewView.updateUI();
-            }
-        });
+            });
+        }
+
     }
 
     public JComponent getContent() {
@@ -127,7 +119,7 @@ public class EditReviewForm {
     }
 
     public JPanel getItemsContent(boolean editable) {
-        resetItemsContent(editable);
+        //resetItemsContent(editable);
         return panel;
     }
 
@@ -136,7 +128,7 @@ public class EditReviewForm {
         panel.removeAll();
         itemsPanel.removeAll();
         itemsPanel.setLayout(new GridLayout(-1, 1));
-        reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
+        //reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
         if(review.getName() != null) {
             //reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
             reviewName.setText(review.getName());
@@ -158,12 +150,12 @@ public class EditReviewForm {
     }
 
     public Component getItemTextField() {
-        newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
+        //newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
         return newReviewItemText;
     }
 
     public Component getNameTextField() {
-        reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
+        //reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
         return reviewName;
     }
 

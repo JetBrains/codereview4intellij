@@ -33,7 +33,7 @@ public class ShowReviewAction extends AnAction {
         if (project == null) return;
         Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
         if (editor != null) {
-            ReviewActionManager.getInstance(reviewPoint.getReview()).showExistingComments(editor, reviewPoint);
+            ReviewActionManager.getInstance(reviewPoint.getReview()).showExistingComments(editor);
         }
     }
 }

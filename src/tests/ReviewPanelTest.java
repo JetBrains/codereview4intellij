@@ -56,7 +56,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         assertTrue(leaf instanceof ReviewNode);
 //        SimpleNode parent  = leaf.getParent();
 //        assertTrue(parent instanceof FileNode);
- //       assertEquals(((FileNode) parent).getFile().getUrl(), projectFile.getUrl());
+ //       assertEquals(((FileNode) parent).getFile().getFilePath(), projectFile.getFilePath());
     }
 
     public void testCreateTwoElementInOneFileTree() throws Exception {
@@ -77,7 +77,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         assertTrue(leaf instanceof ReviewNode);
         SimpleNode parent  = leaf.getParent();
       //  assertTrue(parent instanceof FileNode);
-      //  assertEquals(((FileNode) parent).getFile().getUrl(), projectFile.getUrl());
+      //  assertEquals(((FileNode) parent).getFile().getFilePath(), projectFile.getFilePath());
 
     }
 
@@ -125,7 +125,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         Project project = getProject();
         VirtualFile projectFile = project.getProjectFile();
 
-        String oldUrl = projectFile.getUrl();
+        String oldUrl = projectFile.getFilePath();
 
         addNewReview(projectFile, "test review 1", 1, 1);
 
@@ -141,14 +141,14 @@ public class ReviewPanelTest extends IdeaTestCase {
         assertTrue(leaf instanceof ReviewNode);
         SimpleNode parent  = leaf.getParent();
        // assertTrue(parent instanceof FileNode);
-       // assertEquals(((FileNode) parent).getFile().getUrl(), projectFile.getUrl());
-       // assertFalse(oldUrl.equals(projectFile.getUrl()));
+       // assertEquals(((FileNode) parent).getFile().getFilePath(), projectFile.getFilePath());
+       // assertFalse(oldUrl.equals(projectFile.getFilePath()));
     }
 
     public void testChangingTreeWhenDeleteDocument() throws Exception {
         Project project = getProject();
         VirtualFile projectFile = project.getProjectFile();
-        String oldUrl = projectFile.getUrl();
+        String oldUrl = projectFile.getFilePath();
 
         addNewReview(projectFile, "test review 1", 1, 1);
 
@@ -307,7 +307,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         assertNotNull(document);
         document.insertString(0, "1\n");
 
-        Review review = new Review(new ReviewBean(name, start, end, file.getUrl()), myProject);
+        Review review = new Review(new ReviewBean(name, start, end, file.getFilePath()), myProject);
         review.setValid(true);
         reviewManager.createReviewPoint(review);
 

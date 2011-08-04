@@ -11,7 +11,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
  * Date: 7/11/11
  * Time: 8:12 PM
  */
-public class CodeReviewToolWindowFactory implements ToolWindowFactory, DumbAware{
+public class ReviewToolWindowFactory implements ToolWindowFactory, DumbAware{
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
         ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
         reviewView.initToolWindow(project, toolWindow);

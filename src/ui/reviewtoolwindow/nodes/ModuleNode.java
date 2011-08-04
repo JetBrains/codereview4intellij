@@ -22,9 +22,11 @@ import com.intellij.util.IconUtil;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
+import ui.reviewtoolwindow.ReviewToolWindowSettings;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -37,20 +39,22 @@ public class ModuleNode extends SimpleNode implements Navigatable{
     private Project project;
     private Module module;
     private List<SimpleNode> children = new ArrayList<SimpleNode>();
+    private ReviewToolWindowSettings settings;
 
-    public ModuleNode(Project project, Module module) {
-        super(project/*, parentDescriptor*/);
+    public ModuleNode(Project project, Module module, ReviewToolWindowSettings settings) {
+        super(project);
         this.project = project;
         this.module = module;
-        List<FileNode> roots = new ArrayList<FileNode>();
+        this.settings = settings;
         for(VirtualFile root : ModuleRootManager.getInstance(module).getContentRoots()) {
-            children.add(new FileNode(project, root));
+            children.add(new FileNode(project, root, settings));
         }
     }
 
-    public ModuleNode(Project project, Module module, SimpleNode node) {
+    public ModuleNode(Project project, Module module, SimpleNode node, ReviewToolWindowSettings settings) {
         this.project = project;
         this.module = module;
+        this.settings = settings;
         children.add(node);
     }
 
@@ -64,6 +68,13 @@ public class ModuleNode extends SimpleNode implements Navigatable{
     @NotNull
     @Override
     public SimpleNode[] getChildren() {
+        if(!settings.isGroupByFile()) {
+            List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
+            for (SimpleNode child : children) {
+                    newChildren.addAll(Arrays.asList(child.getChildren()));
+            }
+            return newChildren.toArray(new SimpleNode[newChildren.size()]);
+        }
         return children.toArray(new SimpleNode[children.size()]);
     }
 
@@ -108,5 +119,10 @@ public class ModuleNode extends SimpleNode implements Navigatable{
 
     public void addChild(SimpleNode node) {
         children.add(node);
+    }
+
+
+    public Module getModule() {
+        return module;
     }
 }

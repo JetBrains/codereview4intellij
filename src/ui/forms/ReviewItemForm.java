@@ -1,23 +1,15 @@
 package ui.forms;
 
-import com.intellij.openapi.wm.IdeFocusManager;
-import reviewresult.ReviewItem;
-import reviewresult.ReviewStatus;
+import reviewresult.persistent.ReviewItem;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicTextUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Date;
-import java.util.jar.Attributes;
 
 /**
  * User: Alisa.Afonina

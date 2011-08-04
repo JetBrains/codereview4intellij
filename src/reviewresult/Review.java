@@ -1,16 +1,14 @@
 package reviewresult;
 
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.file.exclude.PersistentFileSetManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.newvfs.ManagingFS;
-import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS;
 import org.jetbrains.annotations.Nullable;
+import reviewresult.persistent.ReviewBean;
+import reviewresult.persistent.ReviewItem;
 
 import java.util.List;
 
@@ -21,10 +19,10 @@ import java.util.List;
  */
 
 public class Review {
-    private final ReviewBean reviewBean;
+    private ReviewBean reviewBean;
     private final Project project;
     private final VirtualFile virtualFile;
-    private boolean isValid = true;
+
     private boolean activated = false;
 
     private int searchStart = -1;
@@ -33,23 +31,18 @@ public class Review {
     public Review(ReviewBean reviewBean, Project project){
         this.reviewBean = reviewBean;
         this.project = project;
-        this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getUrl());
-        int start = reviewBean.getStart();
-        int end = reviewBean.getEnd();
-        if(virtualFile == null) isValid = false;
-        checkValid(start, end, virtualFile);
+        this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getFilePath());
+        if(virtualFile == null) reviewBean.setValid(false);
+        this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
     }
 
     public Review(Project project, String reviewName, int start, int end, VirtualFile virtualFile) {
         this.project = project;
         this.virtualFile = virtualFile;
         this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
-        checkValid(start, end, virtualFile);
+        this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
     }
 
-    private void checkValid(int start, int end, VirtualFile virtualFile) {
-        isValid = (isValid && virtualFile.isValid() && start > 0 && end > 0 && start <= end && end < virtualFile.getLength());
-    }
 
     public void addReviewItem(ReviewItem reviewItem) {
         reviewBean.addReviewItem(reviewItem);
@@ -73,18 +66,18 @@ public class Review {
 
     @Nullable
     public OpenFileDescriptor getElement() {
-        if(isValid)
+        if(reviewBean.isValid())
             return new OpenFileDescriptor(project, virtualFile, reviewBean.getStart());
         else
             return null;
     }
 
     public boolean isValid() {
-        return isValid;
+        return reviewBean.isValid();
     }
 
     public int getLine() {
-        if(!isValid) return -1;
+        if(!reviewBean.isValid()) return -1;
         Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
         if(document == null) return -1;
         if(reviewBean.getStart()  > document.getText().length()) return -1;
@@ -143,7 +136,11 @@ public class Review {
         this.searchEnd = searchEnd;
     }
 
+    public void setReviewBean(ReviewBean reviewBean) {
+        this.reviewBean = reviewBean;
+    }
+
     public void setValid(boolean valid) {
-        isValid = valid;
+        reviewBean.setValid(valid);
     }
 }

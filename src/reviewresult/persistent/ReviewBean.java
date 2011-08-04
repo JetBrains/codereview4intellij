@@ -1,9 +1,10 @@
-package reviewresult;
+package reviewresult.persistent;
 
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
-import com.sun.jna.platform.win32.Guid;
+import org.apache.commons.lang.Validate;
+import ui.actions.DeleteReviewAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,22 +18,34 @@ import java.util.UUID;
 
 @Tag("review")
 public class ReviewBean {
+
     private String guid = UUID.randomUUID().toString();
     private String name;
     private int start;
     private int end;
+    private String filePath;
+
+    private boolean isValid = true;
+    private boolean isDeleted;
+
     private List<ReviewItem> reviewItems = new ArrayList<ReviewItem>();
-    private String url;
 
-    public ReviewBean() {
-    }
+    public ReviewBean() {}
 
-    public ReviewBean(String name, int start, int end, String url) {
+    public ReviewBean(String name, int start, int end, String filePath) {
         this.name = name;
         this.start = start;
         this.end = end;
-        this.url = url;
+        this.filePath = filePath;
     }
+
+    public void checkValid(long length, boolean isFileValid) {
+            setValid(isValid()
+                    && isFileValid
+                    && start > 0 && end > 0
+                    && start <= end
+                    && end < length);
+        }
 
 
     @Attribute("name")
@@ -76,12 +89,12 @@ public class ReviewBean {
     }
 
     @Tag("filepath")
-    public String getUrl() {
-        return url;
+    public String getFilePath() {
+        return filePath;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 
     public void addReviewItem(ReviewItem reviewItem) {
@@ -99,6 +112,26 @@ public class ReviewBean {
 
     public void setGuid(String guid) {
         this.guid = guid;
+    }
+
+
+    @Tag("valid")
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
+    }
+
+    @Tag("deleted")
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isValid = !deleted;
+        isDeleted = deleted;
     }
 
     @Override

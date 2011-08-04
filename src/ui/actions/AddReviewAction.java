@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.CaretEvent;
+import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
 import com.intellij.openapi.project.DumbAware;
@@ -42,7 +44,6 @@ public class AddReviewAction extends AnAction implements DumbAware{
         if (editor == null) return;
 
         Document document = editor.getDocument();
-
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
         if (psiFile == null) return;
 
@@ -61,7 +62,7 @@ public class AddReviewAction extends AnAction implements DumbAware{
         if(review.isValid()) {
             ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(review);
             if(reviewPoint != null) {
-                ReviewActionManager.getInstance(reviewPoint.getReview()).addToExistingComments(editor, reviewPoint);
+                ReviewActionManager.getInstance(reviewPoint.getReview()).addToExistingComments(editor);
             } else {
                  ReviewActionManager.getInstance(review).addNewComment(editor);
             }

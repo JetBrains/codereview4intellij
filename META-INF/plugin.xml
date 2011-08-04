@@ -16,6 +16,9 @@
       <component>
             <implementation-class>ui.reviewpoint.ReviewPointManager</implementation-class>
       </component>
+      <component>
+            <implementation-class>reviewresult.persistent.ReviewsState</implementation-class>
+      </component>
   </project-components>
 
   <actions>
@@ -27,13 +30,14 @@
           <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
       </action>
 
-      <action id="previewReview" class="ui.reviewtoolwindow.ReviewPanel.PreviewAction" text="Preview">
-      </action>
+      <!--<action id="previewReview" class="ui.reviewtoolwindow.ReviewPanel.Action" text="Preview">
+      </action>-->
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="ui.reviewtoolwindow.CodeReviewToolWindowFactory"/>
+    <toolWindow id="Code review"   secondary="true" anchor="bottom" factoryClass="ui.reviewtoolwindow.ReviewToolWindowFactory"/>
     <projectService serviceInterface="ui.reviewtoolwindow.ReviewView" serviceImplementation="ui.reviewtoolwindow.ReviewView"/>
+
     <patch.extension implementation="patch.ReviewPatchExtensionPoint" />
     <checkinHandlerFactory implementation="patch.ReviewCommitHandlerFactory" />
   </extensions>

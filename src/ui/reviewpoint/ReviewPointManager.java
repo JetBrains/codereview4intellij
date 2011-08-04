@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import reviewresult.Review;
-import reviewresult.ReviewManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +18,6 @@ import java.util.Map;
 public class ReviewPointManager extends AbstractProjectComponent {
     private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
     private StartupManagerEx startupManager;
-
-    private static final Logger LOG = Logger.getInstance(ReviewPointManager.class.getName());
 
     public ReviewPointManager(Project project, final StartupManager startupManager) {
         super(project);
@@ -55,49 +52,27 @@ public class ReviewPointManager extends AbstractProjectComponent {
         }
     }
 
-     public ReviewPoint findReviewPoint(Review review) {
+    public ReviewPoint findReviewPoint(Review review) {
         if(reviewPoints.containsKey(review)) {
             return reviewPoints.get(review);
         }
         return null;
     }
 
-    public void createReviewPoint(Review review) {
-        if(review.isValid()) {
-            ReviewPoint point = makeReviewPoint(review);
-            if(point != null) {
-                updateUI(point);
-            }
-        } else {
-            logInvalidReview(review);
-        }
-    }
-
-
-
     private ReviewPoint makeReviewPoint(Review review) {
         ReviewPoint point = new ReviewPoint(review);
         reviewPoints.put(review, point);
-        //addReview(review);
         return point;
     }
 
-    public void removePoint(Review review) {
-        if(reviewPoints.containsKey(review)) {
-            reviewPoints.get(review).release();
-            reviewPoints.remove(review);
+    public void reloadReviewPoint(Review review) {
+        ReviewPoint reviewPoint = findReviewPoint(review);
+        if(reviewPoint == null) {
+            if(review.isValid())
+                makeReviewPoint(review);
         }
-    }
-
-    public void loadReviewPoint(Review review) {
-            if(findReviewPoint(review) == null) {
-                    makeReviewPoint(review);
-                }
-    }
-
-    public void logInvalidReview(Review review) {
-        String message = "Review with start offset " + String.valueOf(review.getStart())
-                    + " and file \"" + review.getReviewBean().getUrl() + "\" became invalid";
-        LOG.warn(message);
+        updateUI();
+        if(review.getReviewBean().isDeleted())
+            reviewPoints.remove(review);
     }
 }

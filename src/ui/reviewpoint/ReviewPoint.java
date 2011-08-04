@@ -1,17 +1,15 @@
 package ui.reviewpoint;
 
-import com.intellij.debugger.impl.descriptors.data.ThisData;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
-import com.intellij.openapi.editor.ex.RangeHighlighterEx;
-import com.intellij.openapi.editor.impl.event.MarkupModelListener;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
@@ -21,7 +19,7 @@ import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
-import reviewresult.ReviewItem;
+import reviewresult.persistent.ReviewItem;
 import reviewresult.ReviewManager;
 import ui.actions.DeleteReviewAction;
 import ui.actions.EditReviewAction;
@@ -59,28 +57,6 @@ public class ReviewPoint {
                 if(line < 0) return;
                 highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
                 if(highlighter == null) return;
-                markup.addMarkupModelListener(new MarkupModelListener() {
-                    @Override
-                    public void afterAdded(@NotNull RangeHighlighterEx highlighter) {}
-
-                    @Override
-                    public void beforeRemoved(@NotNull RangeHighlighterEx highlighter) {
-                        if(highlighter.equals(ReviewPoint.this.highlighter)) {
-                            ReviewManager.getInstance(project).removeReview(review);
-                            reviewView.updateUI();
-                            ReviewManager.getInstance(review.getProject()).logInvalidReview(review);
-                        }
-                    }
-
-                    @Override
-                    public void attributesChanged(@NotNull RangeHighlighterEx highlighter) {
-                        if(highlighter.equals(ReviewPoint.this.highlighter) && !highlighter.isValid()) {
-                            ReviewManager.getInstance(project).removeReview(review);
-                            reviewView.updateUI();
-                            ReviewManager.getInstance(review.getProject()).logInvalidReview(review);
-                        }
-                    }
-                });
                 gutterIconRenderer = new ReviewGutterIconRenderer();
                 highlighter.setGutterIconRenderer(gutterIconRenderer);
                 document.addDocumentListener(new DocumentAdapter(){
@@ -89,7 +65,7 @@ public class ReviewPoint {
 
                         int newStart = highlighter.getStartOffset();
                         int newEnd = highlighter.getEndOffset();
-                        if(newStart > review.getReviewBean().getEnd() || !highlighter.isValid()) {
+                        if(newStart >= review.getReviewBean().getEnd() || !highlighter.isValid()) {
                             review.setValid(false);
                         }
                         else {
@@ -107,15 +83,13 @@ public class ReviewPoint {
                 return;
             }
         }
+        if(review.getReviewBean().isDeleted() && highlighter != null) {
+            highlighter.dispose();
+        }
         reviewView.updateUI();
         ReviewManager.getInstance(review.getProject()).logInvalidReview(review);
     }
 
-
-    public void release() {
-        if(highlighter == null) return;
-        highlighter.dispose();
-    }
     public GutterIconRenderer getGutterIconRenderer() {
         return gutterIconRenderer;
     }

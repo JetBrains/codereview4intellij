@@ -20,9 +20,11 @@ import com.intellij.util.IconUtil;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
+import ui.reviewtoolwindow.ReviewToolWindowSettings;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -36,10 +38,12 @@ public class FileNode extends SimpleNode implements Navigatable{
     private VirtualFile file;
     private List<SimpleNode> children = new ArrayList<SimpleNode>();
     private ProjectFileIndex fileIndex;
+    private ReviewToolWindowSettings settings;
 
-    public FileNode(Project project, VirtualFile value) {
-        super(project/*, parentDescriptor*/);
+    public FileNode(Project project, VirtualFile value, ReviewToolWindowSettings settings) {
+        super(project);
         this.project = project;
+        this.settings = settings;
         fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
         file = value;
     }
@@ -54,21 +58,33 @@ public class FileNode extends SimpleNode implements Navigatable{
     @NotNull
     @Override
     public SimpleNode[] getChildren() {
-        if(!children.isEmpty()) children.clear();
+        if(children.isEmpty()) {
             if(file.isDirectory()) {
-                Project project = getProject();
                 Set<String> filesWithReview = ReviewManager.getInstance(project).getFileNames();
                 for (String virtualFileName : filesWithReview) {
-                   VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(virtualFileName);
-                   FileNode newNode = new FileNode(project, virtualFile);
-                   addNode(newNode);
+                    VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(virtualFileName);
+                    FileNode newNode = new FileNode(project, virtualFile, settings);
+                    addNode(newNode);
                 }
             } else {
                 List<Review> reviews = ReviewManager.getInstance(project).getFilteredReviews(file.getUrl());
                 for(Review review : reviews) {
                     children.add(new ReviewNode(project, review));
                 }
-             }
+            }
+        }
+        if(!settings.isGroupByFile()) {
+            List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
+            for (SimpleNode child : children) {
+                if(child instanceof ReviewNode) {
+                    newChildren = children;
+                    break;
+                } else {
+                    newChildren.addAll(Arrays.asList(child.getChildren()));
+                }
+            }
+            return newChildren.toArray(new SimpleNode[newChildren.size()]);
+        }
         return children.toArray(new SimpleNode[children.size()]);
     }
 
@@ -78,7 +94,7 @@ public class FileNode extends SimpleNode implements Navigatable{
             //if(baseDir == null || parentDirectory == null) return;
             if(!parentDirectory.equals(file)) {
                 if(contentRoot.equals(parentDirectory)) return;
-                    FileNode parentNode = new FileNode(project, parentDirectory);
+                    FileNode parentNode = new FileNode(project, parentDirectory, settings);
                     parentNode.addNode(newNode);
                     addNode(parentNode);
                 }

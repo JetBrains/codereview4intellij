@@ -6,10 +6,13 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
@@ -17,8 +20,10 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
+import org.apache.xmlbeans.xml.stream.events.ElementTypeNames;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
+import ui.actions.ReviewActionManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -88,11 +93,10 @@ public class ReviewNode extends SimpleNode implements Navigatable{
 
     @Override
     public void navigate(boolean requestFocus) {
-        Document document = FileDocumentManager.getInstance().getDocument(review.getVirtualFile());
-        if(document == null) return;
-        PsiFile psiFile = PsiDocumentManager.getInstance(review.getProject()).getPsiFile(document);
-        if (psiFile == null) return;
-        psiFile.navigate(requestFocus);
+
+        OpenFileDescriptor element = review.getElement();
+        if(element == null) return;
+        element.navigate(true);
     }
 
     @Override
