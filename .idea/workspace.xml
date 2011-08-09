@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="79011e2a-efca-420a-a259-2c0cb35195ed" name="Default" comment="tree structure listeners added">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/PlainNode.java" />
+    <list default="true" id="79011e2a-efca-420a-a259-2c0cb35195ed" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/META-INF/plugin.xml" afterPath="$PROJECT_DIR$/META-INF/plugin.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/Review.java" afterPath="$PROJECT_DIR$/src/reviewresult/Review.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" afterPath="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java" afterPath="$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/ReviewManagerTest.java" afterPath="$PROJECT_DIR$/src/tests/ReviewManagerTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/ReviewPanelTest.java" afterPath="$PROJECT_DIR$/src/tests/ReviewPanelTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/actions/DeleteReviewAction.java" afterPath="$PROJECT_DIR$/src/ui/actions/DeleteReviewAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" afterPath="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" afterPath="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ModuleNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ModuleNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/RootNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/RootNode.java" />
     </list>
     <ignored path="codereview4intellij.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -151,11 +135,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ReviewManager.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ReviewManager.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="91" column="29" selection-start="3099" selection-end="3099" vertical-scroll-proportion="-2.3877158">
-              <folding />
+            <state line="19" column="90" selection-start="589" selection-end="589" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="method#addReview#0;class#ReviewManager#0" expanded="false" />
+                <element signature="method#getValidReviews#0;class#ReviewManager#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -164,15 +151,6 @@
         <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="225" column="61" selection-start="7495" selection-end="7495" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReviewsState.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/reviewresult/persistent/ReviewsState.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="53" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -190,7 +168,7 @@
       <file leaf-file-name="FileNode.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="88" column="0" selection-start="2896" selection-end="2896" vertical-scroll-proportion="0.0">
+            <state line="89" column="54" selection-start="3052" selection-end="3052" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -199,14 +177,13 @@
       <file leaf-file-name="ReviewPanel.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="312" column="50" selection-start="12184" selection-end="12184" vertical-scroll-proportion="0.0">
+            <state line="174" column="31" selection-start="7224" selection-end="7224" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="class#5183:6214" expanded="false" />
                 <element signature="class#6297:6644" expanded="false" />
                 <element signature="class#6687:6879" expanded="false" />
                 <element signature="method#mouseClicked#0;class#6687:6879" expanded="false" />
-                <element signature="class#6930:7234" expanded="false" />
-                <element signature="class#7274:7800" expanded="false" />
+                <element signature="class#7306:7832" expanded="false" />
                 <element signature="method#createTreeStructure#0;class#ReviewPanel#0" expanded="false" />
                 <element signature="method#getData#0;class#ReviewPanel#0" expanded="false" />
                 <element signature="method#hasNextOccurence#0;class#ReviewPanel#0" expanded="false" />
@@ -217,6 +194,15 @@
                 <element signature="method#getPreviousOccurenceActionName#0;class#ReviewPanel#0" expanded="false" />
                 <element signature="method#dispose#0;class#ReviewPanel#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ReviewsPreviewPanel.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="22" column="8" selection-start="535" selection-end="535" vertical-scroll-proportion="0.46023688">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -238,19 +224,19 @@
         <option value="$PROJECT_DIR$/META-INF/plugin.xml" />
         <option value="$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/PlainNode.java" />
         <option value="$PROJECT_DIR$/src/tests/ReviewManagerTest.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/RootNode.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ModuleNode.java" />
         <option value="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" />
         <option value="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
         <option value="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
       </list>
     </option>
   </component>
@@ -841,11 +827,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1288" height="1002" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17974971" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18653691" sideWeight="0.7201365" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.34129694" sideWeight="0.49676377" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34129694" sideWeight="0.49676377" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4209329" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3287827" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
@@ -854,9 +840,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2514193" sideWeight="0.39590445" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32927817" sideWeight="0.71786124" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33819953" sideWeight="0.6587031" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33819953" sideWeight="0.7235495" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32992035" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2764505" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2764505" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32927817" sideWeight="0.7201365" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -894,7 +880,7 @@
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="DEFAULT_PATCH_EXTENSION" value="patch" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="export/import to file added&#10;tree partially broken&#10;all buttons work fine&#10;DoubleClick on selected node shows balloon with comments for it&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="tree structure listeners added&#10;" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -912,6 +898,7 @@
     <MESSAGE value="Merge branch 'master' of github.com:JetBrains/codereview4intellij&#10;&#10;Conflicts:&#10;&#9;src/ui/actions/DeleteReviewAction.java&#10;" />
     <MESSAGE value="Deletion of line added&#10;gutter icon click action changed" />
     <MESSAGE value="export/import to file added&#10;tree partially broken&#10;all buttons work fine&#10;DoubleClick on selected node shows balloon with comments for it&#10;" />
+    <MESSAGE value="tree structure listeners added&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -967,13 +954,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="253" selection-end="253" vertical-scroll-proportion="0.2771739">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewsChangedListener.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="14" column="16" selection-start="315" selection-end="315" vertical-scroll-proportion="0.3879668">
@@ -988,16 +968,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/reviewresult/Review.java">
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="122" column="36" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="145" column="46" selection-start="5351" selection-end="5351" vertical-scroll-proportion="0.35920176">
+          <folding>
+            <element signature="method#findAncestorNode#0;class#ReviewTreeStructure#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/reviewresult/persistent/ReviewsState.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="53" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.0">
+        <state line="40" column="53" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.7543253">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="89" column="54" selection-start="3052" selection-end="3052" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/reviewresult/Review.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="122" column="36" selection-start="3518" selection-end="3518" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1009,32 +1005,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java">
+    <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="145" column="46" selection-start="5351" selection-end="5351" vertical-scroll-proportion="0.35920176">
+        <state line="19" column="90" selection-start="589" selection-end="589" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="method#findAncestorNode#0;class#ReviewTreeStructure#0" expanded="false" />
+            <element signature="method#addReview#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getValidReviews#0;class#ReviewManager#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="88" column="0" selection-start="2896" selection-end="2896" vertical-scroll-proportion="0.0">
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="312" column="50" selection-start="12184" selection-end="12184" vertical-scroll-proportion="0.0">
+        <state line="174" column="31" selection-start="7224" selection-end="7224" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="class#5183:6214" expanded="false" />
             <element signature="class#6297:6644" expanded="false" />
             <element signature="class#6687:6879" expanded="false" />
             <element signature="method#mouseClicked#0;class#6687:6879" expanded="false" />
-            <element signature="class#6930:7234" expanded="false" />
-            <element signature="class#7274:7800" expanded="false" />
+            <element signature="class#7306:7832" expanded="false" />
             <element signature="method#createTreeStructure#0;class#ReviewPanel#0" expanded="false" />
             <element signature="method#getData#0;class#ReviewPanel#0" expanded="false" />
             <element signature="method#hasNextOccurence#0;class#ReviewPanel#0" expanded="false" />
@@ -1048,9 +1037,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewManager.java">
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="29" selection-start="3099" selection-end="3099" vertical-scroll-proportion="-2.3877158">
+        <state line="22" column="8" selection-start="535" selection-end="535" vertical-scroll-proportion="0.46023688">
           <folding />
         </state>
       </provider>

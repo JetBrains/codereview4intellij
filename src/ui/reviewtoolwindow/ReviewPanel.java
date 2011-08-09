@@ -172,6 +172,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 if(settings.isShowPreview()) {
                     SimpleNode node = reviewTree.getSelectedNode();
                     showPreview(node);
+                    updateUI();
                 }
             }
         });

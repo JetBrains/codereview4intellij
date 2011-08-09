@@ -88,7 +88,6 @@ public class FileNode extends PlainNode implements Navigatable{
         if(!file.isDirectory()) {
             List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(file.getUrl());
             if(reviews == null || reviews.isEmpty()) {
-                data.clear();
                 return;
             }
             int number =  reviews.size();
