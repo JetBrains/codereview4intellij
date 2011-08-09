@@ -24,23 +24,27 @@ import org.apache.xmlbeans.xml.stream.events.ElementTypeNames;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import ui.actions.ReviewActionManager;
+import ui.reviewtoolwindow.Searcher;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * User: Alisa.Afonina
  * Date: 7/13/11
  * Time: 1:05 PM
  */
-public class ReviewNode extends SimpleNode implements Navigatable{
+public class ReviewNode extends PlainNode implements Navigatable{
     private Review review;
+    private Searcher searcher;
 
     public ReviewNode(Project project, Review review) {
         super(project);
         this.review = review;
+        this.searcher = Searcher.getInstance(project);
     }
 
     @Override
@@ -57,14 +61,15 @@ public class ReviewNode extends SimpleNode implements Navigatable{
     @Override
     protected void update(PresentationData presentationData) {
         if(review.isValid()) {
-            int searchStart = review.getSearchStart();
+            int searchStart = searcher.getReviewSearchResult(review).first;
+            int searchEnd = searcher.getReviewSearchResult(review).second;
             String name = review.getName();
             if(searchStart >= 0) {
                 EditorColorsManager colorManager = EditorColorsManager.getInstance();
                 TextAttributes attributes = colorManager.getGlobalScheme().getAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
                 presentationData.addText(name.substring(0, searchStart), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                presentationData.addText(name.substring(searchStart, review.getSearchEnd()), SimpleTextAttributes.fromTextAttributes(attributes));
-                presentationData.addText(name.substring(review.getSearchEnd(), name.length()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                presentationData.addText(name.substring(searchStart, searchEnd), SimpleTextAttributes.fromTextAttributes(attributes));
+                presentationData.addText(name.substring(searchEnd, name.length()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
             else {
                 presentationData.addText(name, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
@@ -109,4 +114,23 @@ public class ReviewNode extends SimpleNode implements Navigatable{
         return true;
     }
 
+    @Override
+    public void removeFromParent() {
+        List<PlainNode> plainChildren = parent.getPlainChildren();
+        ReviewNode nodeToRemove = null;
+        for (PlainNode node : plainChildren) {
+            if(((ReviewNode) node).getReview().equals(review)) {
+                nodeToRemove = (ReviewNode) node;
+            }
+        }
+        if(nodeToRemove != null) {
+            plainChildren.remove(nodeToRemove);
+        }
+    }
+
+    @Override
+    public void addChild(PlainNode node) {
+        node.setPlainParent(this);
+        children.add(node);
+    }
 }

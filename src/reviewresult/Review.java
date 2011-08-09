@@ -1,5 +1,6 @@
 package reviewresult;
 
+import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -25,9 +26,7 @@ public class Review {
 
     private boolean activated = false;
 
-    private int searchStart = -1;
-    private int searchEnd = -1;
-
+    public static final DataKey<Review> REVIEW_DATA_KEY = DataKey.create("Review");
     public Review(ReviewBean reviewBean, Project project){
         this.reviewBean = reviewBean;
         this.project = project;
@@ -105,13 +104,6 @@ public class Review {
         return activated;
     }
 
-    public int getSearchStart() {
-        return searchStart;
-    }
-
-    public void setSearchStart(int searchStart) {
-        this.searchStart = searchStart;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -126,14 +118,6 @@ public class Review {
     @Override
     public int hashCode() {
         return reviewBean != null ? reviewBean.hashCode() : 0;
-    }
-
-    public int getSearchEnd() {
-        return searchEnd;
-    }
-
-    public void setSearchEnd(int searchEnd) {
-        this.searchEnd = searchEnd;
     }
 
     public void setReviewBean(ReviewBean reviewBean) {

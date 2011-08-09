@@ -5,12 +5,8 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.roots.impl.ProjectFileIndexImpl;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
@@ -26,26 +22,31 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * User: Alisa.Afonina
  * Date: 7/14/11
  * Time: 5:50 PM
  */
-public class FileNode extends SimpleNode implements Navigatable{
+public class FileNode extends PlainNode implements Navigatable{
     private Project project;
     private VirtualFile file;
-    private List<SimpleNode> children = new ArrayList<SimpleNode>();
-    private ProjectFileIndex fileIndex;
     private ReviewToolWindowSettings settings;
 
     public FileNode(Project project, VirtualFile value, ReviewToolWindowSettings settings) {
         super(project);
         this.project = project;
         this.settings = settings;
-        fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
         file = value;
+       /* if(!file.isDirectory()) {
+            List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(file.getUrl());
+            if(reviews.isEmpty())return;
+            for(Review review : reviews) {
+                ReviewNode reviewNode = new ReviewNode(project, review);
+                reviewNode.setPlainParent(this);
+                children.add(reviewNode);
+            }
+        }*/
     }
 
     @Override
@@ -58,26 +59,13 @@ public class FileNode extends SimpleNode implements Navigatable{
     @NotNull
     @Override
     public SimpleNode[] getChildren() {
-        if(children.isEmpty()) {
-            if(file.isDirectory()) {
-                Set<String> filesWithReview = ReviewManager.getInstance(project).getFileNames();
-                for (String virtualFileName : filesWithReview) {
-                    VirtualFile virtualFile = VirtualFileManager.getInstance().findFileByUrl(virtualFileName);
-                    FileNode newNode = new FileNode(project, virtualFile, settings);
-                    addNode(newNode);
-                }
-            } else {
-                List<Review> reviews = ReviewManager.getInstance(project).getFilteredReviews(file.getUrl());
-                for(Review review : reviews) {
-                    children.add(new ReviewNode(project, review));
-                }
-            }
-        }
         if(!settings.isGroupByFile()) {
             List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
-            for (SimpleNode child : children) {
+            for (PlainNode child : children) {
                 if(child instanceof ReviewNode) {
-                    newChildren = children;
+                    for (SimpleNode oldChild : children) {
+                        newChildren.add(oldChild);
+                    }
                     break;
                 } else {
                     newChildren.addAll(Arrays.asList(child.getChildren()));
@@ -87,31 +75,6 @@ public class FileNode extends SimpleNode implements Navigatable{
         }
         return children.toArray(new SimpleNode[children.size()]);
     }
-
-        private void addNode(FileNode newNode) {
-            VirtualFile parentDirectory = newNode.file.getParent();
-            VirtualFile contentRoot = fileIndex.getContentRootForFile(file);
-            //if(baseDir == null || parentDirectory == null) return;
-            if(!parentDirectory.equals(file)) {
-                if(contentRoot.equals(parentDirectory)) return;
-                    FileNode parentNode = new FileNode(project, parentDirectory, settings);
-                    parentNode.addNode(newNode);
-                    addNode(parentNode);
-                }
-                else {
-                    boolean exists = false;
-                    for (SimpleNode child : children) {
-                        FileNode fileNode = (FileNode) child;
-                        if(fileNode.file.equals(newNode.file)) {
-                            fileNode.children.addAll(newNode.children);
-                            exists = true;
-                        }
-                    }
-                    if(!exists)
-                        children.add(newNode);
-                    }
-                }
-
 
     @Override
     public boolean isAutoExpandNode() {
@@ -123,7 +86,7 @@ public class FileNode extends SimpleNode implements Navigatable{
         //if(children.isEmpty()) return;
         data.addText(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         if(!file.isDirectory()) {
-            List<Review> reviews = ReviewManager.getInstance(project).getFilteredReviews(file.getUrl());
+            List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(file.getUrl());
             if(reviews == null || reviews.isEmpty()) {
                 data.clear();
                 return;
@@ -162,7 +125,17 @@ public class FileNode extends SimpleNode implements Navigatable{
     }
 
 
-    //todo : do real update, not rebuilding all children
-    public void updateContent() {
+    @Override
+    public void addChild(PlainNode node) {
+        if(!children.contains(node)) {
+            node.setPlainParent(this);
+            children.add(node);
+        }
     }
+
+
+
+
+
+
 }

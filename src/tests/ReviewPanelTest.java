@@ -66,7 +66,7 @@ public class ReviewPanelTest extends IdeaTestCase {
         addNewReview(projectFile, "test review 1", 1, 1);
         addNewReview(projectFile, "test review 2", 2, 3);
 
-        assertEquals(reviewManager.getReviews(projectFile).size(), 2);
+        assertEquals(reviewManager.getValidReviews(projectFile).size(), 2);
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();
         PatchedDefaultMutableTreeNode root = (PatchedDefaultMutableTreeNode) reviewTree.getBuilderModel().getRoot();
@@ -88,8 +88,8 @@ public class ReviewPanelTest extends IdeaTestCase {
 
         addNewReview(firstFile, "test review 1", 1, 1);
         addNewReview(secondFile, "test review 2", 2, 3);
-        assertEquals(1, reviewManager.getReviews(firstFile).size());
-        assertEquals(1, reviewManager.getReviews(secondFile).size());
+        assertEquals(1, reviewManager.getValidReviews(firstFile).size());
+        assertEquals(1, reviewManager.getValidReviews(secondFile).size());
 
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();
@@ -185,8 +185,8 @@ public class ReviewPanelTest extends IdeaTestCase {
         Review firstReview = addNewReview(firstFile, "test review 1", 1, 1);
         Review secondReview = addNewReview(secondFile, "test review 2", 2, 3);
 
-        assertEquals(1, reviewManager.getReviews(firstFile).size());
-        assertEquals(1, reviewManager.getReviews(secondFile).size());
+        assertEquals(1, reviewManager.getValidReviews(firstFile).size());
+        assertEquals(1, reviewManager.getValidReviews(secondFile).size());
 
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();

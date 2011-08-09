@@ -12,6 +12,7 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -58,6 +59,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
+import java.util.Set;
 import java.util.TooManyListenersException;
 
 /**
@@ -65,7 +67,7 @@ import java.util.TooManyListenersException;
  * Date: 7/13/11
  * Time: 2:39 PM
  */
-public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator, Disposable {
+public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator, Disposable, DumbAware {
     public static final String ACTION_GROUP = "TreeReviewItemActions";
 
     private Project project;
@@ -73,11 +75,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     private SimpleTree reviewTree;
     private AbstractTreeBuilder reviewTreeBuilder;
 
-    private JScrollPane previewScrollPane;
-    private JPanel previewPanel = new JPanel();
-
-
-
+    //private JScrollPane previewScrollPane;
+    private ReviewsPreviewPanel previewPanel = new ReviewsPreviewPanel();
 
     @Nullable
     private OccurenceNavigatorSupport reviewNavigatorSupport;
@@ -93,7 +92,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         super(false);
         this.project = project;
         settings = new ReviewToolWindowSettings(project, this);
-        ReviewManager.getInstance(project).createFilter("");
+        Searcher.getInstance(project).createFilter("");
 
         initTree();
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(reviewTree);
@@ -103,21 +102,18 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         mainPanel.add(settings.createLeftMenu(), BorderLayout.WEST);
         mainPanel.add(scrollPane);
 
-        previewPanel = new JPanel();
-        previewPanel.add(new JLabel("Select node for preview"));
-        previewScrollPane = ScrollPaneFactory.createScrollPane(previewPanel);
-        previewScrollPane.setVisible(false);
-
-        mainPanel.add(previewScrollPane, BorderLayout.EAST);
-
+        mainPanel.add(previewPanel, BorderLayout.EAST);
+        previewPanel.setVisible(settings.isShowPreview());
         searchLine.setVisible(settings.isSearchEnabled());
         searchLine.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ReviewManager.getInstance(project).createFilter(searchLine.getText());
+                Searcher.getInstance(project).createFilter(searchLine.getText());
                 createTreeStructure();
                 updateUI();
-                editReviewForm.updateSelection();
+                if(settings.isShowPreview()) {
+                    editReviewForm.updateSelection();
+                }
             }
         });
         mainPanel.add(searchLine, BorderLayout.NORTH);
@@ -162,6 +158,14 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 }
             }
         });
+        reviewTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getButton() == MouseEvent.BUTTON3) {
+
+                }
+            }
+        });
         reviewTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
@@ -193,12 +197,11 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     }
 
     public void createTreeStructure() {
-        reviewTreeStructure = new ReviewTreeStructure(project, new RootNode(project, settings));
+        reviewTreeStructure = new ReviewTreeStructure(project, new RootNode(project, settings), settings);
     }
 
     @Override
     public Object getData(@NonNls String dataId) {
-        if (PlatformDataKeys.NAVIGATABLE.is(dataId)) {
             TreePath path = reviewTree.getSelectionPath();
             if (path == null) {
                 return null;
@@ -209,12 +212,19 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             return null;
             }
             Object element = userObject.getElement();
-            if (!(element instanceof ReviewNode)) {
-                return element;
+            if (PlatformDataKeys.NAVIGATABLE.is(dataId)){
+                    return element;
             }
-            Review review = ((ReviewNode) element).getReview();
-            return review.getElement();
-        }
+            if(PlatformDataKeys.VIRTUAL_FILE.is(dataId)) {
+                if (element instanceof FileNode) {
+                    return ((FileNode) element).getFile();
+                }
+            }
+            if(Review.REVIEW_DATA_KEY.is(dataId)) {
+                if (element instanceof ReviewNode) {
+                    return ((ReviewNode) element).getReview();
+                }
+            }
      return null;
     }
 
@@ -258,18 +268,15 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         if(settings != null) {
             searchLine.setVisible(settings.isSearchEnabled());
             if(reviewTreeBuilder == null) return;
-            //reviewTreeBuilder.getUi().doUpdateFromRoot();
-            //TreeUtil.selectFirstNode(reviewTree);
-            //showPreview(reviewTree.getSelectedNode());
-            previewScrollPane.setVisible(!ReviewManager.getInstance(project).getFileNames().isEmpty()
+            reviewTreeBuilder.getUi().doUpdateFromRoot();
+            Set<String> fileNames = ReviewManager.getInstance(project).getFileNames();
+            Set<String> filteredFileNames = Searcher.getInstance(project).getFilteredFileNames();
+            previewPanel.setVisible(!(fileNames.isEmpty() && filteredFileNames.isEmpty())
                     && settings.isShowPreview());
-            mainPanel.repaint();
-           mainPanel.revalidate();
         }
     }
 
     public void showPreview(SimpleNode element) {
-
         Review review = null;
         if (element instanceof ModuleNode || element instanceof FileNode) {
             if(element.getChildCount() > 0)
@@ -280,17 +287,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             review = ((ReviewNode) element).getReview();
         }
         if(review == null) return;
-
-        //todo here is the panel bug : removeAll works awkward...
-        previewPanel = new JPanel();
-        editReviewForm = new EditReviewForm(review, false);
-        previewPanel.add(editReviewForm.getItemsContent(false));
-        //previewScrollPane.removeAll();
-        //previewScrollPane.add(previewPanel);
-        updateUI();
-       // previewPanel.setVisible(settings.isShowPreview());
-        //previewPanel.updateUI();
-
+        previewPanel.update(review);
     }
 
     @Override
@@ -298,47 +295,23 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         reviewTreeBuilder.dispose();
     }
 
-
-/*    private void updateTreeStructure() {
-        if(groupByModule) {
-            SimpleNode[] filenodes = (SimpleNode[])reviewTreeStructure.getChildElements(reviewTreeStructure.getRootElement());
-            Map<String, ModuleNode> moduleNodes = new HashMap<String, ModuleNode>();
-            for(SimpleNode node : filenodes) {
-                if(node instanceof FileNode) {
-                    Module module = ModuleUtil.findModuleForFile(((FileNode) node).getFile(), project);
-                    String moduleName = module.getName();
-                    if(moduleNodes.containsKey(moduleName)) {
-                        moduleNodes.get(moduleName).addChild(node);
-                    }
-                    else {
-                        moduleNodes.put(moduleName, new ModuleNode(project, module,  node, settings));
-                    }
-                }
-            }
-        }
-    }*/
-
     public class ReviewsListener implements ReviewsChangedListener{
 
         @Override
         public void reviewAdded(Review review) {
-            System.out.println("adding review");
+            ((ReviewTreeStructure)reviewTreeStructure).addNode(review, settings);
+            reviewTreeBuilder.getUi().doUpdateFromRoot();
         }
 
         @Override
         public void reviewDeleted(Review review) {
-            System.out.println("deleting review");
-            SimpleNode node = ((ReviewTreeStructure)reviewTreeStructure).getNodeToRemove(review);
-            DefaultMutableTreeNode nodeToRemove = TreeUtil.findNodeWithObject(reviewTreeBuilder.getRootNode(), node);
-            reviewTree.getBuilderModel().removeNodeFromParent(nodeToRemove);
+            ((ReviewTreeStructure)reviewTreeStructure).removeReview(review);
             reviewTreeBuilder.getUi().doUpdateFromRoot();
         }
 
-
-
         @Override
         public void reviewChanged(Review review) {
-            System.out.println("changing review");
+            reviewTreeBuilder.getUi().doUpdateFromRoot();
         }
     }
 

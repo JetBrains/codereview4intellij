@@ -5,12 +5,14 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.impl.ProjectFileIndexImpl;
 import com.intellij.openapi.util.Iconable;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.Navigatable;
@@ -23,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
+import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -35,10 +38,9 @@ import java.util.Set;
  * Date: 7/14/11
  * Time: 5:50 PM
  */
-public class ModuleNode extends SimpleNode implements Navigatable{
+public class ModuleNode extends PlainNode implements Navigatable{
     private Project project;
     private Module module;
-    private List<SimpleNode> children = new ArrayList<SimpleNode>();
     private ReviewToolWindowSettings settings;
 
     public ModuleNode(Project project, Module module, ReviewToolWindowSettings settings) {
@@ -46,16 +48,6 @@ public class ModuleNode extends SimpleNode implements Navigatable{
         this.project = project;
         this.module = module;
         this.settings = settings;
-        for(VirtualFile root : ModuleRootManager.getInstance(module).getContentRoots()) {
-            children.add(new FileNode(project, root, settings));
-        }
-    }
-
-    public ModuleNode(Project project, Module module, SimpleNode node, ReviewToolWindowSettings settings) {
-        this.project = project;
-        this.module = module;
-        this.settings = settings;
-        children.add(node);
     }
 
     @Override
@@ -86,7 +78,6 @@ public class ModuleNode extends SimpleNode implements Navigatable{
 
     @Override
     public void update(PresentationData data) {
-        //if(children.isEmpty()) return;
         data.addText(module.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         Icon icon  = module.getModuleType().getNodeIcon(true);
         data.setIcons(icon);
@@ -113,16 +104,17 @@ public class ModuleNode extends SimpleNode implements Navigatable{
         return false;
     }
 
-    //todo : do real update, not rebuilding all children
-    public void updateContent() {
-    }
-
-    public void addChild(SimpleNode node) {
-        children.add(node);
-    }
-
-
     public Module getModule() {
         return module;
+    }
+
+    @Override
+    public void addChild(PlainNode node) {
+        if(node instanceof FileNode) {
+            if(!children.contains(node)) {
+                node.setPlainParent(this);
+                children.add(node);
+            }
+        }
     }
 }

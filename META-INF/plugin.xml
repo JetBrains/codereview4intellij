@@ -14,6 +14,9 @@
             <implementation-class>reviewresult.ReviewManager</implementation-class>
       </component>
       <component>
+            <implementation-class>ui.reviewtoolwindow.Searcher</implementation-class>
+      </component>
+      <component>
             <implementation-class>ui.reviewpoint.ReviewPointManager</implementation-class>
       </component>
       <component>
@@ -23,15 +26,16 @@
 
   <actions>
       <group id="TreeReviewItemActions">
-            <reference ref="EditSource"/>
+            <!--<reference ref="EditSource"/>-->
       </group>
 
       <action id="addReview" class="ui.actions.AddReviewAction" text="Add review" icon="/images/note_add.png">
           <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
       </action>
 
-      <!--<action id="previewReview" class="ui.reviewtoolwindow.ReviewPanel.Action" text="Preview">
-      </action>-->
+      <action id="deleteReview" class="ui.actions.DeleteReviewAction" text="Remove review">
+          <add-to-group group-id="TreeReviewItemActions" anchor="last"/>
+      </action>
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">

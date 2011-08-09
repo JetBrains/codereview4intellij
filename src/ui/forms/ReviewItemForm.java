@@ -1,6 +1,7 @@
 package ui.forms;
 
 import reviewresult.persistent.ReviewItem;
+import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicTextUI;
@@ -22,10 +23,12 @@ public class ReviewItemForm {
     private JTextArea reviewItemText;
     private JPanel reviewItemContent;
     private ReviewItem reviewItem;
+    private Searcher searcher;
 
     private Highlighter highlighter;
-    public ReviewItemForm(ReviewItem data) {
+    public ReviewItemForm(ReviewItem data, Searcher searcher) {
         reviewItem = data;
+        this.searcher = searcher;
         authorTextField.setText(data.getAuthor());
         dateTextField.setText(data.getDate().toString());
         String text = data.getText();
@@ -41,17 +44,26 @@ public class ReviewItemForm {
             @Override
             public void keyTyped(KeyEvent e) {
                 reviewItemText.setBorder(BorderFactory.createEmptyBorder());
+                String reviewText = reviewItemText.getText();
+                if("".equals(reviewText)) {
+                    setEmptyComment();
+                    return;
+                }
                 if(Character.isDigit(e.getKeyChar()) ||
                    Character.isLetter(e.getKeyChar()) ||
                    Character.isWhitespace(e.getKeyChar()) ) {
-                        reviewItem.setText(reviewItemText.getText() + e.getKeyChar());
+                        reviewItem.setText(reviewText + e.getKeyChar());
+                }
+                else {
+                   reviewItem.setText(reviewText);
                 }
             }
         });
     }
 
     public void updateSelection() {
-        int searchStart = reviewItem.getSearchStart();
+        int searchStart = searcher.getItemSearchResult(reviewItem).first;
+        int searchEnd = searcher.getItemSearchResult(reviewItem).second;
         if(searchStart >= 0) {
             if(highlighter.getHighlights().length > 0) {
                 highlighter.removeAllHighlights();
@@ -59,7 +71,7 @@ public class ReviewItemForm {
             if(highlighter != null) {
                 try {
                     highlighter.addHighlight(searchStart,
-                                                reviewItem.getSearchEnd(),
+                                                searchEnd,
                                                 new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW));
                 } catch (BadLocationException e) {
                     e.printStackTrace();

@@ -127,7 +127,7 @@ public class ReviewToolWindowSettings {
         public void setSelected(AnActionEvent e, boolean state) {
             searchEnabled = state;
             if(!searchEnabled) {
-                ReviewManager.getInstance(project).emptyFilter();
+                Searcher.getInstance(project).emptyFilter();
             }
             updateUI();
         }
@@ -223,7 +223,7 @@ public class ReviewToolWindowSettings {
                 Element root = builder.build(new StringReader(contents)).getRootElement();
                 ReviewsState.State state = XmlSerializer.deserialize(root, ReviewsState.State.class);
                 ReviewManager reviewManager = ReviewManager.getInstance(project);
-                reviewManager.loadReviews(state.reviews, false);
+                reviewManager.loadReviews(state.reviews, true);
             } catch(JDOMException e2) {
                 e2.printStackTrace();
             } catch(NullPointerException e2) {

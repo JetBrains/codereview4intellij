@@ -20,10 +20,6 @@ public class ReviewItem {
     private String text = "";// = "Add comment";
     private ReviewStatus status;
 
-
-    private int searchStart = -1;
-    private int searchEnd = -1;
-
     public ReviewItem() {
     }
 
@@ -68,24 +64,6 @@ public class ReviewItem {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    @Transient
-    public int getSearchStart() {
-        return searchStart;
-    }
-
-    public void setSearchStart(int searchStart) {
-        this.searchStart = searchStart;
-    }
-
-    @Transient
-     public int getSearchEnd() {
-        return searchEnd;
-    }
-
-    public void setSearchEnd(int searchEnd) {
-        this.searchEnd = searchEnd;
     }
 
     @Override

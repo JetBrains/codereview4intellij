@@ -9,11 +9,14 @@ import reviewresult.ReviewManager;
 import reviewresult.ReviewStatus;
 import ui.reviewpoint.ReviewPointManager;
 import ui.reviewtoolwindow.ReviewView;
+import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -24,9 +27,6 @@ import java.util.ArrayList;
  */
 public class EditReviewForm {
     private JTextField reviewName = new JTextField();
-
-    private JButton OKButton = new JButton("OK");
-    private JButton cancelButton = new JButton("Cancel");
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
     private JPanel panel = new JPanel(new BorderLayout());
@@ -48,6 +48,21 @@ public class EditReviewForm {
         resetItemsContent(true);
         contentPanel.add(panel);
 
+        reviewName.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                reviewName.setBorder(BorderFactory.createEmptyBorder());
+                String reviewText = reviewName.getText();
+                if(Character.isDigit(e.getKeyChar()) ||
+                   Character.isLetter(e.getKeyChar()) ||
+                   Character.isWhitespace(e.getKeyChar()) ) {
+                        review.setName(reviewText + e.getKeyChar());
+                }
+                else {
+                   review.setName(reviewText);
+                }
+            }
+        });
         if(showNewItem) {
             JPanel newReviewItemPanel = new JPanel(new GridLayout(1, 1));
 
@@ -60,7 +75,9 @@ public class EditReviewForm {
             contentPanel.add(newItemScrollPane);
 
             JPanel OKCancelPanel = new JPanel(new GridLayout(1,2));
+            JButton OKButton = new JButton("OK");
             OKCancelPanel.add(OKButton);
+            JButton cancelButton = new JButton("Cancel");
             OKCancelPanel.add(cancelButton);
 
             mainPanel.add(contentPanel);
@@ -78,24 +95,21 @@ public class EditReviewForm {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String text = newReviewItemText.getText().trim();
-                    if("".equals(text)) {
+                    if ("".equals(text)) {
                         newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
                         newReviewItemText.invalidate();
                         return;
                     }
 
                     String name = reviewName.getText();
-                    if("".equals(name)) {
+                    if ("".equals(name)) {
                         int nameLength = 6;
-                        String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength):text;
+                        String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength) : text;
                         review.setName(forcedName);
                     }
-                    else {
-                        review.setName(name);
-                    }
-                    if(review.getReviewItems().isEmpty()) {
+
+                    if (review.getReviewItems().isEmpty()) {
                         ReviewManager.getInstance(review.getProject()).addReview(review);
-                        //ReviewPointManager.getInstance(review.getProject()).createReviewPoint(review);
                     }
                     review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
                     balloon.dispose();
@@ -119,7 +133,6 @@ public class EditReviewForm {
     }
 
     public JPanel getItemsContent(boolean editable) {
-        //resetItemsContent(editable);
         return panel;
     }
 
@@ -135,7 +148,7 @@ public class EditReviewForm {
         }
 
         for (ReviewItem reviewItem : review.getReviewItems()) {
-            ReviewItemForm itemForm = new ReviewItemForm(reviewItem);
+            ReviewItemForm itemForm = new ReviewItemForm(reviewItem, Searcher.getInstance(review.getProject()));
             itemsPanel.add(itemForm.getContent(editable));
             reviewItemFormsList.add(itemForm);
         }
@@ -155,7 +168,6 @@ public class EditReviewForm {
     }
 
     public Component getNameTextField() {
-        //reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
         return reviewName;
     }
 

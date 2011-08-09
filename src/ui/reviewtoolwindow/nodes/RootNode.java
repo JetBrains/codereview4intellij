@@ -4,6 +4,8 @@ package ui.reviewtoolwindow.nodes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.util.ui.ListTableModel;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
@@ -17,35 +19,44 @@ import java.util.List;
  * Date: 8/3/11
  * Time: 5:21 PM
  */
-public class RootNode extends SimpleNode {
-
-    private List<SimpleNode> children = new ArrayList<SimpleNode>();
-    private Project project;
+public class RootNode extends PlainNode {
     private ReviewToolWindowSettings settings;
 
     public RootNode(Project project, ReviewToolWindowSettings settings) {
-        this.project = project;
+        super(project);
         this.settings = settings;
         for(Module module : ModuleManager.getInstance(project).getModules()) {
             ModuleNode moduleNode = new ModuleNode(project, module, settings);
-            children.add(moduleNode);
+            addChild(moduleNode);
         }
-    }
-
-    public List<SimpleNode> getPlainChildren() {
-        return children;
     }
 
     @Override
     public SimpleNode[] getChildren() {
+        List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
         if(!settings.isGroupByModule()) {
-            List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
             for (SimpleNode child : children) {
                     newChildren.addAll(Arrays.asList(child.getChildren()));
             }
-            return newChildren.toArray(new SimpleNode[newChildren.size()]);
         }
-        return children.toArray(new SimpleNode[children.size()]);
+        else {
+            for(PlainNode node : children) {
+                if(!node.getPlainChildren().isEmpty()) {
+                    newChildren.add(node);
+                }
+            }
+        }
+        return newChildren.toArray(new SimpleNode[newChildren.size()]);
+    }
+
+    @Override
+    public void addChild(PlainNode node) {
+        if(node instanceof ModuleNode) {
+            node.setPlainParent(this);
+            if(!children.contains(node)) {
+                children.add(node);
+            }
+        }
     }
 
 }

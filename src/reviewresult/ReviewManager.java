@@ -1,11 +1,9 @@
 package reviewresult;
 
-import com.intellij.openapi.compiler.CompilerTopics;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.*;
-import com.intellij.util.messages.Topic;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -15,7 +13,6 @@ import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
 import reviewresult.persistent.ReviewsState;
 import ui.reviewpoint.ReviewPointManager;
-import ui.reviewtoolwindow.ReviewPanel;
 import utils.Util;
 
 import java.util.*;
@@ -29,7 +26,7 @@ import java.util.*;
 public class ReviewManager extends AbstractProjectComponent {
 
     private Map<String, List<Review>> filePath2reviews = new HashMap<String, List<Review>>();
-    private Map<String, List<Review>> filteredReviews = new HashMap<String, List<Review>>();
+
     private Set<String> exportedFiles = new HashSet<String>();
 
     private boolean saveReviewsToPatch;
@@ -87,10 +84,13 @@ public class ReviewManager extends AbstractProjectComponent {
             for(Review review : reviewList) {
                 if(review.equals(newReview)) {
                     review.setReviewBean(newReview.getReviewBean());
-                    eventPublisher.reviewChanged(review);
+
                     contains = true;
                     if(!review.isValid()) {
+                        eventPublisher.reviewDeleted(review);
                         logInvalidReview(review);
+                    } else {
+                        eventPublisher.reviewChanged(review);
                     }
                     break;
                 }
@@ -112,73 +112,23 @@ public class ReviewManager extends AbstractProjectComponent {
         ReviewPointManager.getInstance(myProject).reloadReviewPoint(newReview);
     }
 
-    public List<Review> getReviews(VirtualFile virtualFile) {
-        return filePath2reviews.get(virtualFile.getUrl());
+    public List<Review> getValidReviews(String filepath) {
+        ArrayList<Review> reviewsList = new ArrayList<Review>();
+        List<Review> reviews = filePath2reviews.get(filepath);
+        if(reviews == null || reviews.isEmpty()) return reviews;
+        for(Review review : reviews) {
+            if(review.isValid()) {
+                reviewsList.add(review);
+            }
+        }
+        return reviewsList;
     }
 
     public Set<String> getFileNames() {
-        if(filteredReviews.isEmpty()) {
-            return filePath2reviews.keySet();
-        }
-        return filteredReviews.keySet();
+        return filePath2reviews.keySet();
     }
 
-    public void createFilter(String text) {
-        if(text == null || "".equals(text)) {
-            filteredReviews = filePath2reviews;
-        }
-        else {
-            filteredReviews = new HashMap<String, List<Review>>();
-            for(String url : filePath2reviews.keySet()) {
-                for(Review review : filePath2reviews.get(url)) {
-                    boolean contains = false;
-                    for(ReviewItem item : review.getReviewItems()) {
-                        int itemStart = Util.find(item.getText(), text);
-                        int reviewStart = Util.find(review.getName(), text);
-                        int itemEnd = -1;
-                        int reviewEnd = -1;
-                        if(itemStart != -1 || reviewStart != -1) {
-                            contains = true;
-                            if(itemStart >= 0) {
-                                itemEnd = itemStart + text.length();
-                            }
-                            if(reviewStart >= 0) {
-                                reviewEnd = reviewStart + text.length();
-                            }
-                        }
-                        item.setSearchStart(itemStart);
-                        item.setSearchEnd(itemEnd);
-                        review.setSearchStart(reviewStart);
-                        review.setSearchEnd(reviewEnd);
-                    }
-                    if(contains) {
-                        if(filteredReviews.containsKey(url)) {
-                            List<Review> reviewList = filteredReviews.get(url);
-                            reviewList.add(review);
-                        } else {
-                            ArrayList<Review> reviewsList = new ArrayList<Review>();
-                            reviewsList.add(review);
-                            filteredReviews.put(url, reviewsList);
-                        }
-                    }
-                }
-            }
-        }
-    }
 
-    public void emptyFilter() {
-         for(String url : filePath2reviews.keySet()) {
-            for(Review review : filePath2reviews.get(url)) {
-                review.setSearchStart(-1);
-                review.setSearchEnd(-1);
-                for(ReviewItem item : review.getReviewItems()) {
-                    item.setSearchStart(-1);
-                    item.setSearchEnd(-1);
-                }
-            }
-         }
-         filteredReviews = filePath2reviews;
-    }
 
     @NotNull
     @Override
@@ -222,9 +172,9 @@ public class ReviewManager extends AbstractProjectComponent {
         return removed.get(file.getUrl());
     }*/
 
-    public List<Review> getFilteredReviews(String fileName) {
+    /*public List<Review> getFilteredReviews(String fileName) {
         return filteredReviews.get(fileName);
-    }
+    }*/
 
     public int getReviewCount(Collection<VirtualFile> virtualFiles) {
         int reviewCount = 0;
@@ -277,6 +227,19 @@ public class ReviewManager extends AbstractProjectComponent {
         result += outputter.outputString(addedElement);
         return result;
    }
+
+    public void removeAll(VirtualFile file) {
+        if(filePath2reviews.containsKey(file.getUrl())) {
+            List<Review> reviews = filePath2reviews.get(file.getUrl());
+            for (Review review : reviews) {
+                removeReview(review);
+            }
+        } else {
+            for(VirtualFile child : file.getChildren()) {
+                removeAll(child);
+            }
+        }
+    }
 
     private class ReviewVirtualFileListener extends VirtualFileAdapter {
         @Override
