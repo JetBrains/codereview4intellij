@@ -1,31 +1,29 @@
-/*
+
 package tests;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.impl.ProjectMacrosUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.testFramework.IdeaTestCase;
-import com.intellij.testFramework.LightIdeaTestCase;
-import com.intellij.testFramework.LightPlatformTestCase;
-import com.intellij.testFramework.PlatformTestCase;
-import com.sun.jna.Platform;
-import com.sun.xml.internal.ws.wsdl.writer.document.Service;
-import reviewresult.*;
+import reviewresult.Review;
+import reviewresult.ReviewManager;
+import reviewresult.ReviewStatus;
+import reviewresult.persistent.ReviewBean;
+import reviewresult.persistent.ReviewItem;
 import ui.reviewpoint.ReviewPoint;
+import ui.reviewpoint.ReviewPointManager;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-*/
+
 /**
  * User: Alisa.Afonina
  * Date: 7/26/11
  * Time: 12:22 PM
- *//*
+ */
 
 public class ReviewManagerTest extends IdeaTestCase {
 
@@ -41,23 +39,12 @@ public class ReviewManagerTest extends IdeaTestCase {
         reviewManager = ReviewManager.getInstance(getProject());
     }
 
-    public void testClearAll() {
-        Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
-        addNewReview(projectFile, "test Review", 1, 2);
-        reviewManager.clearAll();
-        List<Review> reviews = reviewManager.getValidReviews(projectFile);
-        assertNullOrEmpty(reviews);
-        assertNullOrEmpty(reviewManager.getFileNames());
-        assertNullOrEmpty(reviewManager.getReviewPoints().keySet());
-        assertNullOrEmpty(reviewManager.getState().reviews);
-    }
 
     public void testAddOneReview() throws Exception {
         Project project = getProject();
         VirtualFile projectFile = project.getProjectFile();
         Review review = addNewReview(projectFile, "test Review", 1, 2);
-        List<Review> reviews = reviewManager.getValidReviews(projectFile);
+        List<Review> reviews = reviewManager.getValidReviews(projectFile.getUrl());
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
         assertReviewsEquals(review, addedReview);
@@ -66,11 +53,10 @@ public class ReviewManagerTest extends IdeaTestCase {
 
     public void testAddReviewAfterAnotherSameFile() throws Exception {
         Project project = getProject();
-
         VirtualFile firstFile = project.getProjectFile();
         Review firstReview = addNewReview(firstFile, "test Review", 1, 2);
         Review secondReview = addNewReview(firstFile, "test Review", 2, 4);
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFile.getUrl());
         assertEquals(2, reviews.size());
         Review addedReview = reviews.get(1);
         assertReviewsEquals(secondReview, addedReview);
@@ -86,16 +72,18 @@ public class ReviewManagerTest extends IdeaTestCase {
 
         Set<String> reviewFileNames = reviewManager.getFileNames();
         assertEquals(2, reviewFileNames.size());
-        assertEquals(true, reviewFileNames.contains(firstFile.getFilePath()));
-        assertEquals(true, reviewFileNames.contains(secondFile.getFilePath()));
+        String firstFileUrl = firstFile.getUrl();
+        assertEquals(true, reviewFileNames.contains(firstFileUrl));
+        String secondFileUrl = secondFile.getUrl();
+        assertEquals(true, reviewFileNames.contains(secondFileUrl));
 
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFileUrl);
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
 
         assertReviewsEquals(firstReview, addedReview);
 
-        reviews = reviewManager.getValidReviews(secondFile);
+        reviews = reviewManager.getValidReviews(secondFileUrl);
         assertEquals(1, reviews.size());
         addedReview = reviews.get(0);
 
@@ -106,7 +94,7 @@ public class ReviewManagerTest extends IdeaTestCase {
         Project project = getProject();
         VirtualFile projectFile = project.getProjectFile();
         Review firstReview = addNewReview(projectFile, "test Review", 1, 2);
-        List<Review> reviews = reviewManager.getValidReviews(projectFile);
+        List<Review> reviews = reviewManager.getValidReviews(projectFile.getUrl());
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
         firstReview.setName("new Test Name");
@@ -119,7 +107,7 @@ public class ReviewManagerTest extends IdeaTestCase {
 
         VirtualFile firstFile = project.getProjectFile();
         Review firstReview = addNewReview(firstFile, "test Review", 1, 2);
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFile.getUrl());
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
         firstReview.addReviewItem(new ReviewItem("review Text", ReviewStatus.COMMENT));
@@ -134,7 +122,7 @@ public class ReviewManagerTest extends IdeaTestCase {
         Review firstReview = addNewReview(firstFile, "test Review", 1, 2);
         ReviewItem reviewItem = new ReviewItem("review Text", ReviewStatus.COMMENT);
         firstReview.addReviewItem(reviewItem);
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFile.getUrl());
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
         firstReview.getReviewBean().getReviewItems().remove(reviewItem);
@@ -146,11 +134,11 @@ public class ReviewManagerTest extends IdeaTestCase {
 
         VirtualFile firstFile = project.getProjectFile();
         Review review = addNewReviewPoint(firstFile, "test Review", 1, 2);
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFile.getUrl());
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
         assertReviewsEquals(review, addedReview);
-        Map<Review, ReviewPoint> reviewPoints = reviewManager.getReviewPoints();
+        Map<Review, ReviewPoint> reviewPoints = ReviewPointManager.getInstance(project).getReviewPoints();
         assertEquals(1, reviewPoints.size());
         assertTrue(reviewPoints.containsKey(review));
         assertReviewsEquals(review, reviewPoints.get(review).getReview());
@@ -163,9 +151,9 @@ public class ReviewManagerTest extends IdeaTestCase {
         Review firstReview = addNewReviewPoint(firstFile, "test Review", 1, 2);
         Review secondReview = addNewReviewPoint(firstFile, "test Review", 1, 2);
 
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFile.getUrl());
         assertEquals(2, reviews.size());
-        Map<Review, ReviewPoint> reviewPoints = reviewManager.getReviewPoints();
+        Map<Review, ReviewPoint> reviewPoints = ReviewPointManager.getInstance(project).getReviewPoints();
         assertEquals(2, reviewPoints.size());
 
         assertTrue(reviewPoints.containsKey(firstReview));
@@ -179,11 +167,12 @@ public class ReviewManagerTest extends IdeaTestCase {
         VirtualFile firstFile = project.getProjectFile();
         Review firstReview = addNewReviewPoint(firstFile, "test Review", 1, 2);
 
-        ReviewPoint pointToRemove = reviewManager.findReviewPoint(firstReview);
-        reviewManager.removeReview(pointToRemove);
-        Map<Review, ReviewPoint> reviewPoints = reviewManager.getReviewPoints();
+        ReviewPoint pointToRemove = ReviewPointManager.getInstance(project).findReviewPoint(firstReview);
+        assertNotNull(pointToRemove);
+        reviewManager.removeReview(firstReview);
+        Map<Review, ReviewPoint> reviewPoints = ReviewPointManager.getInstance(project).getReviewPoints();
         assertFalse(reviewPoints.containsKey(firstReview));
-        List<Review> reviews = reviewManager.getValidReviews(firstFile);
+        List<Review> reviews = reviewManager.getValidReviews(firstFile.getUrl());
         if(reviews != null) {
             assertFalse(reviews.contains(firstReview));
         }
@@ -205,14 +194,14 @@ public class ReviewManagerTest extends IdeaTestCase {
         secondDocument.insertString(0, "1\n");
 
         //find existing
-        Review firstReview = new Review(new ReviewBean("test review", 1, 1, secondFile.getFilePath()), project);
-        firstReview.setValid(true);
-        reviewManager.createReviewPoint(firstReview);
-        assertNotNull(reviewManager.findReviewPoint(firstReview));
+        //Review firstReview = new Review(new ReviewBean("test review", 1, 1, secondFile.getUrl()), project);
+        //firstReview.setValid(true);
+        Review firstReview = addNewReview(firstFile, "test review", 1,1);
+        assertNotNull(ReviewPointManager.getInstance(project).findReviewPoint(firstReview));
 
         //no result for nonexistent
-        Review secondReview = new Review(new ReviewBean("test review review", 11, 1, secondFile.getFilePath()), project);
-        assertNull(reviewManager.findReviewPoint(secondReview));
+        Review secondReview = new Review(new ReviewBean("test review review", 11, 1, secondFile.getUrl()), project);
+        assertNull(ReviewPointManager.getInstance(project).findReviewPoint(secondReview));
     }
 
     public void testRemoveOneOfManyReviewPoints() throws Exception {
@@ -223,13 +212,13 @@ public class ReviewManagerTest extends IdeaTestCase {
         Review firstReview = addNewReviewPoint(firstFile, "test Review", 1, 2);
         Review secondReview = addNewReviewPoint(secondFile, "test Review", 1, 2);
 
-        ReviewPoint firstPointToRemove = reviewManager.findReviewPoint(firstReview);
-        reviewManager.removeReview(firstPointToRemove);
+        ReviewPoint point = ReviewPointManager.getInstance(project).findReviewPoint(firstReview);
+        reviewManager.removeReview(firstReview);
 
-        Map<Review, ReviewPoint> reviewPoints = reviewManager.getReviewPoints();
+        Map<Review, ReviewPoint> reviewPoints = ReviewPointManager.getInstance(project).getReviewPoints();
         assertFalse(reviewPoints.containsKey(firstReview));
         assertTrue(reviewPoints.containsKey(secondReview));
-        List<Review> reviews = reviewManager.getValidReviews(secondFile);
+        List<Review> reviews = reviewManager.getValidReviews(secondFile.getUrl());
         if(reviews != null) {
             assertFalse(reviews.contains(firstReview));
             assertTrue(reviews.contains(secondReview));
@@ -279,11 +268,13 @@ public class ReviewManagerTest extends IdeaTestCase {
     }
 
     private void assertIncorrectReview(VirtualFile projectFile, Review review) {
+/*
         assertFalse(review.isValid());
         reviewManager.createReviewPoint(review);
         assertFalse(reviewManager.getReviewPoints().containsKey(review));
         assertNullOrEmpty(reviewManager.getValidReviews(projectFile));
         assertFalse(reviewManager.getState().reviews.contains(review.getReviewBean()));
+*/
     }
 
     private static void assertReviewBeansEquals(ReviewBean reviewBean, String name, int start, int end, List<ReviewItem> reviewItems, String url) {
@@ -299,7 +290,7 @@ public class ReviewManagerTest extends IdeaTestCase {
     private static void assertReviewsEquals(Review review, Review addedReview) {
         ReviewBean reviewBean = addedReview.getReviewBean();
         assertEquals(review.getProject(), addedReview.getProject());
-        assertEquals(review.getVirtualFile().getFilePath(), addedReview.getVirtualFile().getFilePath());
+        assertEquals(review.getVirtualFile().getUrl(), addedReview.getVirtualFile().getUrl());
         assertReviewBeansEquals(review.getReviewBean(),
                 reviewBean.getName(), reviewBean.getStart(), reviewBean.getEnd(), reviewBean.getReviewItems(), reviewBean.getFilePath());
     }
@@ -310,7 +301,7 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertNotNull(document);
         document.insertString(0, "1\n");
 
-        Review review = new Review(new ReviewBean(name, start, end, file.getFilePath()), myProject);
+        Review review = new Review(new ReviewBean(name, start, end, file.getUrl()), myProject);
         review.setValid(true);
         //reviewManager.createReviewPoint(review);
         reviewManager.addReview(review);
@@ -324,11 +315,11 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertNotNull(document);
         document.insertString(0, "111\n");
 
-        Review review = new Review(new ReviewBean(name, start, end, file.getFilePath()), myProject);
+        Review review = new Review(new ReviewBean(name, start, end, file.getUrl()), myProject);
         review.setValid(true);
-        reviewManager.createReviewPoint(review);
+        //reviewManager.createReviewPoint(review);
         //reviewManager.addReview(review)
         return review;
     }
 }
-*/
+

@@ -31,5 +31,6 @@ public class ReviewsPreviewPanel extends JPanel {
         } else {
             add(new JLabel("This element became invalid"));
         }
+        revalidate();
     }
 }

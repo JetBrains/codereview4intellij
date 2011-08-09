@@ -1,7 +1,6 @@
 package ui.reviewtoolwindow;
 
 import com.intellij.ide.DataManager;
-import com.intellij.ide.ExporterToTextFile;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.OccurenceNavigatorSupport;
 import com.intellij.ide.util.treeView.AbstractTreeBuilder;
@@ -10,29 +9,18 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SmartExpander;
 import com.intellij.ui.treeStructure.*;
-import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.tree.TreeUtil;
-import com.intellij.util.xmlb.XmlSerializer;
-import com.sun.xml.internal.ws.server.StatefulInstanceResolver;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,27 +28,21 @@ import reviewresult.Review;
 import reviewresult.ReviewChangedTopics;
 import reviewresult.ReviewManager;
 import reviewresult.ReviewsChangedListener;
-import reviewresult.persistent.ReviewsState;
 import ui.actions.ReviewActionManager;
 import ui.forms.EditReviewForm;
 import ui.reviewtoolwindow.nodes.FileNode;
 import ui.reviewtoolwindow.nodes.ModuleNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
-import ui.reviewtoolwindow.nodes.RootNode;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.EventListener;
 import java.util.Set;
-import java.util.TooManyListenersException;
 
 /**
  * User: Alisa.Afonina
@@ -91,7 +73,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     public ReviewPanel(final Project project) {
         super(false);
         this.project = project;
-        settings = new ReviewToolWindowSettings(project, this);
+        settings = new ReviewToolWindowSettings();
         Searcher.getInstance(project).createFilter("");
 
         initTree();
@@ -99,7 +81,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
         mainPanel = new JPanel(new BorderLayout());
 
-        mainPanel.add(settings.createLeftMenu(), BorderLayout.WEST);
+        mainPanel.add(new ReviewToolWindowActionManager(project, this, settings).createLeftMenu(), BorderLayout.WEST);
         mainPanel.add(scrollPane);
 
         mainPanel.add(previewPanel, BorderLayout.EAST);
@@ -198,7 +180,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     }
 
     public void createTreeStructure() {
-        reviewTreeStructure = new ReviewTreeStructure(project, new RootNode(project, settings), settings);
+        reviewTreeStructure = new ReviewTreeStructure(project, settings);
     }
 
     @Override
@@ -300,7 +282,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
         @Override
         public void reviewAdded(Review review) {
-            ((ReviewTreeStructure)reviewTreeStructure).addNode(review, settings);
+            ((ReviewTreeStructure)reviewTreeStructure).addReview(review);
             reviewTreeBuilder.getUi().doUpdateFromRoot();
         }
 

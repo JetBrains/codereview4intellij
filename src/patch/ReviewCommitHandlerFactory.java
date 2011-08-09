@@ -7,6 +7,7 @@ import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory;
 import com.intellij.openapi.vcs.ui.RefreshableOnComponent;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reviewresult.ReviewManager;
 
 import javax.swing.*;
@@ -37,9 +38,10 @@ public class ReviewCommitHandlerFactory  extends CheckinHandlerFactory {
         @Override
         public ReturnResult beforeCheckin() {
             ReviewManager.getInstance(checkinProjectPanel.getProject()).setSaveReviewsToPatch(checkbox.isSelected());
-            return super.beforeCheckin();    //To change body of overridden methods use File | Settings | File Templates.
+            return super.beforeCheckin();
         }
 
+        @Nullable
         @Override
         public RefreshableOnComponent getBeforeCheckinConfigurationPanel() {
             final JPanel panel = new JPanel(new GridLayout(1,1));

@@ -3,12 +3,15 @@ package reviewresult;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
 import reviewresult.persistent.ReviewsState;
@@ -31,17 +34,27 @@ public class ReviewManager extends AbstractProjectComponent {
 
     private boolean saveReviewsToPatch;
 
-    private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
-    private ReviewsChangedListener eventPublisher;
+    private final ReviewsChangedListener eventPublisher;
 
-    public ReviewManager(Project project) {
+    private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
+
+    private ProjectRootManager rootManager;
+
+
+    public ReviewManager(@NotNull Project project, final ProjectRootManager rootManager) {
         super(project);
+        this.rootManager = rootManager;
+
         VirtualFileManager.getInstance().addVirtualFileListener(new ReviewVirtualFileListener(), project);
         eventPublisher = project.getMessageBus().syncPublisher(ReviewChangedTopics.REVIEW_STATUS);
     }
 
     public static ReviewManager getInstance(@NotNull Project project) {
         return project.getComponent(ReviewManager.class);
+    }
+
+    public ProjectRootManager getRootManager() {
+        return rootManager;
     }
 
     public List<ReviewBean> getState() {
@@ -83,13 +96,14 @@ public class ReviewManager extends AbstractProjectComponent {
             boolean contains = false;
             for(Review review : reviewList) {
                 if(review.equals(newReview)) {
-                    review.setReviewBean(newReview.getReviewBean());
-
                     contains = true;
-                    if(!review.isValid()) {
+                    if(!newReview.isValid()) {
                         eventPublisher.reviewDeleted(review);
                         logInvalidReview(review);
                     } else {
+                        if(!review.isValid())
+                            eventPublisher.reviewAdded(review);
+                        review.setReviewBean(newReview.getReviewBean());
                         eventPublisher.reviewChanged(review);
                     }
                     break;
@@ -112,6 +126,8 @@ public class ReviewManager extends AbstractProjectComponent {
         ReviewPointManager.getInstance(myProject).reloadReviewPoint(newReview);
     }
 
+
+    @Nullable
     public List<Review> getValidReviews(String filepath) {
         ArrayList<Review> reviewsList = new ArrayList<Review>();
         List<Review> reviews = filePath2reviews.get(filepath);
@@ -156,6 +172,7 @@ public class ReviewManager extends AbstractProjectComponent {
         }
     }*/
 
+    @Nullable
     public List<ReviewBean> getAddedForFile(String filepath) {
         List<Review> reviewsPart = filePath2reviews.get(filepath);
         if(reviewsPart != null && !reviewsPart.isEmpty()) {
@@ -176,7 +193,7 @@ public class ReviewManager extends AbstractProjectComponent {
         return filteredReviews.get(fileName);
     }*/
 
-    public int getReviewCount(Collection<VirtualFile> virtualFiles) {
+    public int getReviewCount(@NotNull Collection<VirtualFile> virtualFiles) {
         int reviewCount = 0;
         for(VirtualFile file : virtualFiles) {
             if(filePath2reviews.containsKey(file.getUrl())) {
@@ -198,6 +215,8 @@ public class ReviewManager extends AbstractProjectComponent {
         return getReviewsToExport("");
     }
 
+
+    @Nullable
     public List<ReviewBean> getReviewsToExport(String filepath) {
         if(exportedFiles.isEmpty()) {
             exportedFiles = filePath2reviews.keySet();
@@ -264,7 +283,6 @@ public class ReviewManager extends AbstractProjectComponent {
                 List<Review> reviewList = filePath2reviews.get(url);
                 filePath2reviews.remove(url);
                 for (Review review : reviewList) {
-                    //ReviewPointManager.getInstance(myProject).reloadReviewPoint(review);
                     review.getReviewBean().setDeleted(true);
                 }
             }

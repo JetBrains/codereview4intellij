@@ -7,6 +7,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.*;
 import com.intellij.openapi.util.ActionCallback;
 import com.intellij.openapi.wm.IdeFocusManager;
+import com.intellij.ui.BalloonImpl;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.PositionTracker;
 import reviewresult.Review;
@@ -16,6 +17,8 @@ import ui.reviewpoint.ReviewPointManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * User: Alisa.Afonina
@@ -63,10 +66,26 @@ public class ReviewActionManager implements DumbAware {
 
     private void showBalloon(final Editor editor, final Point point, JComponent content, final JComponent contentComponent) {
         if(!review.isValid()) return;
+
+        content.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
+        content.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "exitReview");
+        content.getActionMap().put("saveReview", new AbstractAction() {
+        @Override
+            public void actionPerformed(ActionEvent e) {
+                editReviewForm.saveReview();
+            }
+        });
+        content.getActionMap().put("exitReview", new AbstractAction() {
+        @Override
+            public void actionPerformed(ActionEvent e) {
+                activeBalloon.hide();
+            }
+        });
+
         balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(content, "Add Comment");
         balloonBuilder.setHideOnClickOutside(true);
+        balloonBuilder.setHideOnKeyOutside(true);
         activeBalloon = balloonBuilder.createBalloon();
-
         activeBalloon.addListener(new JBPopupAdapter() {
             @Override
             public void onClosed(LightweightWindowEvent event) {
@@ -74,6 +93,7 @@ public class ReviewActionManager implements DumbAware {
             }
         });
         editReviewForm.setBalloon(activeBalloon);
+        if(activeBalloon == null) return;
         activeBalloon.show(
                 new PositionTracker<Balloon>(editor.getContentComponent()){
                 @Override

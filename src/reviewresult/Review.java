@@ -5,8 +5,11 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
@@ -27,11 +30,12 @@ public class Review {
     private boolean activated = false;
 
     public static final DataKey<Review> REVIEW_DATA_KEY = DataKey.create("Review");
-    public Review(ReviewBean reviewBean, Project project){
+    public Review(@NotNull ReviewBean reviewBean, @NotNull Project project){
         this.reviewBean = reviewBean;
         this.project = project;
         this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getFilePath());
-        if(virtualFile == null) reviewBean.setValid(false);
+
+        if(virtualFile == null)  {reviewBean.setValid(false); return;}
         this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
     }
 
@@ -72,7 +76,8 @@ public class Review {
     }
 
     public boolean isValid() {
-        return reviewBean.isValid();
+        return reviewBean.isValid()
+          && ReviewManager.getInstance(project).getRootManager().getFileIndex().isInContent(virtualFile);
     }
 
     public int getLine() {

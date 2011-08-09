@@ -1,6 +1,7 @@
 package ui.reviewtoolwindow;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -28,16 +29,16 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
     @Nullable
     private PlainNode invalidChild;
 
-    protected ReviewTreeStructure(Project project, RootNode root, ReviewToolWindowSettings settings) {
+    public ReviewTreeStructure(Project project, ReviewToolWindowSettings settings) {
         super();
         this.project = project;
-        rootElement = root;
+        rootElement = new RootNode(project, settings);
         this.settings = settings;
         Set<String> filesWithReview = Searcher.getInstance(project).getFilteredFileNames();
         for (String virtualFileName : filesWithReview) {
             List<Review> validReviews = ReviewManager.getInstance(project).getValidReviews(virtualFileName);
             for (Review review : validReviews)
-                addNode(review, settings);
+                addReview(review);
         }
     }
 
@@ -50,34 +51,21 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
     public void removeReview(Review review) {
         findInvalidAncestorNode(rootElement, review);
         if(invalidChild != null) {
-            if(!(invalidChild instanceof RootNode)) {
-                invalidChild.removeFromParent();
-            } else {
+            if((invalidChild instanceof RootNode)) {
                 rootElement = new RootNode(project, settings);
+            } else {
+                invalidChild.removeFromParent();
             }
             invalidChild = null;
         }
         rootElement.update();
-
     }
 
-    public void addNode(Review review, ReviewToolWindowSettings settings) {
-        PlainNode parent = findAncestorNode(rootElement, review);
-        VirtualFile virtualFile = review.getVirtualFile();
-        if(parent instanceof FileNode) {
-            PlainNode ancestorNode = getAncestorNode(((FileNode) parent).getFile(), review);
-            for(PlainNode node : ancestorNode.getPlainChildren()) {
-                parent.addChild(node);
-            }
-        }
-        if(parent instanceof ModuleNode) {
-            if(ModuleRootManager.getInstance(((ModuleNode) parent).getModule()).getFileIndex().isInContent(virtualFile)){
-                VirtualFile root = ProjectRootManager.getInstance(project).getFileIndex().getContentRootForFile(virtualFile);
-                PlainNode rootNode = getAncestorNode(root, review);
-                parent.addChild(rootNode);
-            }
-        }
+    public void addReview(Review review) {
+        //ancestor == fileNode with closest ancestor to given review
+        PlainNode ancestor = findAncestorNode(rootElement, review);
 
+        addChildrenToAncestorNode(ancestor, review);
     }
 
     private PlainNode findAncestorNode(PlainNode rootElement, Review review) {
@@ -98,8 +86,18 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         return rootElement;
     }
 
-    private boolean findInvalidAncestorNode(PlainNode rootElement, Review review) {
+    public boolean findInvalidAncestorNode(PlainNode rootElement, Review review) {
         List<PlainNode> rootChildren = rootElement.getPlainChildren();
+        int size = rootChildren.size();
+        if(invalidChild == null) {
+            if(size == 1) {
+                invalidChild = rootElement;
+            }
+        } else {
+            if(size != 1) {
+                invalidChild = null;
+            }
+        }
         for(PlainNode node : rootChildren) {
             if (node instanceof ModuleNode) {
                 Module module = ((ModuleNode) node).getModule();
@@ -109,16 +107,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
             }
 
             if(node instanceof FileNode) {
-                int size = node.getPlainChildren().size();
-                if(invalidChild == null) {
-                    if(size == 1) {
-                        invalidChild = node;
-                    }
-                } else {
-                    if(size != 1) {
-                        invalidChild = null;
-                    }
-                }
+
                 if(VfsUtil.isAncestor(((FileNode) node).getFile(), review.getVirtualFile(), false)) {
                     return findInvalidAncestorNode(node, review);
                 }
@@ -141,21 +130,34 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
 
         if(!file.equals(finalParent)) {
             getFilePath(path, parent, finalParent);
+            path.add(new FileNode(project, file, settings));
         }
-        path.add(new FileNode(project, file, settings));
+
     }
 
-    public PlainNode getAncestorNode(VirtualFile root, Review review) {
+    public void addChildrenToAncestorNode(PlainNode root, Review review) {
         List<PlainNode> path = new ArrayList<PlainNode>();
-        getFilePath(path, review.getVirtualFile(), root);
+        path.add(root);
+        VirtualFile file = review.getVirtualFile();
+        if(root instanceof FileNode) {
+            file = ((FileNode) root).getFile();
+        }
+        if(root instanceof ModuleNode) {
+            file = ProjectRootManager.getInstance(project).getFileIndex().getContentRootForFile(review.getVirtualFile());
+        }
+        if(root instanceof RootNode) {
+            Module module = ProjectRootManager.getInstance(project).getFileIndex().getModuleForFile(review.getVirtualFile());
+            ModuleNode node = new ModuleNode(project, module, settings);
+            addChildrenToAncestorNode(node, review);
+            root.addChild(node);
+        }
+        getFilePath(path, review.getVirtualFile(), file);
         path.add(new ReviewNode(project, review));
-        if(path.size() == 1) {return path.get(0);}
         PlainNode parentNode = path.get(0);
         for (int i = 1; i < path.size(); i++) {
             PlainNode childNode = path.get(i);
             parentNode.addChild(childNode);
             parentNode = childNode;
         }
-        return path.get(0);
     }
 }

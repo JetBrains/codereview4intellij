@@ -12,6 +12,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewsState;
 import ui.reviewpoint.ReviewPointManager;
@@ -31,13 +32,16 @@ public class ReviewPatchExtensionPoint implements PatchEP{
         return "reviewresult.reviewpatchextensionpoint";
     }
 
+
+    @Nullable
     @Override
     public CharSequence provideContent(@NotNull String path) {
-
-
         String result = "";
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
-            VirtualFile file = project.getBaseDir().findFileByRelativePath(path);
+            VirtualFile baseDir = project.getBaseDir();
+            if(baseDir == null) return null;
+            VirtualFile file = baseDir.findFileByRelativePath(path);
+            if(file == null) return null;
             result += ReviewManager.getInstance(project).getExportTextForFile(file.getUrl());
         }
         return new StringBuilder(result);

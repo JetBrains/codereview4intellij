@@ -47,7 +47,6 @@ public class EditReviewForm {
         JPanel contentPanel = new JPanel(new GridLayout(2, 1));
         resetItemsContent(true);
         contentPanel.add(panel);
-
         reviewName.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -94,32 +93,36 @@ public class EditReviewForm {
             OKButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String text = newReviewItemText.getText().trim();
-                    if ("".equals(text)) {
-                        newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
-                        newReviewItemText.invalidate();
-                        return;
-                    }
-
-                    String name = reviewName.getText();
-                    if ("".equals(name)) {
-                        int nameLength = 6;
-                        String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength) : text;
-                        review.setName(forcedName);
-                    }
-
-                    if (review.getReviewItems().isEmpty()) {
-                        ReviewManager.getInstance(review.getProject()).addReview(review);
-                    }
-                    review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
-                    balloon.dispose();
-                    review.setActivated(false);
-                    ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
-                    reviewView.updateUI();
+                    saveReview();
                 }
             });
         }
 
+    }
+
+    public void saveReview() {
+        String text = newReviewItemText.getText().trim();
+        if ("".equals(text)) {
+            newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
+            newReviewItemText.invalidate();
+            return;
+        }
+
+        String name = reviewName.getText();
+        if ("".equals(name)) {
+            int nameLength = 6;
+            String forcedName = (text.length() > nameLength) ? text.substring(0, nameLength) : text;
+            review.setName(forcedName);
+        }
+
+        if (review.getReviewItems().isEmpty()) {
+            ReviewManager.getInstance(review.getProject()).addReview(review);
+        }
+        review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
+        balloon.dispose();
+        review.setActivated(false);
+        ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
+        reviewView.updateUI();
     }
 
     public JComponent getContent() {
@@ -133,6 +136,7 @@ public class EditReviewForm {
     }
 
     public JPanel getItemsContent(boolean editable) {
+        panel.setFocusable(true);
         return panel;
     }
 

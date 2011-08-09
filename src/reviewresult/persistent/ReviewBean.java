@@ -4,6 +4,7 @@ import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.apache.commons.lang.Validate;
+import org.jetbrains.annotations.NotNull;
 import ui.actions.DeleteReviewAction;
 
 import java.util.ArrayList;
@@ -117,6 +118,7 @@ public class ReviewBean {
 
     @Tag("valid")
     public boolean isValid() {
+        //checkValid();
         return isValid;
     }
 
