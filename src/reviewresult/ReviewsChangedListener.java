@@ -1,8 +1,5 @@
 package reviewresult;
 
-import com.intellij.util.messages.Topic;
-import reviewresult.Review;
-
 import java.util.EventListener;
 
 /**

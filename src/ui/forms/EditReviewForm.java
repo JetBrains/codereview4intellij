@@ -4,10 +4,9 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.ui.ScrollPaneFactory;
 import reviewresult.Review;
-import reviewresult.persistent.ReviewItem;
 import reviewresult.ReviewManager;
 import reviewresult.ReviewStatus;
-import ui.reviewpoint.ReviewPointManager;
+import reviewresult.persistent.ReviewItem;
 import ui.reviewtoolwindow.ReviewView;
 import ui.reviewtoolwindow.Searcher;
 
@@ -17,8 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: Alisa.Afonina
@@ -33,7 +32,7 @@ public class EditReviewForm {
     private JPanel itemsPanel = new JPanel(new BorderLayout());
 
     private List<ReviewItemForm> reviewItemFormsList;
-    private JTextArea newReviewItemText = new JTextArea();
+    private JTextArea newReviewItemText = new JTextArea(3, 2);
 
     private Balloon balloon;
 
@@ -44,7 +43,7 @@ public class EditReviewForm {
         this.review = review;
         review.setActivated(true);
 
-        JPanel contentPanel = new JPanel(new GridLayout(2, 1));
+        JPanel contentPanel = new JPanel(new BorderLayout()/*new GridLayout(2, 1)*/);
         resetItemsContent(true);
         contentPanel.add(panel);
         reviewName.addKeyListener(new KeyAdapter() {
@@ -71,7 +70,7 @@ public class EditReviewForm {
             newReviewItemPanel.add(newReviewItemText);
             JScrollPane newItemScrollPane = ScrollPaneFactory.createScrollPane(newReviewItemPanel);
 
-            contentPanel.add(newItemScrollPane);
+            contentPanel.add(newItemScrollPane, BorderLayout.SOUTH);
 
             JPanel OKCancelPanel = new JPanel(new GridLayout(1,2));
             JButton OKButton = new JButton("OK");
@@ -135,7 +134,7 @@ public class EditReviewForm {
         this.balloon = balloon;
     }
 
-    public JPanel getItemsContent(boolean editable) {
+    public JPanel getItemsContent() {
         panel.setFocusable(true);
         return panel;
     }
@@ -164,11 +163,6 @@ public class EditReviewForm {
         } else {
             panel.add(reviewName);
         }
-    }
-
-    public Component getItemTextField() {
-        //newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
-        return newReviewItemText;
     }
 
     public Component getNameTextField() {

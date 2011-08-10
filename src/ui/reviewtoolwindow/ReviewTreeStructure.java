@@ -1,7 +1,6 @@
 package ui.reviewtoolwindow;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -37,6 +36,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         Set<String> filesWithReview = Searcher.getInstance(project).getFilteredFileNames();
         for (String virtualFileName : filesWithReview) {
             List<Review> validReviews = ReviewManager.getInstance(project).getValidReviews(virtualFileName);
+            if(validReviews == null) return;
             for (Review review : validReviews)
                 addReview(review);
         }

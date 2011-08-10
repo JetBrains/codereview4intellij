@@ -5,33 +5,20 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.roots.impl.ProjectFileIndexImpl;
-import com.intellij.openapi.util.Iconable;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
-import com.intellij.util.IconUtil;
 import org.jetbrains.annotations.NotNull;
-import reviewresult.Review;
-import reviewresult.ReviewManager;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
-import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * User: Alisa.Afonina
@@ -87,7 +74,9 @@ public class ModuleNode extends PlainNode implements Navigatable{
 
     @Override
     public void navigate(boolean requestFocus) {
-        Document document = FileDocumentManager.getInstance().getDocument(module.getModuleFile());
+        VirtualFile moduleFile = module.getModuleFile();
+        if(moduleFile == null) return;
+        Document document = FileDocumentManager.getInstance().getDocument(moduleFile);
         if(document == null) return;
         PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
         if (psiFile == null) return;

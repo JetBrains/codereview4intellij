@@ -4,10 +4,7 @@ package ui.reviewtoolwindow.nodes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.SimpleNode;
-import com.intellij.util.ui.ListTableModel;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 
 import java.util.ArrayList;

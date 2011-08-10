@@ -3,7 +3,6 @@ package reviewresult.persistent;
 
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
-import com.intellij.util.xmlb.annotations.Transient;
 import reviewresult.ReviewStatus;
 
 import java.util.Date;

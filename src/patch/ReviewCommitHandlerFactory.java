@@ -1,6 +1,5 @@
 package patch;
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.vcs.CheckinProjectPanel;
 import com.intellij.openapi.vcs.checkin.CheckinHandler;
 import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory;

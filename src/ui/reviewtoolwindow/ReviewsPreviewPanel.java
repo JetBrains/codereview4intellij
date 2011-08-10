@@ -1,7 +1,5 @@
 package ui.reviewtoolwindow;
 
-import com.intellij.execution.impl.JarProgramPatcher;
-import com.intellij.ui.ScrollPaneFactory;
 import reviewresult.Review;
 import ui.forms.EditReviewForm;
 
@@ -14,6 +12,9 @@ import java.awt.*;
  * Time: 11:32 AM
  */
 public class ReviewsPreviewPanel extends JPanel {
+
+    private EditReviewForm editReviewForm;
+
     public ReviewsPreviewPanel() {
         super(new BorderLayout());
         add(new JLabel("Select element to preview from a tree"));
@@ -22,9 +23,9 @@ public class ReviewsPreviewPanel extends JPanel {
     public void update(Review review) {
         removeAll();
         if(review.isValid()) {
-            EditReviewForm editReviewForm = new EditReviewForm(review, false);
-            JScrollPane previewScrollPane = ScrollPaneFactory.createScrollPane();
-            /*previewScrollPane.*/add(editReviewForm.getItemsContent(false));
+            editReviewForm = new EditReviewForm(review, false);
+            //JScrollPane previewScrollPane = ScrollPaneFactory.createScrollPane();
+            /*previewScrollPane.*/add(editReviewForm.getItemsContent());
             //add(previewScrollPane);
             //this.revalidate();
             //this.repaint();
@@ -32,5 +33,9 @@ public class ReviewsPreviewPanel extends JPanel {
             add(new JLabel("This element became invalid"));
         }
         revalidate();
+    }
+
+    public void updateSelection() {
+        editReviewForm.updateSelection();
     }
 }

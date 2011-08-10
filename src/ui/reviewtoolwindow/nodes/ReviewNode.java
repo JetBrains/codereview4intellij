@@ -1,35 +1,18 @@
 package ui.reviewtoolwindow.nodes;
 
-import com.intellij.codeInsight.highlighting.HighlightManager;
-import com.intellij.find.findUsages.FindUsagesManager;
 import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.ide.util.treeView.NodeDescriptor;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
-import org.apache.xmlbeans.xml.stream.events.ElementTypeNames;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
-import ui.actions.ReviewActionManager;
 import ui.reviewtoolwindow.Searcher;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -92,9 +75,9 @@ public class ReviewNode extends PlainNode implements Navigatable{
         return review;
     }
 
-    public void setReview(Review review) {
+   /* public void setReview(Review review) {
         this.review = review;
-    }
+    }*/
 
     @Override
     public void navigate(boolean requestFocus) {
@@ -116,7 +99,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
 
     @Override
     public void removeFromParent() {
-        List<PlainNode> plainChildren = parent.getPlainChildren();
+        List<PlainNode> plainChildren = getPlainParent().getPlainChildren();
         ReviewNode nodeToRemove = null;
         for (PlainNode node : plainChildren) {
             if(((ReviewNode) node).getReview().equals(review)) {

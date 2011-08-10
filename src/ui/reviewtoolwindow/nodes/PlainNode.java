@@ -1,12 +1,11 @@
 package ui.reviewtoolwindow.nodes;
 
 
-import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.treeStructure.SimpleNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,13 +15,13 @@ import java.util.List;
  */
 public abstract class PlainNode extends SimpleNode {
     protected List<PlainNode> children = new ArrayList<PlainNode>();
-    protected PlainNode parent;
+    private PlainNode parent;
     public PlainNode(Project project) {
         super(project);
     }
 
     public List<PlainNode> getPlainChildren() {
-        return children;
+        return Collections.unmodifiableList(children);
     }
 
     public void removeChild(PlainNode child) {
@@ -45,6 +44,4 @@ public abstract class PlainNode extends SimpleNode {
     public void setPlainParent(PlainNode parent) {
         this.parent = parent;
     }
-
-
 }

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
+import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -38,15 +39,6 @@ public class FileNode extends PlainNode implements Navigatable{
         this.project = project;
         this.settings = settings;
         file = value;
-       /* if(!file.isDirectory()) {
-            List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(file.getUrl());
-            if(reviews.isEmpty())return;
-            for(Review review : reviews) {
-                ReviewNode reviewNode = new ReviewNode(project, review);
-                reviewNode.setPlainParent(this);
-                children.add(reviewNode);
-            }
-        }*/
     }
 
     @Override
@@ -59,21 +51,24 @@ public class FileNode extends PlainNode implements Navigatable{
     @NotNull
     @Override
     public SimpleNode[] getChildren() {
-        if(!settings.isGroupByFile()) {
-            List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
-            for (PlainNode child : children) {
-                if(child instanceof ReviewNode) {
-                    for (SimpleNode oldChild : children) {
-                        newChildren.add(oldChild);
-                    }
-                    break;
-                } else {
+        List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
+        for (PlainNode child : children) {
+            if(child instanceof ReviewNode) {
+                if(Searcher.getInstance(project).containsReview(((ReviewNode)child).getReview()))  {
+                    newChildren.add(child);
+                }
+            } else {
+                if(!settings.isGroupByFile()) {
                     newChildren.addAll(Arrays.asList(child.getChildren()));
                 }
+                else {
+                    if(child.getChildren().length != 0) {
+                        newChildren.add(child);
+                    }
+                }
             }
-            return newChildren.toArray(new SimpleNode[newChildren.size()]);
         }
-        return children.toArray(new SimpleNode[children.size()]);
+        return newChildren.toArray(new SimpleNode[newChildren.size()]);
     }
 
     @Override

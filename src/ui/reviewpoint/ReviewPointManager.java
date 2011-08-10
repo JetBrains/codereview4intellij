@@ -2,11 +2,11 @@ package ui.reviewpoint;
 
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import reviewresult.Review;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class ReviewPointManager extends AbstractProjectComponent {
     private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
-    private StartupManagerEx startupManager;
+    private final StartupManagerEx startupManager;
 
     public ReviewPointManager(Project project, final StartupManager startupManager) {
         super(project);
@@ -29,17 +29,18 @@ public class ReviewPointManager extends AbstractProjectComponent {
     }
 
     public Map<Review, ReviewPoint> getReviewPoints() {
-        return reviewPoints;
+        return Collections.unmodifiableMap(reviewPoints);
     }
 
     public void updateUI() {
         for (ReviewPoint point : reviewPoints.values()) {
-            updateUI(point);
+            //updateUI(point);
+            point.updateUI();
         }
     }
 
     public void updateUI(final ReviewPoint point) {
-        Runnable runnable = new Runnable() {
+        /*Runnable runnable = new Runnable() {
             public void run() {
                     point.updateUI();
             }
@@ -49,7 +50,7 @@ public class ReviewPointManager extends AbstractProjectComponent {
         }
         else {
           startupManager.registerPostStartupActivity(runnable);
-        }
+        }*/
     }
 
     public ReviewPoint findReviewPoint(Review review) {

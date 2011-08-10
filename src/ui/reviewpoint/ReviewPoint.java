@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
@@ -14,13 +13,14 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
-import reviewresult.persistent.ReviewItem;
 import reviewresult.ReviewManager;
+import reviewresult.persistent.ReviewItem;
 import ui.actions.DeleteReviewAction;
 import ui.actions.EditReviewAction;
 import ui.actions.ReviewActionManager;
@@ -36,7 +36,7 @@ import java.util.List;
  * Time: 4:54 PM
  */
 public class ReviewPoint {
-    private Review review;
+    private final Review review;
     private GutterIconRenderer gutterIconRenderer;
     private RangeHighlighter highlighter = null;
 
@@ -46,11 +46,13 @@ public class ReviewPoint {
 
     public void updateUI() {
         final Project project = review.getProject();
+        if(project == null) return;
         final ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
         if(review.isValid()) {
             if(highlighter == null) {
-                Document document = FileDocumentManager.getInstance().getDocument(review.getElement().getFile());
-                if(project == null) return;
+                OpenFileDescriptor element = review.getElement();
+                if(element == null) return;
+                Document document = FileDocumentManager.getInstance().getDocument(element.getFile());
                 if(document == null) return;
                 MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
                 int line = review.getLine();
@@ -65,7 +67,7 @@ public class ReviewPoint {
 
                         int newStart = highlighter.getStartOffset();
                         int newEnd = highlighter.getEndOffset();
-                        if(newStart >= review.getReviewBean().getEnd() || !highlighter.isValid()) {
+                        if(/*newStart >= review.getReviewBean().getEnd() ||*/ !highlighter.isValid()) {
                             review.setValid(false);
                         }
                         else {

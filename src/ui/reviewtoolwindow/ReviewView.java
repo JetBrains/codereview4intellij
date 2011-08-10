@@ -1,18 +1,9 @@
 package ui.reviewtoolwindow;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.PsiFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import org.junit.Test;
-import reviewresult.Review;
-import reviewresult.ReviewManager;
-import reviewresult.persistent.ReviewItem;
-import utils.Util;
-
-import java.util.*;
 
 
 /**
@@ -23,10 +14,8 @@ import java.util.*;
 public class ReviewView {
 
     private ReviewPanel reviewPanel;
-    private static Project project;
 
     public void initToolWindow(Project project, ToolWindow toolWindow ) {
-        this.project = project;
         reviewPanel = new ReviewPanel(project);
         Content allReviewsContent= ContentFactory.SERVICE.getInstance().createContent(reviewPanel, "Reviews" ,false);
         toolWindow.getContentManager().addContent(allReviewsContent);

@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -36,6 +35,7 @@ public class Review {
         this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getFilePath());
 
         if(virtualFile == null)  {reviewBean.setValid(false); return;}
+
         this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
     }
 
@@ -77,7 +77,7 @@ public class Review {
 
     public boolean isValid() {
         return reviewBean.isValid()
-          && ReviewManager.getInstance(project).getRootManager().getFileIndex().isInContent(virtualFile);
+          && ProjectRootManager.getInstance(project).getFileIndex().isInContent(virtualFile);
     }
 
     public int getLine() {

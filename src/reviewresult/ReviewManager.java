@@ -1,10 +1,11 @@
 package reviewresult;
 
-import com.intellij.openapi.components.*;
+import com.intellij.ide.startup.StartupManagerEx;
+import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
@@ -13,10 +14,8 @@ import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
-import reviewresult.persistent.ReviewItem;
 import reviewresult.persistent.ReviewsState;
 import ui.reviewpoint.ReviewPointManager;
-import utils.Util;
 
 import java.util.*;
 
@@ -30,7 +29,8 @@ public class ReviewManager extends AbstractProjectComponent {
 
     private Map<String, List<Review>> filePath2reviews = new HashMap<String, List<Review>>();
 
-    private Set<String> exportedFiles = new HashSet<String>();
+    //exported files = files, which already were exported in patch file
+   // private Set<String> exportedFiles = new HashSet<String>();
 
     private boolean saveReviewsToPatch;
 
@@ -38,12 +38,12 @@ public class ReviewManager extends AbstractProjectComponent {
 
     private static final Logger LOG = Logger.getInstance(ReviewManager.class.getName());
 
-    private ProjectRootManager rootManager;
+    private final StartupManagerEx startupManager;
 
 
-    public ReviewManager(@NotNull Project project, final ProjectRootManager rootManager) {
+    public ReviewManager(@NotNull Project project, final StartupManager startupManager) {
         super(project);
-        this.rootManager = rootManager;
+        this.startupManager = (StartupManagerEx)startupManager;
 
         VirtualFileManager.getInstance().addVirtualFileListener(new ReviewVirtualFileListener(), project);
         eventPublisher = project.getMessageBus().syncPublisher(ReviewChangedTopics.REVIEW_STATUS);
@@ -53,9 +53,6 @@ public class ReviewManager extends AbstractProjectComponent {
         return project.getComponent(ReviewManager.class);
     }
 
-    public ProjectRootManager getRootManager() {
-        return rootManager;
-    }
 
     public List<ReviewBean> getState() {
         List<ReviewBean> result = new ArrayList<ReviewBean>();
@@ -75,16 +72,25 @@ public class ReviewManager extends AbstractProjectComponent {
         loadReviews(reviewBeans, true);
     }
 
-    public void loadReviews(List<ReviewBean> reviewBeans, boolean part) {
-        if(!part) {
+    public void loadReviews(List<ReviewBean> reviewBeans, boolean isPartOfState) {
+        if(!isPartOfState) {
             filePath2reviews = new HashMap<String, List<Review>>();
         }
         for (ReviewBean reviewBean : reviewBeans) {
-            Review review = new Review(reviewBean, myProject);
-            addReview(review);
-
+            final Review review = new Review(reviewBean, myProject);
+            Runnable runnable = new Runnable() {
+                public void run() {
+                        addReview(review);
+                }
+            };
+            if (startupManager.startupActivityPassed()) {
+              runnable.run();
+            }
+            else {
+              startupManager.registerPostStartupActivity(runnable);
+            }
         }
-        ReviewPointManager.getInstance(myProject).updateUI();
+        //ReviewPointManager.getInstance(myProject).updateUI();
     }
 
 
@@ -140,11 +146,10 @@ public class ReviewManager extends AbstractProjectComponent {
         return reviewsList;
     }
 
+    @Nullable
     public Set<String> getFileNames() {
         return filePath2reviews.keySet();
     }
-
-
 
     @NotNull
     @Override
@@ -211,16 +216,12 @@ public class ReviewManager extends AbstractProjectComponent {
         return saveReviewsToPatch;
     }
 
-    public List<ReviewBean> getReviewsToExport() {
-        return getReviewsToExport("");
-    }
-
-
     @Nullable
     public List<ReviewBean> getReviewsToExport(String filepath) {
-        if(exportedFiles.isEmpty()) {
+        /*if(exportedFiles.isEmpty()) {
             exportedFiles = filePath2reviews.keySet();
         }
+        */
         List<ReviewBean> result = new ArrayList<ReviewBean>();
         if("".equals(filepath)) {
             for(String path : filePath2reviews.keySet()) {
@@ -228,7 +229,7 @@ public class ReviewManager extends AbstractProjectComponent {
             }
             return result;
         }
-        exportedFiles.remove(filepath);
+//        exportedFiles.add(filepath);
         return getAddedForFile(filepath);
     }
 

@@ -29,7 +29,6 @@ import reviewresult.ReviewChangedTopics;
 import reviewresult.ReviewManager;
 import reviewresult.ReviewsChangedListener;
 import ui.actions.ReviewActionManager;
-import ui.forms.EditReviewForm;
 import ui.reviewtoolwindow.nodes.FileNode;
 import ui.reviewtoolwindow.nodes.ModuleNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
@@ -57,7 +56,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     private SimpleTree reviewTree;
     private AbstractTreeBuilder reviewTreeBuilder;
 
-    //private JScrollPane previewScrollPane;
     private ReviewsPreviewPanel previewPanel = new ReviewsPreviewPanel();
 
     @Nullable
@@ -66,7 +64,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     private SimpleTreeStructure reviewTreeStructure;
 
     private ReviewToolWindowSettings settings;
-    private EditReviewForm editReviewForm;
 
 
 
@@ -94,7 +91,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 createTreeStructure();
                 updateUI();
                 if(settings.isShowPreview()) {
-                    editReviewForm.updateSelection();
+                    previewPanel.updateSelection();
                 }
             }
         });
@@ -121,7 +118,9 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 Project project = PlatformDataKeys.PROJECT.getData(dataContext);
                 if (project == null) return;
                 OpenSourceUtil.openSourcesFrom(dataContext, true);
-                SimpleNode node = (SimpleNode)reviewTree.getSelectedNode().getElement();
+                SimpleNode selectedNode = reviewTree.getSelectedNode();
+                if(selectedNode == null) return;
+                SimpleNode node = (SimpleNode) selectedNode.getElement();
                 if(node instanceof ReviewNode) {
                     Review review = ((ReviewNode) node).getReview();
                     Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
@@ -140,14 +139,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 }
             }
         });
-        reviewTree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(e.getButton() == MouseEvent.BUTTON3) {
 
-                }
-            }
-        });
         reviewTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
@@ -249,13 +241,17 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     public void updateUI() {
         super.updateUI();
         if(settings != null) {
+            reviewTree.updateUI();
             searchLine.setVisible(settings.isSearchEnabled());
+            searchLine.setText(Searcher.getInstance(project).getFilter());
             if(reviewTreeBuilder == null) return;
             reviewTreeBuilder.getUi().doUpdateFromRoot();
             Set<String> fileNames = ReviewManager.getInstance(project).getFileNames();
             Set<String> filteredFileNames = Searcher.getInstance(project).getFilteredFileNames();
-            previewPanel.setVisible(!(fileNames.isEmpty() && filteredFileNames.isEmpty())
-                    && settings.isShowPreview());
+            if(fileNames == null) return;
+            boolean visible = !(fileNames.isEmpty() && filteredFileNames.isEmpty())
+                    && settings.isShowPreview();
+            previewPanel.setVisible(visible);
         }
     }
 
@@ -278,7 +274,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         reviewTreeBuilder.dispose();
     }
 
-    public class ReviewsListener implements ReviewsChangedListener{
+    public class ReviewsListener implements ReviewsChangedListener {
 
         @Override
         public void reviewAdded(Review review) {
@@ -288,14 +284,23 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
         @Override
         public void reviewDeleted(Review review) {
+
+
+
             ((ReviewTreeStructure)reviewTreeStructure).removeReview(review);
+
             reviewTreeBuilder.getUi().doUpdateFromRoot();
         }
+
 
         @Override
         public void reviewChanged(Review review) {
             reviewTreeBuilder.getUi().doUpdateFromRoot();
+
+
         }
-    }
+
+
+        }
 
 }

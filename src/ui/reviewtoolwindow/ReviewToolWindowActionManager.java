@@ -13,10 +13,8 @@ import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import reviewresult.Review;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewsState;
-import sun.plugin2.message.transport.SerializingTransport;
 
 import javax.swing.*;
 import java.awt.*;
