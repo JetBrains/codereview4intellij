@@ -17,7 +17,7 @@
             <implementation-class>ui.reviewtoolwindow.Searcher</implementation-class>
       </component>
       <component>
-            <implementation-class>ui.reviewpoint.ReviewPointManager</implementation-class>
+            <implementation-class>ui.gutterpoint.ReviewPointManager</implementation-class>
       </component>
       <component>
             <implementation-class>reviewresult.persistent.ReviewsState</implementation-class>

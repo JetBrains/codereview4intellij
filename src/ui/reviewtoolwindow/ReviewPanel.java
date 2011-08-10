@@ -284,11 +284,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
         @Override
         public void reviewDeleted(Review review) {
-
-
-
             ((ReviewTreeStructure)reviewTreeStructure).removeReview(review);
-
             reviewTreeBuilder.getUi().doUpdateFromRoot();
         }
 
@@ -296,11 +292,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         @Override
         public void reviewChanged(Review review) {
             reviewTreeBuilder.getUi().doUpdateFromRoot();
-
-
         }
-
-
-        }
-
+    }
 }

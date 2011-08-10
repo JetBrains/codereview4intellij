@@ -1,4 +1,4 @@
-package ui.reviewpoint;
+package ui.gutterpoint;
 
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
@@ -39,8 +39,8 @@ public class ReviewPointManager extends AbstractProjectComponent {
         }
     }
 
-    public void updateUI(final ReviewPoint point) {
-        /*Runnable runnable = new Runnable() {
+   /* public void updateUI(final ReviewPoint point) {
+        *//*Runnable runnable = new Runnable() {
             public void run() {
                     point.updateUI();
             }
@@ -50,8 +50,8 @@ public class ReviewPointManager extends AbstractProjectComponent {
         }
         else {
           startupManager.registerPostStartupActivity(runnable);
-        }*/
-    }
+        }*//*
+    }*/
 
     public ReviewPoint findReviewPoint(Review review) {
         if(reviewPoints.containsKey(review)) {

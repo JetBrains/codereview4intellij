@@ -1,4 +1,4 @@
-package ui.reviewpoint;
+package ui.gutterpoint;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;

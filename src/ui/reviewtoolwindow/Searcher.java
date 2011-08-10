@@ -35,7 +35,9 @@ public class Searcher  extends AbstractProjectComponent {
     }
 
     public Set<String> getFilteredFileNames() {
-        return Collections.unmodifiableSet(filteredFileNames);
+        if(filterIsSet()) {
+            return Collections.unmodifiableSet(filteredFileNames);
+        } else return ReviewManager.getInstance(project).getFileNames();
     }
 
     public boolean filterIsSet(){

@@ -10,8 +10,8 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.PositionTracker;
 import reviewresult.Review;
 import ui.forms.EditReviewForm;
-import ui.reviewpoint.ReviewPoint;
-import ui.reviewpoint.ReviewPointManager;
+import ui.gutterpoint.ReviewPoint;
+import ui.gutterpoint.ReviewPointManager;
 
 import javax.swing.*;
 import java.awt.*;

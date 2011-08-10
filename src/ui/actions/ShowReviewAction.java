@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
-import ui.reviewpoint.ReviewPoint;
+import ui.gutterpoint.ReviewPoint;
 
 import javax.swing.*;
 

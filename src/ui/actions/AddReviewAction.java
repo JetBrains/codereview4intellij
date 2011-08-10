@@ -14,8 +14,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
-import ui.reviewpoint.ReviewPoint;
-import ui.reviewpoint.ReviewPointManager;
+import ui.gutterpoint.ReviewPoint;
+import ui.gutterpoint.ReviewPointManager;
 
 /**
  * User: Alisa.Afonina

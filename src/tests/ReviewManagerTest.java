@@ -11,8 +11,8 @@ import reviewresult.ReviewManager;
 import reviewresult.ReviewStatus;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
-import ui.reviewpoint.ReviewPoint;
-import ui.reviewpoint.ReviewPointManager;
+import ui.gutterpoint.ReviewPoint;
+import ui.gutterpoint.ReviewPointManager;
 
 import java.util.List;
 import java.util.Map;

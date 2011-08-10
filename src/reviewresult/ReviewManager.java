@@ -4,7 +4,6 @@ import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.util.xmlb.XmlSerializer;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewsState;
-import ui.reviewpoint.ReviewPointManager;
+import ui.gutterpoint.ReviewPointManager;
 
 import java.util.*;
 
@@ -72,23 +71,23 @@ public class ReviewManager extends AbstractProjectComponent {
         loadReviews(reviewBeans, true);
     }
 
-    public void loadReviews(List<ReviewBean> reviewBeans, boolean isPartOfState) {
+    public void loadReviews(final List<ReviewBean> reviewBeans, boolean isPartOfState) {
         if(!isPartOfState) {
             filePath2reviews = new HashMap<String, List<Review>>();
         }
-        for (ReviewBean reviewBean : reviewBeans) {
-            final Review review = new Review(reviewBean, myProject);
-            Runnable runnable = new Runnable() {
-                public void run() {
-                        addReview(review);
+        final Runnable runnable = new Runnable() {
+            public void run() {
+                for (ReviewBean reviewBean : reviewBeans) {
+                    final Review review = new Review(reviewBean, myProject);
+                    addReview(review);
                 }
-            };
-            if (startupManager.startupActivityPassed()) {
-              runnable.run();
             }
-            else {
-              startupManager.registerPostStartupActivity(runnable);
-            }
+        };
+        if (startupManager.startupActivityPassed()) {
+            runnable.run();
+        }
+        else {
+          startupManager.registerPostStartupActivity(runnable);
         }
         //ReviewPointManager.getInstance(myProject).updateUI();
     }
