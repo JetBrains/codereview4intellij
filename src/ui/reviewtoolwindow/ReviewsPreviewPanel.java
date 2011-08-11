@@ -1,5 +1,6 @@
 package ui.reviewtoolwindow;
 
+import com.intellij.ui.ScrollPaneFactory;
 import reviewresult.Review;
 import ui.forms.EditReviewForm;
 
@@ -24,15 +25,13 @@ public class ReviewsPreviewPanel extends JPanel {
         removeAll();
         if(review.isValid()) {
             editReviewForm = new EditReviewForm(review, false);
-            //JScrollPane previewScrollPane = ScrollPaneFactory.createScrollPane();
-            /*previewScrollPane.*/add(editReviewForm.getItemsContent());
-            //add(previewScrollPane);
-            //this.revalidate();
-            //this.repaint();
+            add(editReviewForm.getItemsContent());
+
         } else {
             add(new JLabel("This element became invalid"));
         }
         revalidate();
+        repaint();
     }
 
     public void updateSelection() {

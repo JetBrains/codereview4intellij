@@ -9,6 +9,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -27,6 +29,7 @@ public class ReviewItemForm {
 
     private Highlighter highlighter;
     public ReviewItemForm(ReviewItem data, Searcher searcher) {
+        reviewItemContent.setFocusable(true);
         reviewItem = data;
         this.searcher = searcher;
         authorTextField.setText(data.getAuthor());
@@ -39,26 +42,40 @@ public class ReviewItemForm {
         }
         highlighter = new BasicTextUI.BasicHighlighter();
         reviewItemText.setHighlighter(highlighter);
-        updateSelection();
         reviewItemText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 reviewItemText.setBorder(BorderFactory.createEmptyBorder());
-                String reviewText = reviewItemText.getText();
-                if("".equals(reviewText)) {
-                    setEmptyComment();
-                    return;
-                }
-                if(Character.isDigit(e.getKeyChar()) ||
-                   Character.isLetter(e.getKeyChar()) ||
-                   Character.isWhitespace(e.getKeyChar()) ) {
-                        reviewItem.setText(reviewText + e.getKeyChar());
-                }
-                else {
-                   reviewItem.setText(reviewText);
-                }
             }
         });
+
+        reviewItemText.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                reviewItemText.setCaretPosition(reviewItemText.getText().length());
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if("".equals(reviewItemText.getText())) {
+                    setEmptyComment();
+                }
+
+            }
+        });
+        updateSelection();
+    }
+
+    public boolean onExit() {
+        String text = reviewItemText.getText();
+        if("".equals(text)) {
+            setEmptyComment();
+            return false;
+        }
+        else {
+            reviewItem.setText(text);
+            return true;
+        }
     }
 
     public void updateSelection() {
@@ -91,7 +108,8 @@ public class ReviewItemForm {
 
     public void setEmptyComment() {
         reviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
-        reviewItemContent.invalidate();
+        reviewItemText.invalidate();
+        //reviewItemContent.repaint();
     }
 
     public Component getItemTextField() {

@@ -21,7 +21,7 @@ public abstract class PlainNode extends SimpleNode {
     }
 
     public List<PlainNode> getPlainChildren() {
-        return Collections.unmodifiableList(children);
+        return children;
     }
 
     public void removeChild(PlainNode child) {

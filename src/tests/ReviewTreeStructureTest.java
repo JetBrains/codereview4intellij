@@ -30,7 +30,7 @@ public class ReviewTreeStructureTest extends IdeaTestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        settings = new ReviewToolWindowSettings();
+        settings = new ReviewToolWindowSettings(myProject);
         structure = new ReviewTreeStructure(myProject, settings);
     }
 

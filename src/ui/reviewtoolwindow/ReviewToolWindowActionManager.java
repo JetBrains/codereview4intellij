@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileChooser.*;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
@@ -42,7 +43,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class GroupByModuleAction extends ToggleAction implements DumbAware {
 
         private GroupByModuleAction() {
-             super("Group reviews by module", null, IconLoader.getIcon("/actions/modul.png"));
+             super("Group reviews by module", "Group reviews by module", IconLoader.getIcon("/actions/modul.png"));
         }
 
         @Override
@@ -60,7 +61,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class GroupByFileAction extends ToggleAction  implements DumbAware {
 
         private GroupByFileAction() {
-             super("Group reviews by file", null, IconLoader.getIcon("/fileTypes/unknown.png"));
+             super("Group reviews by file","Group reviews by file", IconLoader.getIcon("/fileTypes/unknown.png"));
         }
 
         @Override
@@ -78,7 +79,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class SearchAction extends ToggleAction  implements DumbAware {
 
         private SearchAction() {
-             super("Search in reviews", null, IconLoader.getIcon("/actions/find.png"));
+             super("Search in reviews", "Search in reviews", IconLoader.getIcon("/actions/find.png"));
         }
 
         @Override
@@ -99,50 +100,27 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class PreviewAction extends ToggleAction  implements DumbAware {
 
         public PreviewAction() {
-            super("Preview reviews", null, IconLoader.getIcon("/actions/preview.png"));
+            super("Preview reviews", "Preview reviews", IconLoader.getIcon("/actions/preview.png"));
         }
 
 
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-            return settings.isShowPreview();
+            return settings.isShowPreviewEnabled();
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
-            settings.setShowPreview(state);
-            updateUI();
+            settings.setShowPreviewEnabled(state);
+            panel.showPreview();
         }
-
-    }
-
-    private void updateUI() {
-        panel.updateUI();
-    }
-
-    public JPanel createLeftMenu() {
-        JPanel toolBar = new JPanel(new GridLayout());
-
-        DefaultActionGroup leftGroup = new DefaultActionGroup();
-        leftGroup.add(new PreviousOccurenceToolbarAction(panel));
-        leftGroup.add(new NextOccurenceToolbarAction(panel));
-        leftGroup.add(new PreviewAction());
-        leftGroup.add(new GroupByModuleAction());
-        leftGroup.add(new GroupByFileAction());
-        leftGroup.add(new SearchAction());
-        leftGroup.add(new ExportToFileAction());
-        leftGroup.add(new ImportFromFileAction());
-        toolBar.add(
-            ActionManager.getInstance().createActionToolbar(ActionPlaces.TODO_VIEW_TOOLBAR, leftGroup, false).getComponent());
-
-    return toolBar;
     }
 
     private final class ExportToFileAction extends AnAction  implements DumbAware {
 
         public ExportToFileAction() {
-            super("Export to file...", null, IconLoader.getIcon("/actions/export.png"));
+            super("Export to file...", "Export reviews to file", IconLoader.getIcon("/actions/export.png"));
         }
 
         @Override
@@ -154,8 +132,8 @@ public class ReviewToolWindowActionManager implements DumbAware{
             VirtualFile file = wrapper.getVirtualFile(true);
 
             String text = ReviewManager.getInstance(project).getExportText();
-
-            if(file == null || !file.isWritable()) return;
+            if(text == null) Messages.showInfoMessage("There are no reviews to export", "Nothing To Export");
+            if( file == null || !file.isWritable()) return;
             try {
                 OutputStream outputStream = file.getOutputStream(null);
                 outputStream.write(text.getBytes());
@@ -170,7 +148,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class ImportFromFileAction extends AnAction  implements DumbAware {
 
         public ImportFromFileAction() {
-            super("Import from file...", null, IconLoader.getIcon("/actions/import.png"));
+            super("Import from file...", "Import reviews from file", IconLoader.getIcon("/actions/import.png"));
         }
 
         @Override
@@ -196,4 +174,28 @@ public class ReviewToolWindowActionManager implements DumbAware{
             }
         }
     }
+
+    private void updateUI() {
+        panel.updateUI();
+    }
+
+    public JPanel createLeftMenu() {
+        JPanel toolBar = new JPanel(new GridLayout());
+
+        DefaultActionGroup leftGroup = new DefaultActionGroup();
+        leftGroup.add(new PreviousOccurenceToolbarAction(panel));
+        leftGroup.add(new NextOccurenceToolbarAction(panel));
+        leftGroup.add(new PreviewAction());
+        leftGroup.add(new GroupByModuleAction());
+        leftGroup.add(new GroupByFileAction());
+        leftGroup.add(new SearchAction());
+        leftGroup.add(new ExportToFileAction());
+        leftGroup.add(new ImportFromFileAction());
+        toolBar.add(ActionManager.getInstance()
+                    .createActionToolbar(ActionPlaces.TODO_VIEW_TOOLBAR, leftGroup, false)
+                    .getComponent());
+        return toolBar;
+    }
+
+
 }

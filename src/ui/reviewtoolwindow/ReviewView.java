@@ -5,7 +5,6 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 
-
 /**
  * User: Alisa.Afonina
  * Date: 7/13/11
@@ -21,6 +20,8 @@ public class ReviewView {
         toolWindow.getContentManager().addContent(allReviewsContent);
     }
 
+
+    //todo if it nesseccary? mb killit
     public void updateUI() {
         if(reviewPanel == null)return;
         reviewPanel.updateUI();

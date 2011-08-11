@@ -103,7 +103,7 @@ public class ReviewPoint {
 
     private class ReviewGutterIconRenderer extends GutterIconRenderer {
         private final Icon icon = IconLoader.getIcon("/images/note.png");
-        private boolean activated = false;
+        //private boolean activated = false;
         @NotNull
         @Override
         public Icon getIcon() {
@@ -121,26 +121,20 @@ public class ReviewPoint {
 
         @Override
         public AnAction getClickAction() {
-            activated = !activated;
-            if(activated) {
-                if(ReviewPoint.this.getReview().isActivated()) {
-                    return null;
-                } else {
-                    List<ReviewItem> reviewItems = review.getReviewItems();
-                    if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
-                        return new EditReviewAction("Add review", ReviewPoint.this);
-                    }
-                    else {
-                        return new ShowReviewAction("View review", ReviewPoint.this);
-                    }
+            if(!review.isActivated()) {
+                review.setActivated(true);
+                List<ReviewItem> reviewItems = review.getReviewItems();
+                if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
+                    return new EditReviewAction("Add review", ReviewPoint.this);
                 }
-
+                else {
+                    return new ShowReviewAction("View review", ReviewPoint.this);
+                }
             } else {
                 return  new AnAction() {
                     @Override
                     public void actionPerformed(AnActionEvent e) {
-                        ReviewActionManager.disposeActiveBalloon();
-                        ReviewPoint.this.getReview().setActivated(false);
+                        ReviewActionManager.getInstance(review).disposeActiveBalloon();
                     }
                 };
             }

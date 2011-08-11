@@ -75,10 +75,6 @@ public class ReviewNode extends PlainNode implements Navigatable{
         return review;
     }
 
-   /* public void setReview(Review review) {
-        this.review = review;
-    }*/
-
     @Override
     public void navigate(boolean requestFocus) {
 

@@ -3,6 +3,8 @@ package reviewresult;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.*;
@@ -24,7 +26,7 @@ import java.util.*;
  * Time: 6:51 PM
  */
 
-public class ReviewManager extends AbstractProjectComponent {
+public class ReviewManager extends AbstractProjectComponent implements DumbAware {
 
     private Map<String, List<Review>> filePath2reviews = new HashMap<String, List<Review>>();
 
@@ -75,7 +77,7 @@ public class ReviewManager extends AbstractProjectComponent {
         if(!isPartOfState) {
             filePath2reviews = new HashMap<String, List<Review>>();
         }
-        final Runnable runnable = new Runnable() {
+        final Runnable runnable = new DumbAwareRunnable() {
             public void run() {
                 for (ReviewBean reviewBean : reviewBeans) {
                     final Review review = new Review(reviewBean, myProject);
@@ -89,7 +91,6 @@ public class ReviewManager extends AbstractProjectComponent {
         else {
           startupManager.registerPostStartupActivity(runnable);
         }
-        //ReviewPointManager.getInstance(myProject).updateUI();
     }
 
 

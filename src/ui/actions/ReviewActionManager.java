@@ -1,6 +1,10 @@
 package ui.actions;
 
+import com.intellij.find.impl.livePreview.SearchResults;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.VisibleAreaEvent;
+import com.intellij.openapi.editor.event.VisibleAreaListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
 import com.intellij.openapi.project.DumbAware;
@@ -52,14 +56,24 @@ public class ReviewActionManager implements DumbAware {
             JComponent content = editReviewForm.getContent();
             final Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
             showBalloon(editor, centerIconPoint, content, gutterComponent);
+            setFocus(editReviewForm.getNewItemTextField());
         }
     }
 
+    private void setFocus(final Component component) {
+        IdeFocusManager.getInstance(getReview().getProject()).doWhenFocusSettlesDown(new Runnable() {
+            public void run() {
+                IdeFocusManager.getInstance(getReview().getProject()).requestFocus(component, true);
+            }
+        });
+    }
+
     public void addNewComment(final Editor editor) {
-        final Point point = editor.visualPositionToXY(editor.getCaretModel().getVisualPosition());
+        final Point point = editor.logicalPositionToXY(editor.getCaretModel().getLogicalPosition());//editor.getContentComponent().getMousePosition();
         editReviewForm = new EditReviewForm(getReview(), true);
         JComponent content = editReviewForm.getContent();
         showBalloon(editor, point, content, editor.getContentComponent());
+        setFocus(editReviewForm.getNameTextField());
     }
 
     private void showBalloon(final Editor editor, final Point point, JComponent content, final JComponent contentComponent) {
@@ -67,14 +81,15 @@ public class ReviewActionManager implements DumbAware {
 
         content.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
         content.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "exitReview");
+
         content.getActionMap().put("saveReview", new AbstractAction() {
-        @Override
+            @Override
             public void actionPerformed(ActionEvent e) {
                 editReviewForm.saveReview();
             }
         });
         content.getActionMap().put("exitReview", new AbstractAction() {
-        @Override
+            @Override
             public void actionPerformed(ActionEvent e) {
                 getActiveBalloon().hide();
             }
@@ -84,36 +99,40 @@ public class ReviewActionManager implements DumbAware {
         balloonBuilder.setHideOnClickOutside(true);
         balloonBuilder.setHideOnKeyOutside(true);
         setActiveBalloon(balloonBuilder.createBalloon());
-        getActiveBalloon().addListener(new JBPopupAdapter() {
-            @Override
-            public void onClosed(LightweightWindowEvent event) {
-                getReview().setActivated(false);
-            }
-        });
         editReviewForm.setBalloon(getActiveBalloon());
         if(getActiveBalloon() == null) return;
-        getActiveBalloon().show(
-                new PositionTracker<Balloon>(editor.getContentComponent()) {
-                    @Override
-                    public RelativePoint recalculateLocation(Balloon object) {
-                        if (editor.getScrollingModel().getVisibleArea().contains(point)) {
-                            if (object.isDisposed()) setActiveBalloon(balloonBuilder.createBalloon());
-                            //object = getActiveBalloon();
-                            editReviewForm.setBalloon(getActiveBalloon());
-                            return new RelativePoint(contentComponent, point);
-                        } else {
-                            object.hide();
-                            return null;
-                        }
-                    }
-                }, Balloon.Position.atRight);
+        //SwingUtilities.invokeLater(new Runnable() {
+         //   @Override
+         //   public void run() {
+                getActiveBalloon().show(
+                                new PositionTracker<Balloon>(editor.getContentComponent()) {
+                                    @Override
+                                    public RelativePoint recalculateLocation(final Balloon object) {
+                                        if (editor.getScrollingModel().getVisibleArea().contains(point)) {
+                                            if (object.isDisposed()) setActiveBalloon(balloonBuilder.createBalloon());
+                                            editReviewForm.setBalloon(getActiveBalloon());
+                                            return new RelativePoint(contentComponent, point);
+                                        } else {
+                                            SwingUtilities.invokeLater(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    object.hide();
+                                                }
+                                            });
+                                        }
 
-        /*ActionCallback callback = */IdeFocusManager.getInstance(getReview().getProject()).requestFocus(editReviewForm.getNameTextField(), true);
+                                        return new RelativePoint(contentComponent, point);
+                                    }
+                                }, Balloon.Position.atRight);
+
+          //  }
+       // });
     }
 
-    public static void disposeActiveBalloon() {
-        if(instance.getActiveBalloon() != null) {
-            instance.getActiveBalloon().dispose();
+    public void disposeActiveBalloon() {
+        if(activeBalloon != null) {
+            review.setActivated(false);
+            activeBalloon.dispose();
         }
     }
 
@@ -129,6 +148,7 @@ public class ReviewActionManager implements DumbAware {
             JComponent content = editReviewForm.getItemsContent();
             final Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
             showBalloon(editor, centerIconPoint, content, gutterComponent);
+            setFocus(editReviewForm.getLastExistingTextField());
         }
     }
 

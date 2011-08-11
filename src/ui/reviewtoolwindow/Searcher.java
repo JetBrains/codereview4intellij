@@ -22,7 +22,7 @@ public class Searcher  extends AbstractProjectComponent {
     private Map<Review, Pair<Integer, Integer>> review2searchresult = new HashMap<Review, Pair<Integer, Integer>>();
     private Map<ReviewItem, Pair<Integer, Integer>> reviewitem2searchresult = new HashMap<ReviewItem, Pair<Integer, Integer>>();
     private Set<String> filteredFileNames = new HashSet<String>();
-    private String filter;
+    private String filter = "";
     private Project project;
 
     protected Searcher(Project project) {

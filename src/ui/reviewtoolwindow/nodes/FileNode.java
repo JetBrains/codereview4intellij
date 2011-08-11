@@ -78,7 +78,6 @@ public class FileNode extends PlainNode implements Navigatable{
 
     @Override
     public void update(PresentationData data) {
-        //if(children.isEmpty()) return;
         data.addText(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         if(!file.isDirectory()) {
             List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(file.getUrl());
@@ -117,7 +116,6 @@ public class FileNode extends PlainNode implements Navigatable{
     public VirtualFile getFile() {
         return file;
     }
-
 
     @Override
     public void addChild(PlainNode node) {

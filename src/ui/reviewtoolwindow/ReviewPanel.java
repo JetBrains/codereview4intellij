@@ -7,7 +7,6 @@ import com.intellij.ide.util.treeView.AbstractTreeBuilder;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
@@ -16,7 +15,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.SmartExpander;
 import com.intellij.ui.treeStructure.*;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.messages.MessageBusConnection;
@@ -32,6 +30,7 @@ import ui.actions.ReviewActionManager;
 import ui.reviewtoolwindow.nodes.FileNode;
 import ui.reviewtoolwindow.nodes.ModuleNode;
 import ui.reviewtoolwindow.nodes.ReviewNode;
+import ui.reviewtoolwindow.nodes.RootNode;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -52,7 +51,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     public static final String ACTION_GROUP = "TreeReviewItemActions";
 
     private Project project;
-    private JPanel mainPanel;
     private SimpleTree reviewTree;
     private AbstractTreeBuilder reviewTreeBuilder;
 
@@ -65,24 +63,21 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
     private ReviewToolWindowSettings settings;
 
-
-
     public ReviewPanel(final Project project) {
         super(false);
         this.project = project;
-        settings = new ReviewToolWindowSettings();
-        Searcher.getInstance(project).createFilter("");
-
+        settings = new ReviewToolWindowSettings(project);
         initTree();
-        JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(reviewTree);
-
-        mainPanel = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         mainPanel.add(new ReviewToolWindowActionManager(project, this, settings).createLeftMenu(), BorderLayout.WEST);
+
+        JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(reviewTree);
         mainPanel.add(scrollPane);
 
+        previewPanel.setVisible(settings.isShowPreviewEnabled());
         mainPanel.add(previewPanel, BorderLayout.EAST);
-        previewPanel.setVisible(settings.isShowPreview());
+
         searchLine.setVisible(settings.isSearchEnabled());
         searchLine.addActionListener(new ActionListener() {
             @Override
@@ -90,52 +85,51 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 Searcher.getInstance(project).createFilter(searchLine.getText());
                 createTreeStructure();
                 updateUI();
-                if(settings.isShowPreview()) {
+                if(settings.isShowPreviewEnabled()) {
                     previewPanel.updateSelection();
                 }
             }
         });
+
         mainPanel.add(searchLine, BorderLayout.NORTH);
+
         setContent(mainPanel);
+
         MessageBusConnection connection = project.getMessageBus().connect(project);
         connection.subscribe(ReviewChangedTopics.REVIEW_STATUS, new ReviewsListener());
+
+
     }
 
     private void initTree() {
         createTreeStructure();
-        final DefaultTreeModel model = new DefaultTreeModel(new PatchedDefaultMutableTreeNode());
+
+        PatchedDefaultMutableTreeNode root = new PatchedDefaultMutableTreeNode();
+        final DefaultTreeModel model = new DefaultTreeModel(root);
         reviewTree = new SimpleTree(model);
-        SmartExpander.installOn(reviewTree);
+
         reviewTreeBuilder = new SimpleTreeBuilder(reviewTree, model, reviewTreeStructure, null);
-        TreeUtil.expandAll(reviewTree);
+
+
         reviewTree.revalidate();
+
+        TreeUtil.expandAll(reviewTree);
+        reviewTree.setRootVisible(false);
+        PopupHandler.installPopupHandler(reviewTree, ACTION_GROUP, ActionPlaces.TODO_VIEW_POPUP);
+
+
+
         reviewTree.addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() != 2) return;
-                if (ModalityState.current().dominates(ModalityState.NON_MODAL)) return;
-                if (reviewTree.getPathForLocation(e.getX(), e.getY()) == null) return;
-                DataContext dataContext = DataManager.getInstance().getDataContext(reviewTree);
-                Project project = PlatformDataKeys.PROJECT.getData(dataContext);
-                if (project == null) return;
-                OpenSourceUtil.openSourcesFrom(dataContext, true);
-                SimpleNode selectedNode = reviewTree.getSelectedNode();
-                if(selectedNode == null) return;
-                SimpleNode node = (SimpleNode) selectedNode.getElement();
-                if(node instanceof ReviewNode) {
-                    Review review = ((ReviewNode) node).getReview();
-                    Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-                    ReviewActionManager.getInstance(review).showExistingComments(editor);
-                }
+                    openReview();
                 }
             });
-        reviewTree.setRootVisible(false);
+
         reviewTree.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-                    SimpleNode node = reviewTree.getSelectedNode();
-
-                    if (node instanceof Navigatable)
-                        ((Navigatable) node).navigate(true);
+                   openReview();
                 }
             }
         });
@@ -143,13 +137,12 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         reviewTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                if(settings.isShowPreview()) {
-                    SimpleNode node = reviewTree.getSelectedNode();
-                    showPreview(node);
-                    updateUI();
+                if(settings.isShowPreviewEnabled()) {
+                    showPreview();
                 }
             }
         });
+
         reviewNavigatorSupport = new OccurenceNavigatorSupport(reviewTree) {
         protected Navigatable createDescriptorForNode(DefaultMutableTreeNode node) {
           if (node.getChildCount() > 0)  {return null;}
@@ -167,8 +160,27 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
         }
       };
-        PopupHandler.installPopupHandler(reviewTree, ACTION_GROUP, ActionPlaces.TODO_VIEW_POPUP);
-        SmartExpander.installOn(reviewTree);
+    }
+
+    private void openReview() {
+        DataContext dataContext = DataManager.getInstance().getDataContext(reviewTree);
+        Project project = PlatformDataKeys.PROJECT.getData(dataContext);
+        if (project == null) return;
+        OpenSourceUtil.openSourcesFrom(dataContext, true);
+        SimpleNode selectedNode = reviewTree.getSelectedNode();
+        if(selectedNode == null) return;
+        SimpleNode node = (SimpleNode) selectedNode.getElement();
+        if(node instanceof ReviewNode) {
+            final Review review = ((ReviewNode) node).getReview();
+            final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    //todo (works not correct. Why given point doesnt refer to a visible area?)
+                    ReviewActionManager.getInstance(review).showExistingComments(editor);
+                }
+            });
+        }
     }
 
     public void createTreeStructure() {
@@ -239,25 +251,33 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
     @Override
     public void updateUI() {
-        super.updateUI();
         if(settings != null) {
-            reviewTree.updateUI();
-            searchLine.setVisible(settings.isSearchEnabled());
-            searchLine.setText(Searcher.getInstance(project).getFilter());
+
             if(reviewTreeBuilder == null) return;
             reviewTreeBuilder.getUi().doUpdateFromRoot();
+
+            searchLine.setVisible(settings.isSearchEnabled());
+            searchLine.setText(Searcher.getInstance(project).getFilter());
+
+
             Set<String> fileNames = ReviewManager.getInstance(project).getFileNames();
             Set<String> filteredFileNames = Searcher.getInstance(project).getFilteredFileNames();
             if(fileNames == null) return;
+
             boolean visible = !(fileNames.isEmpty() && filteredFileNames.isEmpty())
-                    && settings.isShowPreview();
+                    && settings.isShowPreviewEnabled();
             previewPanel.setVisible(visible);
         }
+        super.updateUI();
+    }
+
+    public void showPreview() {
+        showPreview(reviewTree.getSelectedNode());
     }
 
     public void showPreview(SimpleNode element) {
         Review review = null;
-        if (element instanceof ModuleNode || element instanceof FileNode) {
+        if (element instanceof RootNode || element instanceof ModuleNode || element instanceof FileNode) {
             if(element.getChildCount() > 0)
                 showPreview(element.getChildAt(0));
             else return;
@@ -267,14 +287,16 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         }
         if(review == null) return;
         previewPanel.update(review);
+        updateUI();
     }
 
     @Override
     public void dispose() {
         reviewTreeBuilder.dispose();
+        settings.saveState();
     }
 
-    public class ReviewsListener implements ReviewsChangedListener {
+    public class ReviewsListener implements ReviewsChangedListener, DumbAware {
 
         @Override
         public void reviewAdded(Review review) {
