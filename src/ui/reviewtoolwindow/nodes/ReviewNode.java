@@ -80,7 +80,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
 
         OpenFileDescriptor element = review.getElement();
         if(element == null) return;
-        element.navigate(true);
+        element.navigate(false);
     }
 
     @Override

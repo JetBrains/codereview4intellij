@@ -10,7 +10,6 @@ import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
 import utils.Util;
 
-import javax.print.attribute.TextSyntax;
 import java.util.*;
 
 /**
@@ -54,7 +53,6 @@ public class Searcher  extends AbstractProjectComponent {
             emptyFilter();
         }
         else {
-
             for(String url : fileNames) {
                 boolean contains = false;
                 List<Review> validReviews = instance.getValidReviews(url);

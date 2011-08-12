@@ -109,7 +109,6 @@ public class ReviewItemForm {
     public void setEmptyComment() {
         reviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
         reviewItemText.invalidate();
-        //reviewItemContent.repaint();
     }
 
     public Component getItemTextField() {

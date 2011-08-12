@@ -176,7 +176,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    //todo (works not correct. Why given point doesnt refer to a visible area?)
                     ReviewActionManager.getInstance(review).showExistingComments(editor);
                 }
             });

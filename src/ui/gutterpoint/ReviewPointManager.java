@@ -42,10 +42,10 @@ public class ReviewPointManager extends AbstractProjectComponent implements Dumb
 
 
     public ReviewPoint findReviewPoint(Review review) {
-        if(reviewPoints.containsKey(review)) {
+       // if(reviewPoints.containsKey(review)) {
             return reviewPoints.get(review);
-        }
-        return null;
+        //}
+        //return null;
     }
 
     private ReviewPoint makeReviewPoint(Review review) {
@@ -63,5 +63,16 @@ public class ReviewPointManager extends AbstractProjectComponent implements Dumb
         updateUI();
         if(review.getReviewBean().isDeleted())
             reviewPoints.remove(review);
+    }
+
+    public void updateReviewPoint(Review review, Review newReview) {
+        ReviewPoint reviewPoint = findReviewPoint(review);
+        if(reviewPoint != null) {
+            reviewPoints.remove(review);
+            reviewPoints.put(newReview, reviewPoint);
+            //reloadReviewPoint(newReview);
+            //reviewPoint.updateUI();
+            //updateUI();
+        }
     }
 }

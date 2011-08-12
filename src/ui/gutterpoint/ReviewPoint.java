@@ -67,7 +67,7 @@ public class ReviewPoint {
 
                         int newStart = highlighter.getStartOffset();
                         int newEnd = highlighter.getEndOffset();
-                        if(/*newStart >= review.getReviewBean().getEnd() ||*/ !highlighter.isValid()) {
+                        if(!highlighter.isValid()) {
                             review.setValid(false);
                         }
                         else {

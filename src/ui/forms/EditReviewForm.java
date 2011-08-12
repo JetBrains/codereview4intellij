@@ -30,7 +30,7 @@ public class EditReviewForm {
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
     private JPanel panel = new JPanel(new BorderLayout());
-    private /*JPanel*/Box itemsPanel = new VerticalBox();//new JPanel(new GridLayout(-1, 1));
+    private Box itemsPanel = new VerticalBox();
 
     private List<ReviewItemForm> reviewItemFormsList;
     private JTextArea newReviewItemText = new JTextArea(3, 2);
@@ -45,7 +45,7 @@ public class EditReviewForm {
         this.review = review;
         this.showNewItem = showNewItem;
 
-        JPanel contentPanel = new JPanel(new BorderLayout()/*new GridLayout(2, 1)*/);
+        JPanel contentPanel = new JPanel(new BorderLayout());
         resetItemsContent(true);
         contentPanel.add(panel);
         reviewName.setVerifyInputWhenFocusTarget(true);
@@ -174,11 +174,8 @@ public class EditReviewForm {
 
     private void resetItemsContent(boolean editable) {
         reviewItemFormsList = new ArrayList<ReviewItemForm>();
-        //panel.removeAll();
         panel =  new JPanel(new BorderLayout());
-        //itemsPanel =  new JPanel(new GridLayout(-1, 1));
         itemsPanel.removeAll();
-        //reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
         if(review.getName() != null) {
             reviewName.setText(review.getName());
             reviewName.requestFocus();

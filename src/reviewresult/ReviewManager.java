@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewsState;
 import ui.gutterpoint.ReviewPointManager;
+import ui.reviewtoolwindow.ReviewView;
 
 import java.util.*;
 
@@ -113,6 +114,14 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                         eventPublisher.reviewChanged(review);
                     }
                     break;
+                } else {
+                    //todo if loading two reviews in one line from file
+                   /* if(newReview.isValid() && review.isValid() && review.getLine() == newReview.getLine()) {
+                        if(ReviewView.showTwoCommentsOnOnewLineMessage(review, newReview)) {
+                            ReviewPointManager.getInstance(myProject).updateReviewPoint(review, newReview);
+                        }
+                        return;
+                    }*/
                 }
             }
             if(!contains) {
@@ -259,6 +268,15 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                 removeAll(child);
             }
         }
+    }
+
+    public Review getSecondReviewInLine(String url, int line) {
+        if(filePath2reviews.containsKey(url)) {
+            for(Review review : filePath2reviews.get(url)) {
+                if(review.getLine() == line) return review;
+            }
+        }
+        return null;
     }
 
     private class ReviewVirtualFileListener extends VirtualFileAdapter {

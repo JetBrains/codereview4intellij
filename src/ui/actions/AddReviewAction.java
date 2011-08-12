@@ -16,6 +16,7 @@ import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.gutterpoint.ReviewPoint;
 import ui.gutterpoint.ReviewPointManager;
+import ui.reviewtoolwindow.ReviewView;
 
 /**
  * User: Alisa.Afonina
@@ -44,9 +45,14 @@ public class AddReviewAction extends AnAction implements DumbAware{
         int line = document.getLineNumber(offset);
         int start = document.getLineStartOffset(line);
         int end = document.getLineEndOffset(line);
-
-        Review review = new Review(project, null, start, end, virtualFile);
         ReviewManager instance = ReviewManager.getInstance(project);
+        Review oldReview = instance.getSecondReviewInLine(virtualFile.getUrl(), line);
+        if(oldReview != null){
+            ReviewView.showTwoCommentsOnOnewLineMessage(oldReview);
+            return;
+        }
+        Review review = new Review(project, null, start, end, virtualFile);
+
         if(review.isValid()) {
             ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(review);
             if(reviewPoint != null) {

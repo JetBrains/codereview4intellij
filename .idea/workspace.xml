@@ -2,26 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79011e2a-efca-420a-a259-2c0cb35195ed" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" afterPath="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/ReviewsChangedListener.java" afterPath="$PROJECT_DIR$/src/reviewresult/ReviewsChangedListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/ReviewTreeStructureTest.java" afterPath="$PROJECT_DIR$/src/tests/ReviewTreeStructureTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/actions/AddReviewAction.java" afterPath="$PROJECT_DIR$/src/ui/actions/AddReviewAction.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java" afterPath="$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" afterPath="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.form" afterPath="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.form" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" afterPath="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" afterPath="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPointManager.java" afterPath="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPointManager.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/PlainNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/PlainNode.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
     </list>
     <ignored path="codereview4intellij.iws" />
@@ -95,53 +86,7 @@
     <favorites_list name="codereview4intellij" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="ReviewsPreviewPanel.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="13" selection-start="253" selection-end="253" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReviewManager.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="87" column="31" selection-start="3054" selection-end="3054" vertical-scroll-proportion="0.64014465">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EditReviewForm.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ui/forms/EditReviewForm.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="39" selection-start="1396" selection-end="1396" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReviewItemForm.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="60" column="38" selection-start="2078" selection-end="2078" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReviewActionManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="127" column="12" selection-start="5989" selection-end="5989" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -155,22 +100,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" />
-        <option value="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.form" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java" />
-        <option value="$PROJECT_DIR$/META-INF/plugin.xml" />
-        <option value="$PROJECT_DIR$/src/tests/ReviewTreeStructureTest.java" />
         <option value="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
         <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java" />
         <option value="$PROJECT_DIR$/src/reviewresult/ReviewsChangedListener.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
-        <option value="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPointManager.java" />
-        <option value="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" />
         <option value="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" />
-        <option value="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
+        <option value="$USER_HOME$/idea/platform/lang-impl/src/com/intellij/find/impl/livePreview/LivePreview.java" />
+        <option value="$USER_HOME$/idea/platform/lang-impl/src/com/intellij/find/impl/FindInProjectUtil.java" />
         <option value="$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java" />
+        <option value="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPointManager.java" />
         <option value="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" />
+        <option value="$PROJECT_DIR$/src/ui/actions/AddReviewAction.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
+        <option value="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" />
+        <option value="$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java" />
       </list>
     </option>
   </component>
@@ -389,6 +334,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="reviewresult" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -407,58 +370,9 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scopes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="inspectionProfiles" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
+      <pane id="Favorites" />
       <pane id="PackagesPane">
         <subPane>
           <PATH>
@@ -470,7 +384,6 @@
         </subPane>
       </pane>
       <pane id="Scope" />
-      <pane id="Favorites" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -491,9 +404,9 @@
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLanguage" value="Java" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
-    <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.RecentsKey">
@@ -756,32 +669,32 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-4" y="-4" width="1288" height="1002" extended-state="6" />
-    <editor active="true" />
+    <frame x="-4" y="-4" width="1288" height="1002" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17974971" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.18653691" sideWeight="0.83731514" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33560863" sideWeight="0.487055" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3048919" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32992035" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3287827" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3287827" sideWeight="0.487055" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32764506" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33819953" sideWeight="0.19681457" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32927817" sideWeight="0.71786124" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32846716" sideWeight="0.69510806" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.4079481" sideWeight="0.67007965" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32992035" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.37883958" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32927817" sideWeight="0.6211604" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33560863" sideWeight="0.487055" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Analyze Dataflow to" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32992035" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Analyze Dataflow from" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Analyze Dataflow from" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Code review" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32902467" sideWeight="0.0" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Sample Calendar" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24979724" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24979724" sideWeight="0.66439134" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3993174" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -810,7 +723,7 @@
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="DEFAULT_PATCH_EXTENSION" value="patch" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="invalid node fixed&#10;searcher fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="Preview panel slightly fixed&#10;Left menu state save added&#10;Some code refactoring made" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -832,6 +745,7 @@
     <MESSAGE value="preview panel added" />
     <MESSAGE value="tree structure fixed&#10;keyStrokes for balloon added&#10;wrong reviewFiles are handled&#10;" />
     <MESSAGE value="invalid node fixed&#10;searcher fixed" />
+    <MESSAGE value="Preview panel slightly fixed&#10;Left menu state save added&#10;Some code refactoring made" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -841,129 +755,121 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/idea/platform/platform-api/src/com/intellij/ide/util/PropertiesComponent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="36" selection-start="1429" selection-end="1429" vertical-scroll-proportion="0.36283186">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewsChangedListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="61" selection-start="230" selection-end="230" vertical-scroll-proportion="0.33097345">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/ReviewPointManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="3" selection-start="1289" selection-end="1289" vertical-scroll-proportion="0.18761063">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="39" selection-start="2312" selection-end="2312" vertical-scroll-proportion="1.5851449">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="298" column="68" selection-start="10711" selection-end="10711" vertical-scroll-proportion="7.360507">
-          <folding>
-            <element signature="method#openReview#0;class#ReviewPanel#0" expanded="false" />
-            <element signature="class#ReviewsListener#0;class#ReviewPanel#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="194" column="87" selection-start="7220" selection-end="7220" vertical-scroll-proportion="1.431579">
-          <folding>
-            <element signature="class#GroupByModuleAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-            <element signature="class#GroupByFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-            <element signature="class#SearchAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-            <element signature="class#PreviewAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-            <element signature="class#ExportToFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-            <element signature="class#ImportFromFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-            <element signature="method#updateUI#0;class#ReviewToolWindowActionManager#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="4" selection-start="732" selection-end="746" vertical-scroll-proportion="0.69982845">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tests/ReviewTreeStructureTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="57" selection-start="932" selection-end="932" vertical-scroll-proportion="0.31754386">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/reviewresult/Review.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="107" column="19" selection-start="3234" selection-end="3234" vertical-scroll-proportion="2.5350878">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="125" column="25" selection-start="4747" selection-end="4747" vertical-scroll-proportion="0.97017545">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.6.0_26/src.zip!/java/lang/Object.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="364" column="29" selection-start="17865" selection-end="17942" vertical-scroll-proportion="0.3327616">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="253" selection-end="253" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="127" column="12" selection-start="5989" selection-end="5989" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="118" column="59" selection-start="4985" selection-end="4985" vertical-scroll-proportion="-0.06921676">
+          <folding>
+            <element signature="method#addToExistingComments#0;class#ReviewActionManager#0" expanded="false" />
+            <element signature="method#setFocus#0;class#ReviewActionManager#0" expanded="false" />
+            <element signature="method#showBalloon#0;class#ReviewActionManager#0" expanded="false" />
+            <element signature="method#hideBalloon#0;class#ReviewActionManager#0" expanded="false" />
+            <element signature="method#disposeActiveBalloon#0;class#ReviewActionManager#0" expanded="false" />
+            <element signature="method#showExistingComments#0;class#ReviewActionManager#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java">
+    <entry file="file://$PROJECT_DIR$/src/ui/actions/AddReviewAction.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="60" column="38" selection-start="2078" selection-end="2078" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/forms/EditReviewForm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="39" selection-start="1396" selection-end="1396" vertical-scroll-proportion="0.0">
+        <state line="51" column="19" selection-start="2085" selection-end="2085" vertical-scroll-proportion="0.712204">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="87" column="31" selection-start="3054" selection-end="3054" vertical-scroll-proportion="0.64014465">
+        <state line="278" column="20" selection-start="9789" selection-end="9789" vertical-scroll-proportion="0.4471831">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/ReviewPointManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="38" selection-start="670" selection-end="670" vertical-scroll-proportion="0.21948357">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="0" selection-start="402" selection-end="402" vertical-scroll-proportion="0.2431466">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="73" selection-start="575" selection-end="575" vertical-scroll-proportion="0.2634088">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewTreeStructure.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="46" column="43" selection-start="1493" selection-end="1493" vertical-scroll-proportion="0.66865313">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="13" selection-start="204" selection-end="204" vertical-scroll-proportion="0.20262218">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="13" selection-start="349" selection-end="349" vertical-scroll-proportion="0.17957747">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="178" column="38" selection-start="6506" selection-end="6506" vertical-scroll-proportion="0.45411205">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="177" column="35" selection-start="6437" selection-end="6437" vertical-scroll-proportion="0.2634088">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="13" selection-start="253" selection-end="253" vertical-scroll-proportion="0.17957747">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/RootNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="18" column="13" selection-start="432" selection-end="432" vertical-scroll-proportion="0.19953051">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="58" selection-start="814" selection-end="814" vertical-scroll-proportion="0.2920143">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/forms/ReviewItemForm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="110" column="36" selection-start="3567" selection-end="3567" vertical-scroll-proportion="1.9856973">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/forms/EditReviewForm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="13" selection-start="752" selection-end="752" vertical-scroll-proportion="-3.0524433">
           <folding />
         </state>
       </provider>

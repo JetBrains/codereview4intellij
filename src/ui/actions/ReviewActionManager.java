@@ -1,7 +1,6 @@
 package ui.actions;
 
-import com.intellij.find.impl.livePreview.SearchResults;
-import com.intellij.openapi.application.ApplicationManager;
+
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.VisibleAreaEvent;
 import com.intellij.openapi.editor.event.VisibleAreaListener;
@@ -76,57 +75,38 @@ public class ReviewActionManager implements DumbAware {
         setFocus(editReviewForm.getNameTextField());
     }
 
-    private void showBalloon(final Editor editor, final Point point, JComponent content, final JComponent contentComponent) {
+    private void showBalloon(final Editor editor, final Point point, JComponent balloonContent, final JComponent contentComponent) {
         if(!getReview().isValid()) return;
+        hideBalloon();
+        balloonContent.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
+        balloonContent.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "exitReview");
 
-        content.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
-        content.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "exitReview");
-
-        content.getActionMap().put("saveReview", new AbstractAction() {
+        balloonContent.getActionMap().put("saveReview", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 editReviewForm.saveReview();
             }
         });
-        content.getActionMap().put("exitReview", new AbstractAction() {
+        balloonContent.getActionMap().put("exitReview", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getActiveBalloon().hide();
             }
         });
 
-        balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(content, "Add Comment");
+        balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(balloonContent, "Add Comment");
         balloonBuilder.setHideOnClickOutside(true);
         balloonBuilder.setHideOnKeyOutside(true);
         setActiveBalloon(balloonBuilder.createBalloon());
         editReviewForm.setBalloon(getActiveBalloon());
         if(getActiveBalloon() == null) return;
-        //SwingUtilities.invokeLater(new Runnable() {
-         //   @Override
-         //   public void run() {
-                getActiveBalloon().show(
-                                new PositionTracker<Balloon>(editor.getContentComponent()) {
-                                    @Override
-                                    public RelativePoint recalculateLocation(final Balloon object) {
-                                        if (editor.getScrollingModel().getVisibleArea().contains(point)) {
-                                            if (object.isDisposed()) setActiveBalloon(balloonBuilder.createBalloon());
-                                            editReviewForm.setBalloon(getActiveBalloon());
-                                            return new RelativePoint(contentComponent, point);
-                                        } else {
-                                            SwingUtilities.invokeLater(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    object.hide();
-                                                }
-                                            });
-                                        }
+        getActiveBalloon().show(new ReviewPositionTracker(editor, contentComponent, point) , Balloon.Position.atRight);
+    }
 
-                                        return new RelativePoint(contentComponent, point);
-                                    }
-                                }, Balloon.Position.atRight);
-
-          //  }
-       // });
+    private void hideBalloon() {
+        if(getActiveBalloon() != null)
+            if(!getActiveBalloon().isDisposed())
+                getActiveBalloon().hide();
     }
 
     public void disposeActiveBalloon() {
@@ -166,5 +146,49 @@ public class ReviewActionManager implements DumbAware {
 
     private void setActiveBalloon(Balloon activeBalloon) {
         this.activeBalloon = activeBalloon;
+    }
+
+    private class ReviewPositionTracker extends PositionTracker<Balloon>{
+
+        private Editor editor;
+        private JComponent component;
+        private Point point;
+
+        public ReviewPositionTracker(Editor editor, JComponent component, Point point) {
+            super(component);
+            this.editor = editor;
+            this.component = component;
+            this.point = point;
+        }
+
+        @Override
+        public RelativePoint recalculateLocation(final Balloon object) {
+            if (!editor.getScrollingModel().getVisibleArea().contains(point)) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        object.hide();
+                    }
+                });
+                 if(!object.isDisposed()) {
+                    final PositionTracker tracker = this;
+                    final VisibleAreaListener listener = new VisibleAreaListener() {
+                       @Override
+                       public void visibleAreaChanged(VisibleAreaEvent e) {
+                            if(e.getNewRectangle().contains(point) && object.isDisposed()) {
+                                hideBalloon();
+                                setActiveBalloon(balloonBuilder.createBalloon());
+                                editReviewForm.setBalloon(getActiveBalloon());
+                                getActiveBalloon().show(tracker, Balloon.Position.atRight);
+                                editor.getScrollingModel().removeVisibleAreaListener(this);
+                            }
+                       }
+                    };
+                    editor.getScrollingModel().addVisibleAreaListener(listener);
+                 }
+            }
+            return new RelativePoint(component, point);
+        }
+
     }
 }
