@@ -3,6 +3,7 @@ package patch;
 import com.intellij.openapi.diff.impl.patch.PatchEP;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
@@ -32,13 +33,13 @@ public class ReviewPatchExtensionPoint implements PatchEP{
     @Nullable
     @Override
     public CharSequence provideContent(@NotNull String path) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
             VirtualFile baseDir = project.getBaseDir();
             if(baseDir == null) return null;
             VirtualFile file = baseDir.findFileByRelativePath(path);
             if(file == null) return null;
-            result += ReviewManager.getInstance(project).getExportTextForFile(file.getUrl());
+            result.append(ReviewManager.getInstance(project).getExportTextForFile(VfsUtil.getRelativePath(file, baseDir, '/')));
         }
         return new StringBuilder(result);
     }
@@ -46,22 +47,7 @@ public class ReviewPatchExtensionPoint implements PatchEP{
     @Override
     public void consumeContent(@NotNull String path, @NotNull CharSequence content) {
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
-            VirtualFile file = project.getBaseDir().findFileByRelativePath(path);
-            if(file == null) return;
-            try {
-                SAXBuilder builder = new SAXBuilder();
-                Element root = builder.build(new StringReader(content.toString())).getRootElement();
-                ReviewsState.State state = XmlSerializer.deserialize(root, ReviewsState.State.class);
-                ReviewManager reviewManager = ReviewManager.getInstance(project);
-                reviewManager.loadReviewsForFile(state.reviews);
-            } catch(JDOMException e) {
-                e.printStackTrace();
-            } catch(NullPointerException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            ReviewManager.getInstance(project).importReviewsToFile(path, content.toString());
         }
     }
 

@@ -48,49 +48,48 @@ public class Searcher  extends AbstractProjectComponent {
         ReviewManager instance = ReviewManager.getInstance(myProject);
         Set<String> fileNames = instance.getFileNames();
         if(fileNames == null) return;
-
-        if(text == null || "".equals(text)) {
-            emptyFilter();
-        }
-        else {
+        emptyFilter();
+        if(!(text == null || "".equals(text))) {
             for(String url : fileNames) {
-                boolean contains = false;
                 List<Review> validReviews = instance.getValidReviews(url);
                 if(validReviews == null) return;
                 for(Review review : validReviews) {
-                    int reviewStart = Util.find(review.getName(), text);
-                    int reviewEnd;
-                    if(reviewStart >= 0) {
-                        contains = true;
-                        reviewEnd = reviewStart + text.length();
-                        Pair<Integer, Integer> reviewResult = new Pair<Integer, Integer>(reviewStart, reviewEnd);
-                        review2searchresult.put(review, reviewResult);
-                    }
-                    for(ReviewItem item : review.getReviewItems()) {
-                        int itemStart = Util.find(item.getText(), text);
-                        int itemEnd;
-                        if(itemStart != -1) {
-                            contains = true;
-                            if(itemStart >= 0) {
-                                itemEnd = itemStart + text.length();
-                                Pair<Integer, Integer> itemResult = new Pair<Integer, Integer>(itemStart, itemEnd);
-                                reviewitem2searchresult.put(item, itemResult);
-                            }
-                        }
-                    }
+                    addSearchResult(review);
                 }
-                if(contains) filteredFileNames.add(url);
+
             }
         }
     }
 
+    public void addSearchResult(Review review) {
+        int reviewStart = Util.find(review.getName(), filter);
+        boolean contains = false;
+        int reviewEnd;
+        if(reviewStart >= 0) {
+            contains = true;
+            reviewEnd = reviewStart + filter.length();
+            Pair<Integer, Integer> reviewResult = new Pair<Integer, Integer>(reviewStart, reviewEnd);
+            review2searchresult.put(review, reviewResult);
+        }
+        for(ReviewItem item : review.getReviewItems()) {
+            int itemStart = Util.find(item.getText(), filter);
+            int itemEnd;
+            if(itemStart != -1) {
+                contains = true;
+                if(itemStart >= 0) {
+                    itemEnd = itemStart + filter.length();
+                    Pair<Integer, Integer> itemResult = new Pair<Integer, Integer>(itemStart, itemEnd);
+                    reviewitem2searchresult.put(item, itemResult);
+                }
+            }
+        }
+        if(contains) filteredFileNames.add(review.getReviewBean().getFilePath());
+    }
+
     public void emptyFilter() {
-        filter = "";
         review2searchresult = new HashMap<Review, Pair<Integer, Integer>>();
         reviewitem2searchresult = new HashMap<ReviewItem, Pair<Integer, Integer>>();
         filteredFileNames = new HashSet<String>();
-        ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
-        reviewView.updateUI();
     }
 
     public Pair<Integer, Integer> getItemSearchResult(ReviewItem item) {
@@ -108,7 +107,11 @@ public class Searcher  extends AbstractProjectComponent {
     }
 
     public boolean containsReview(Review review) {
-        return !filterIsSet() || review2searchresult.containsKey(review);
+        boolean contains = review2searchresult.containsKey(review);
+        for (ReviewItem reviewItem : review.getReviewItems()) {
+            contains |= (containsReviewItem(reviewItem));
+        }
+        return !filterIsSet() || contains;
     }
 
     public boolean containsReviewItem(ReviewItem reviewItem) {
@@ -117,5 +120,9 @@ public class Searcher  extends AbstractProjectComponent {
 
     public String getFilter() {
         return filter;
+    }
+
+    public boolean isEmpty() {
+        return filterIsSet() && (review2searchresult.isEmpty() && reviewitem2searchresult.isEmpty());
     }
 }

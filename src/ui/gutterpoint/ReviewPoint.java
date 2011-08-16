@@ -1,14 +1,12 @@
 package ui.gutterpoint;
 
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
+import com.intellij.openapi.editor.markup.GutterDraggableObject;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
@@ -16,6 +14,8 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
@@ -28,6 +28,8 @@ import ui.actions.ShowReviewAction;
 import ui.reviewtoolwindow.ReviewView;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.dnd.DragSource;
 import java.util.List;
 
 /**
@@ -35,10 +37,11 @@ import java.util.List;
  * Date: 7/12/11
  * Time: 4:54 PM
  */
-public class ReviewPoint {
+public class ReviewPoint{
     private final Review review;
     private GutterIconRenderer gutterIconRenderer;
     private RangeHighlighter highlighter = null;
+    public static final DataKey<ReviewPoint> REVIEW_POINT_DATA_KEY = DataKey.create("ReviewPoint");
 
     public ReviewPoint(Review review) {
         this.review = review;
@@ -74,21 +77,18 @@ public class ReviewPoint {
                             review.getReviewBean().setStart(newStart);
                             review.getReviewBean().setEnd(newEnd);
                         }
-                        reviewView.updateUI();
+                        ReviewManager.getInstance(project).changeReview(review);
                     }
                 },  project);
                 return;
             }
             if(highlighter.isValid()) {
-
-                reviewView.updateUI();
                 return;
             }
         }
         if(review.getReviewBean().isDeleted() && highlighter != null) {
             highlighter.dispose();
         }
-        reviewView.updateUI();
         ReviewManager.getInstance(review.getProject()).logInvalidReview(review);
     }
 
@@ -100,14 +100,25 @@ public class ReviewPoint {
         return review;
     }
 
-
-    private class ReviewGutterIconRenderer extends GutterIconRenderer {
+    private class ReviewGutterIconRenderer extends GutterIconRenderer{
         private final Icon icon = IconLoader.getIcon("/images/note.png");
-        //private boolean activated = false;
         @NotNull
         @Override
         public Icon getIcon() {
             return icon;
+        }
+
+        @Override
+        public GutterDraggableObject getDraggableObject() {
+            return new GutterDraggableObject() {
+                public boolean copy(int line, VirtualFile file) {
+                  return file != null && moveTo(file, line);
+                }
+
+                public Cursor getCursor(int line) {
+                  return canMoveTo(line)? DragSource.DefaultMoveDrop : DragSource.DefaultMoveNoDrop;
+                }
+            };
         }
 
         @Override
@@ -125,10 +136,10 @@ public class ReviewPoint {
                 review.setActivated(true);
                 List<ReviewItem> reviewItems = review.getReviewItems();
                 if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
-                    return new EditReviewAction("Add review", ReviewPoint.this);
+                    return new EditReviewAction("Add review");
                 }
                 else {
-                    return new ShowReviewAction("View review", ReviewPoint.this);
+                    return new ShowReviewAction("View review");
                 }
             } else {
                 return  new AnAction() {
@@ -141,6 +152,12 @@ public class ReviewPoint {
         }
 
         @Override
+        public String getTooltipText() {
+            List<ReviewItem> reviewItems = review.getReviewItems();
+            return "<b>Name:</b> " + review.getName() + "\n<b>Last edited by:</b> " + reviewItems.get(reviewItems.size()-1).getAuthor();
+        }
+
+        @Override
         public int hashCode() {
             return getIcon().hashCode();
         }
@@ -148,9 +165,35 @@ public class ReviewPoint {
         @Nullable
         public ActionGroup getPopupMenuActions() {
             DefaultActionGroup group = new DefaultActionGroup();
-            group.add(new EditReviewAction("Add review", ReviewPoint.this));
-            group.add(new DeleteReviewAction("Delete review", ReviewPoint.this.getReview()));
+            List<ReviewItem> reviewItems = review.getReviewItems();
+            if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
+                     group.add(new EditReviewAction("Add New Comment..."));
+                }
+                else {
+                    group.add(new ShowReviewAction("Edit Last Comment... "));
+                }
+            group.add(new DeleteReviewAction("Delete Review..."));
             return group;
         }
     }
+
+    private boolean canMoveTo(int line) {
+        return line >= 0;
+    }
+
+    private boolean moveTo(VirtualFile virtualFile, int line) {
+        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+        if(document == null) return false;
+        MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(review.getProject());
+        if(line < 0) return false;
+        RangeHighlighter newHighlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
+        if(newHighlighter == null || !newHighlighter.isValid()) return false;
+        newHighlighter.setGutterIconRenderer(highlighter.getGutterIconRenderer());
+        highlighter.dispose();
+        highlighter = newHighlighter;
+        review.setLine(line);
+        ReviewManager.getInstance(review.getProject()).changeReview(review);
+        return true;
+    }
+
 }

@@ -28,13 +28,11 @@ import java.util.List;
 public class ModuleNode extends PlainNode implements Navigatable{
     private Project project;
     private Module module;
-    private ReviewToolWindowSettings settings;
 
     public ModuleNode(Project project, Module module, ReviewToolWindowSettings settings) {
-        super(project);
+        super(project, settings);
         this.project = project;
         this.module = module;
-        this.settings = settings;
     }
 
     @Override
@@ -47,14 +45,19 @@ public class ModuleNode extends PlainNode implements Navigatable{
     @NotNull
     @Override
     public SimpleNode[] getChildren() {
-        if(!settings.isGroupByFile()) {
-            List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
+        List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
+        if(!getSettings().isGroupByFile()) {
             for (SimpleNode child : children) {
                     newChildren.addAll(Arrays.asList(child.getChildren()));
             }
-            return newChildren.toArray(new SimpleNode[newChildren.size()]);
+        } else {
+            for(PlainNode node : children) {
+                if(node.getChildrenCount() != 0) {
+                    newChildren.add(node);
+                }
+            }
         }
-        return children.toArray(new SimpleNode[children.size()]);
+        return newChildren.toArray(new SimpleNode[newChildren.size()]);
     }
 
 

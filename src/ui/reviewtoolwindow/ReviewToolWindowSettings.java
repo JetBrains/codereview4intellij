@@ -69,4 +69,9 @@ public class ReviewToolWindowSettings {
         groupByModule = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.moduleEnabled", false);
         showPreviewEnabled = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.previewEnabled", false);
     }
+
+    public void reset() {
+        showPreviewEnabled = false;
+        searchEnabled = false;
+    }
 }

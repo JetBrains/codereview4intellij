@@ -11,6 +11,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
+import ui.reviewtoolwindow.ReviewToolWindowSettings;
 import ui.reviewtoolwindow.Searcher;
 
 import java.util.List;
@@ -24,8 +25,8 @@ public class ReviewNode extends PlainNode implements Navigatable{
     private Review review;
     private Searcher searcher;
 
-    public ReviewNode(Project project, Review review) {
-        super(project);
+    public ReviewNode(Project project, Review review, ReviewToolWindowSettings settings) {
+        super(project, settings);
         this.review = review;
         this.searcher = Searcher.getInstance(project);
     }
@@ -64,7 +65,11 @@ public class ReviewNode extends PlainNode implements Navigatable{
                 return;
             }
             int lineNumber = line + 1;
-            presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            if(!getSettings().isGroupByFile()) {
+                presentationData.addText( " (" + review.getVirtualFile().getName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            } else {
+                presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            }
         } else {
             presentationData.addText(review.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
@@ -103,7 +108,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
             }
         }
         if(nodeToRemove != null) {
-            plainChildren.remove(nodeToRemove);
+            getPlainParent().removeChild(nodeToRemove);
         }
     }
 

@@ -2,7 +2,6 @@ package ui.forms;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.panels.VerticalBox;
@@ -13,7 +12,6 @@ import reviewresult.persistent.ReviewItem;
 import ui.reviewtoolwindow.ReviewView;
 import ui.reviewtoolwindow.Searcher;
 
-import javax.help.NoMerge;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -40,15 +38,15 @@ public class EditReviewForm {
     private final Review review;
     private boolean showNewItem;
 
-    public EditReviewForm(final Review review, boolean showNewItem) {
-
+    public EditReviewForm(final Review review, boolean showNewItem, boolean editable) {
         this.review = review;
         this.showNewItem = showNewItem;
 
         JPanel contentPanel = new JPanel(new BorderLayout());
-        resetItemsContent(true);
+        resetItemsContent(editable);
         contentPanel.add(panel);
         reviewName.setVerifyInputWhenFocusTarget(true);
+        reviewName.setEditable(editable);
         reviewName.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -143,16 +141,17 @@ public class EditReviewForm {
                int nameLength = 6;
                name = (text.length() > nameLength) ? text.substring(0, nameLength) : text;
             }
-            if (review.getReviewItems().isEmpty()) {
-                ReviewManager.getInstance(review.getProject()).addReview(review);
-            }
             review.addReviewItem(new ReviewItem(text, ReviewStatus.COMMENT));
         }
         review.setName(name);
         balloon.dispose();
         review.setActivated(false);
-        ReviewView reviewView = ServiceManager.getService(review.getProject(), ReviewView.class);
-        reviewView.updateUI();
+        if (showNewItem && review.getReviewItems().size() == 1) {
+                ReviewManager.getInstance(review.getProject()).addReview(review);
+        } else {
+            ReviewManager.getInstance(review.getProject()).changeReview(review);
+        }
+
     }
 
     public JComponent getContent() {

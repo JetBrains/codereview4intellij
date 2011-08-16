@@ -36,6 +36,10 @@
       <action id="deleteReview" class="ui.actions.DeleteReviewAction" text="Remove review">
           <add-to-group group-id="TreeReviewItemActions" anchor="last"/>
       </action>
+      <action id="ui.actions.EditReviewAction" class="ui.actions.EditReviewAction" text="Edit Review"
+              description="Edit review"/>
+      <action id="ui.actions.ShowReviewAction" class="ui.actions.ShowReviewAction" text="Show Review"
+              description="Show review"/>
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">

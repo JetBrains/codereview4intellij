@@ -12,6 +12,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
@@ -27,10 +28,7 @@ import reviewresult.ReviewChangedTopics;
 import reviewresult.ReviewManager;
 import reviewresult.ReviewsChangedListener;
 import ui.actions.ReviewActionManager;
-import ui.reviewtoolwindow.nodes.FileNode;
-import ui.reviewtoolwindow.nodes.ModuleNode;
-import ui.reviewtoolwindow.nodes.ReviewNode;
-import ui.reviewtoolwindow.nodes.RootNode;
+import ui.reviewtoolwindow.nodes.*;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -59,7 +57,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     @Nullable
     private OccurenceNavigatorSupport reviewNavigatorSupport;
     private JTextField searchLine = new JTextField();
-    private SimpleTreeStructure reviewTreeStructure;
+    private ReviewTreeStructure reviewTreeStructure;
 
     private ReviewToolWindowSettings settings;
 
@@ -70,7 +68,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         initTree();
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        mainPanel.add(new ReviewToolWindowActionManager(project, this, settings).createLeftMenu(), BorderLayout.WEST);
+        mainPanel.add(new ReviewToolWindowActionManager(this, settings).createLeftMenu(), BorderLayout.WEST);
 
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(reviewTree);
         mainPanel.add(scrollPane);
@@ -83,22 +81,26 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             @Override
             public void actionPerformed(ActionEvent e) {
                 Searcher.getInstance(project).createFilter(searchLine.getText());
-                createTreeStructure();
-                updateUI();
+                //createTreeStructure();
+                //updateUI();
+                reviewTreeBuilder.getUi().doUpdateFromRoot();
                 if(settings.isShowPreviewEnabled()) {
                     previewPanel.updateSelection();
                 }
             }
         });
-
+        searchLine.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                searchLine.setCaretPosition(searchLine.getText().length());
+            }
+        });
         mainPanel.add(searchLine, BorderLayout.NORTH);
 
         setContent(mainPanel);
 
         MessageBusConnection connection = project.getMessageBus().connect(project);
         connection.subscribe(ReviewChangedTopics.REVIEW_STATUS, new ReviewsListener());
-
-
     }
 
     private void initTree() {
@@ -255,17 +257,22 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             if(reviewTreeBuilder == null) return;
             reviewTreeBuilder.getUi().doUpdateFromRoot();
 
+            if(settings.isSearchEnabled())
+                IdeFocusManager.getInstance(project).requestFocus(searchLine, true);
+
             searchLine.setVisible(settings.isSearchEnabled());
             searchLine.setText(Searcher.getInstance(project).getFilter());
 
+            if(settings.isShowPreviewEnabled()) {
+                Set<String> fileNames = ReviewManager.getInstance(project).getFileNames();
+                Set<String> filteredFileNames = Searcher.getInstance(project).getFilteredFileNames();
+                if(fileNames == null) return;
 
-            Set<String> fileNames = ReviewManager.getInstance(project).getFileNames();
-            Set<String> filteredFileNames = Searcher.getInstance(project).getFilteredFileNames();
-            if(fileNames == null) return;
-
-            boolean visible = !(fileNames.isEmpty() && filteredFileNames.isEmpty())
-                    && settings.isShowPreviewEnabled();
-            previewPanel.setVisible(visible);
+                boolean visible = !(fileNames.isEmpty() && filteredFileNames.isEmpty());
+                previewPanel.setVisible(visible);
+            } else {
+                previewPanel.setVisible(false);
+            }
         }
         super.updateUI();
     }
@@ -295,24 +302,46 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         settings.saveState();
     }
 
+    public void updateStructure() {
+        reviewTreeBuilder.getUi().doUpdateFromRoot();
+    }
+
     public class ReviewsListener implements ReviewsChangedListener, DumbAware {
 
         @Override
         public void reviewAdded(Review review) {
-            ((ReviewTreeStructure)reviewTreeStructure).addReview(review);
-            reviewTreeBuilder.getUi().doUpdateFromRoot();
+            update(reviewTreeStructure.addReview(review));
         }
 
         @Override
         public void reviewDeleted(Review review) {
-            ((ReviewTreeStructure)reviewTreeStructure).removeReview(review);
+            reviewTreeStructure.removeReview(review);
             reviewTreeBuilder.getUi().doUpdateFromRoot();
+            if(((PlainNode)reviewTreeStructure.getRootElement()).getChildren().length == 0) {
+                settings.reset();
+                updateUI();
+            }
         }
 
-
         @Override
-        public void reviewChanged(Review review) {
-            reviewTreeBuilder.getUi().doUpdateFromRoot();
+        public void reviewChanged(Review newReview) {
+            update(reviewTreeStructure.getNode(newReview));
+
+        }
+
+        private void update(PlainNode node) {
+            if(node.equals(reviewTreeStructure.getRootElement())) {
+                 reviewTreeBuilder.getUi().doUpdateFromRoot();
+
+            } else {
+                DefaultMutableTreeNode nodeToUpdate = TreeUtil.findNodeWithObject(
+                                                            reviewTreeBuilder.getRootNode(),
+                                                            node
+                                                      );
+                if(nodeToUpdate == null) return;
+                reviewTreeBuilder.addSubtreeToUpdate(nodeToUpdate);
+                reviewTreeBuilder.queueUpdate();
+            }
         }
     }
 }

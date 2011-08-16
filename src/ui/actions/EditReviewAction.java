@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
-import ui.gutterpoint.ReviewPoint;
+import reviewresult.Review;
 
 import javax.swing.*;
 
@@ -20,10 +20,11 @@ import javax.swing.*;
 public class EditReviewAction extends AnAction  implements DumbAware {
   private static final Icon ICON = IconLoader.getIcon("/images/note_edit.png");
 
-    private ReviewPoint reviewPoint;
-    public EditReviewAction(String title, ReviewPoint reviewPoint) {
+    public EditReviewAction() {
+    }
+
+    public EditReviewAction(String title) {
         super(title, title, ICON);
-        this.reviewPoint = reviewPoint;
     }
 
     @Override
@@ -31,9 +32,12 @@ public class EditReviewAction extends AnAction  implements DumbAware {
         DataContext dataContext = e.getDataContext();
         Project project = PlatformDataKeys.PROJECT.getData(dataContext);
         if (project == null) return;
-        Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-        if (editor != null) {
-            ReviewActionManager.getInstance(reviewPoint.getReview()).addToExistingComments(editor);
+        Editor editor = PlatformDataKeys.EDITOR.getData(e.getDataContext());
+        if(editor != null) {
+            Review review = ActionManager.getInstance().getReviewForAction(e);
+            if(review == null || !review.isValid()) {return;}
+
+            ReviewActionManager.getInstance(review).addToExistingComments(editor);
         }
     }
 }

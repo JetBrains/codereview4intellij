@@ -46,9 +46,5 @@ public class ReviewsState extends AbstractProjectComponent implements Persistent
             @Tag("reviews")
             @AbstractCollection(surroundWithTag = false)
             public List<ReviewBean> reviews = new ArrayList<ReviewBean>();
-
-            /*  @Tag("removed_reviews")
-            @AbstractCollection(surroundWithTag = false)
-            public List<ReviewBean> removed = new ArrayList<ReviewBean>();*/
         }
 }

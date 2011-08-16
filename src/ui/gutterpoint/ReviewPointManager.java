@@ -1,11 +1,10 @@
 package ui.gutterpoint;
 
-import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupManager;
 import reviewresult.Review;
+import reviewresult.ReviewManager;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,12 +16,10 @@ import java.util.Map;
  * Time: 11:30 AM
  */
 public class ReviewPointManager extends AbstractProjectComponent implements DumbAware{
-    private Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
-    private final StartupManagerEx startupManager;
+    private final Map<Review, ReviewPoint> reviewPoints = new HashMap<Review, ReviewPoint>();
 
-    public ReviewPointManager(Project project, final StartupManager startupManager) {
+    public ReviewPointManager(Project project) {
         super(project);
-        this.startupManager = (StartupManagerEx)startupManager;
     }
 
     public static ReviewPointManager getInstance(Project project) {
@@ -35,20 +32,15 @@ public class ReviewPointManager extends AbstractProjectComponent implements Dumb
 
     public void updateUI() {
         for (ReviewPoint point : reviewPoints.values()) {
-            //updateUI(point);
             point.updateUI();
         }
     }
 
-
     public ReviewPoint findReviewPoint(Review review) {
-       // if(reviewPoints.containsKey(review)) {
             return reviewPoints.get(review);
-        //}
-        //return null;
     }
 
-    private ReviewPoint makeReviewPoint(Review review) {
+    private ReviewPoint createReviewPoint(Review review) {
         ReviewPoint point = new ReviewPoint(review);
         reviewPoints.put(review, point);
         return point;
@@ -58,21 +50,12 @@ public class ReviewPointManager extends AbstractProjectComponent implements Dumb
         ReviewPoint reviewPoint = findReviewPoint(review);
         if(reviewPoint == null) {
             if(review.isValid())
-                makeReviewPoint(review);
+                reviewPoint = createReviewPoint(review);
         }
-        updateUI();
         if(review.getReviewBean().isDeleted())
             reviewPoints.remove(review);
-    }
 
-    public void updateReviewPoint(Review review, Review newReview) {
-        ReviewPoint reviewPoint = findReviewPoint(review);
-        if(reviewPoint != null) {
-            reviewPoints.remove(review);
-            reviewPoints.put(newReview, reviewPoint);
-            //reloadReviewPoint(newReview);
-            //reviewPoint.updateUI();
-            //updateUI();
-        }
+        if(reviewPoint != null)
+            reviewPoint.updateUI();
     }
 }

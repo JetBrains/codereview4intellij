@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
@@ -46,7 +47,9 @@ public class AddReviewAction extends AnAction implements DumbAware{
         int start = document.getLineStartOffset(line);
         int end = document.getLineEndOffset(line);
         ReviewManager instance = ReviewManager.getInstance(project);
-        Review oldReview = instance.getSecondReviewInLine(virtualFile.getUrl(), line);
+        VirtualFile baseDir = project.getBaseDir();
+        if(baseDir == null) {return;}
+        Review oldReview = instance.getReviewInLine(VfsUtil.getRelativePath(virtualFile, baseDir, '/'), line);
         if(oldReview != null){
             ReviewView.showTwoCommentsOnOnewLineMessage(oldReview);
             return;

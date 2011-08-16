@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,6 @@ import java.util.List;
 public class Review {
     private ReviewBean reviewBean;
     private final Project project;
-    private final VirtualFile virtualFile;
 
     private boolean activated = false;
 
@@ -32,8 +32,9 @@ public class Review {
     public Review(@NotNull ReviewBean reviewBean, @NotNull Project project){
         this.reviewBean = reviewBean;
         this.project = project;
-        this.virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByUrl(reviewBean.getFilePath());
-
+        final VirtualFile baseDir = project.getBaseDir();
+        if(baseDir == null)  {reviewBean.setValid(false); return;}
+        VirtualFile virtualFile = baseDir.findFileByRelativePath(reviewBean.getFilePath());
         if(virtualFile == null)  {reviewBean.setValid(false); return;}
 
         this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
@@ -41,8 +42,10 @@ public class Review {
 
     public Review(Project project, String reviewName, int start, int end, VirtualFile virtualFile) {
         this.project = project;
-        this.virtualFile = virtualFile;
-        this.reviewBean = new ReviewBean(reviewName, start, end, virtualFile.getUrl());
+        VirtualFile baseDir = project.getBaseDir();
+        if(baseDir == null)  {return;}
+        String relativePath = VfsUtil.getRelativePath(virtualFile, baseDir, '/');
+        this.reviewBean = new ReviewBean(reviewName, start, end, relativePath);
         this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
     }
 
@@ -70,19 +73,19 @@ public class Review {
     @Nullable
     public OpenFileDescriptor getElement() {
         if(reviewBean.isValid())
-            return new OpenFileDescriptor(project, virtualFile, reviewBean.getStart());
+            return new OpenFileDescriptor(project, getVirtualFile() , reviewBean.getStart());
         else
             return null;
     }
 
     public boolean isValid() {
         return reviewBean.isValid()
-          && ProjectRootManager.getInstance(project).getFileIndex().isInContent(virtualFile);
+          && ProjectRootManager.getInstance(project).getFileIndex().isInContent(getVirtualFile());
     }
 
     public int getLine() {
         if(!reviewBean.isValid()) return -1;
-        Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
+        Document document = FileDocumentManager.getInstance().getDocument(getVirtualFile());
         if(document == null) return -1;
         if(reviewBean.getStart()  > document.getText().length()) return -1;
         return document.getLineNumber(reviewBean.getStart());
@@ -94,7 +97,9 @@ public class Review {
     }
 
     public VirtualFile getVirtualFile() {
-        return virtualFile;
+        final VirtualFile baseDir = project.getBaseDir();
+        if(baseDir == null)  {reviewBean.setValid(false); return null;}
+        return baseDir.findFileByRelativePath(reviewBean.getFilePath());
     }
 
     public ReviewBean getReviewBean() {
@@ -109,14 +114,13 @@ public class Review {
         return activated;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         Review review = (Review) o;
-        return !(reviewBean != null ? !reviewBean.equals(review.reviewBean) : review.reviewBean != null);
+        return !(reviewBean != null ? !reviewBean.equals(review.getReviewBean()) : review.getReviewBean() != null);
 
     }
 
@@ -125,11 +129,18 @@ public class Review {
         return reviewBean != null ? reviewBean.hashCode() : 0;
     }
 
-    public void setReviewBean(ReviewBean reviewBean) {
-        this.reviewBean = reviewBean;
-    }
-
     public void setValid(boolean valid) {
         reviewBean.setValid(valid);
+    }
+
+    public void setLine(int line) {
+        Document document = FileDocumentManager.getInstance().getDocument(getVirtualFile());
+        if(document == null) return;
+        reviewBean.setStart(document.getLineStartOffset(line));
+        reviewBean.setEnd(document.getLineEndOffset(line));
+    }
+
+    public void setReviewBean(ReviewBean reviewBean) {
+        this.reviewBean = reviewBean;
     }
 }

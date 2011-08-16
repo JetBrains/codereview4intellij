@@ -43,15 +43,14 @@ public class ReviewCommitHandlerFactory  extends CheckinHandlerFactory {
         @Nullable
         @Override
         public RefreshableOnComponent getBeforeCheckinConfigurationPanel() {
-            final JPanel panel = new JPanel(new GridLayout(1,1));
-
             Collection<VirtualFile> virtualFiles = checkinProjectPanel.getVirtualFiles();
             int reviewCount = ReviewManager.getInstance(checkinProjectPanel.getProject()).getReviewCount(virtualFiles);
-
-            checkbox = new JCheckBox("Add " +
-                    reviewCount +
-                    " existing reviews in " + virtualFiles.size() + " files");
             if(reviewCount > 0) {
+                checkbox = new JCheckBox("Add " +
+                        reviewCount +
+                        " existing reviews in " + virtualFiles.size() + " files");
+
+                final JPanel panel = new JPanel(new GridLayout(1,1));
                 panel.add(checkbox);
                 return new RefreshableOnComponent() {
                     @Override

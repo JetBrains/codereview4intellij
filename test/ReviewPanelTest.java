@@ -43,7 +43,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testCreateOneElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = getModule().getModuleFile();//project.getProjectFile();
+        VirtualFile projectFile = getModule().getModuleFile();//project.getBaseDir();
         addNewReview(projectFile, "test review", 1, 2);
 
         ReviewPanel panel = new ReviewPanel(myProject);
@@ -61,7 +61,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testCreateTwoElementInOneFileTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
 
         addNewReview(projectFile, "test review 1", 1, 1);
         addNewReview(projectFile, "test review 2", 2, 3);
@@ -83,7 +83,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testCreateTwoElementInDifferentFilesTree() throws Exception {
         Project project = getProject();
-        VirtualFile firstFile = project.getProjectFile();
+        VirtualFile firstFile = project.getBaseDir();
         VirtualFile secondFile = this.createMainModule().getModuleFile();
 
         addNewReview(firstFile, "test review 1", 1, 1);
@@ -101,7 +101,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testEditOneElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
         Review review = addNewReview(projectFile, "test review 1", 1, 1);
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();
@@ -123,7 +123,7 @@ public class ReviewPanelTest extends IdeaTestCase {
     public void testChangingTreeWhenEditDocumentPath() throws Exception {
         this.simulateProjectOpen();
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
 
         String oldUrl = projectFile.getFilePath();
 
@@ -147,7 +147,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testChangingTreeWhenDeleteDocument() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
         String oldUrl = projectFile.getFilePath();
 
         addNewReview(projectFile, "test review 1", 1, 1);
@@ -165,7 +165,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testRemoveReviewFromOneElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
         Review review = addNewReview(projectFile, "test review 1", 1, 1);
         ReviewPanel panel = new ReviewPanel(myProject);
         SimpleTree reviewTree = panel.getReviewTree();
@@ -179,7 +179,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testRemoveReviewFromTwoElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile firstFile = project.getProjectFile();
+        VirtualFile firstFile = project.getBaseDir();
         VirtualFile secondFile = this.createMainModule().getModuleFile();
 
         Review firstReview = addNewReview(firstFile, "test review 1", 1, 1);
@@ -210,7 +210,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testGetNextOccurenceInNoElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
 
         ReviewPanel panel = new ReviewPanel(myProject);
 
@@ -224,7 +224,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testGetNextOccurenceInOneElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
         Review review = addNewReview(projectFile, "test review 1", 1, 1);
 
         ReviewPanel panel = new ReviewPanel(myProject);
@@ -241,7 +241,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testGetNextOccurenceTwoElementInDifferentFilesTree() throws Exception {
         Project project = getProject();
-        VirtualFile firstFile = project.getProjectFile();
+        VirtualFile firstFile = project.getBaseDir();
         VirtualFile secondFile = this.createMainModule().getModuleFile();
 
         Review firstReview = addNewReview(firstFile, "test review 1", 1, 1);
@@ -263,7 +263,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testGetPrevOccurenceInOneElementTree() throws Exception {
         Project project = getProject();
-        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile projectFile = project.getBaseDir();
         Review review = addNewReview(projectFile, "test review 1", 1, 1);
 
         ReviewPanel panel = new ReviewPanel(myProject);
@@ -277,7 +277,7 @@ public class ReviewPanelTest extends IdeaTestCase {
 
     public void testGetPrevOccurenceTwoElementInDifferentFilesTree() throws Exception {
         Project project = getProject();
-        VirtualFile firstFile = project.getProjectFile();
+        VirtualFile firstFile = project.getBaseDir();
         VirtualFile secondFile = this.createMainModule().getModuleFile();
 
         Review firstReview = addNewReview(firstFile, "test review 1", 1, 1);

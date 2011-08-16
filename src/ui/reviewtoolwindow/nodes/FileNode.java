@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiDocumentManager;
@@ -32,12 +33,10 @@ import java.util.List;
 public class FileNode extends PlainNode implements Navigatable{
     private Project project;
     private VirtualFile file;
-    private ReviewToolWindowSettings settings;
 
     public FileNode(Project project, VirtualFile value, ReviewToolWindowSettings settings) {
-        super(project);
+        super(project, settings);
         this.project = project;
-        this.settings = settings;
         file = value;
     }
 
@@ -58,11 +57,11 @@ public class FileNode extends PlainNode implements Navigatable{
                     newChildren.add(child);
                 }
             } else {
-                if(!settings.isGroupByFile()) {
+                if(!getSettings().isGroupByFile()) {
                     newChildren.addAll(Arrays.asList(child.getChildren()));
                 }
                 else {
-                    if(child.getChildren().length != 0) {
+                    if(child.getChildrenCount() != 0) {
                         newChildren.add(child);
                     }
                 }
@@ -80,7 +79,9 @@ public class FileNode extends PlainNode implements Navigatable{
     public void update(PresentationData data) {
         data.addText(file.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         if(!file.isDirectory()) {
-            List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(file.getUrl());
+            VirtualFile baseDir = project.getBaseDir();
+            if(baseDir == null) {return;}
+            List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(VfsUtil.getRelativePath(file, baseDir, '/'));
             if(reviews == null || reviews.isEmpty()) {
                 return;
             }

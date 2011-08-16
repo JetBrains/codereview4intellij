@@ -1,5 +1,6 @@
 package ui.forms;
 
+import com.intellij.util.text.DateFormatUtil;
 import reviewresult.persistent.ReviewItem;
 import ui.reviewtoolwindow.Searcher;
 
@@ -20,10 +21,9 @@ import java.awt.event.KeyEvent;
  * Time: 3:07 PM
  */
 public class ReviewItemForm {
-    private JTextField authorTextField;
-    private JTextField dateTextField;
     private JTextArea reviewItemText;
     private JPanel reviewItemContent;
+    private JLabel headerLabel;
     private ReviewItem reviewItem;
     private Searcher searcher;
 
@@ -32,8 +32,8 @@ public class ReviewItemForm {
         reviewItemContent.setFocusable(true);
         reviewItem = data;
         this.searcher = searcher;
-        authorTextField.setText(data.getAuthor());
-        dateTextField.setText(data.getDate().toString());
+            headerLabel.setText(data.getAuthor() + " wrote " + DateFormatUtil.formatPrettyDateTime(data.getDate()));
+
         String text = data.getText();
         reviewItemText.setBorder(BorderFactory.createEmptyBorder());
         reviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
@@ -81,17 +81,18 @@ public class ReviewItemForm {
     public void updateSelection() {
         int searchStart = searcher.getItemSearchResult(reviewItem).first;
         int searchEnd = searcher.getItemSearchResult(reviewItem).second;
-        if(searchStart >= 0) {
-            if(highlighter.getHighlights().length > 0) {
+        if(highlighter == null) return;
+        if(highlighter.getHighlights().length > 0) {
                 highlighter.removeAllHighlights();
-            }
+        }
+        if(searchStart >= 0) {
             if(highlighter != null) {
                 try {
                     highlighter.addHighlight(searchStart,
                                                 searchEnd,
                                                 new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW));
                 } catch (BadLocationException e) {
-                    e.printStackTrace();
+                   /// e.printStackTrace();
                 }
             }
         }
@@ -100,10 +101,6 @@ public class ReviewItemForm {
     public JPanel getContent(boolean editable) {
         reviewItemText.setEditable(editable);
         return reviewItemContent;
-    }
-
-    public ReviewItem getReviewItem() {
-        return reviewItem;
     }
 
     public void setEmptyComment() {

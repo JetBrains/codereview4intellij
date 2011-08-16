@@ -12,5 +12,5 @@ import java.util.EventListener;
 public interface ReviewsChangedListener extends EventListener {
     public void reviewAdded(Review review);
     public void reviewDeleted(Review review);
-    public void reviewChanged(Review review);
+    public void reviewChanged(Review newReview);
 }

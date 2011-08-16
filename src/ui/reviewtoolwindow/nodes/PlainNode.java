@@ -3,6 +3,7 @@ package ui.reviewtoolwindow.nodes;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.treeStructure.SimpleNode;
+import ui.reviewtoolwindow.ReviewToolWindowSettings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +17,15 @@ import java.util.List;
 public abstract class PlainNode extends SimpleNode {
     protected List<PlainNode> children = new ArrayList<PlainNode>();
     private PlainNode parent;
-    public PlainNode(Project project) {
+    private ReviewToolWindowSettings settings;
+
+    public PlainNode(Project project, ReviewToolWindowSettings settings) {
         super(project);
+        this.settings = settings;
     }
 
     public List<PlainNode> getPlainChildren() {
-        return children;
+        return Collections.unmodifiableList(children);
     }
 
     public void removeChild(PlainNode child) {
@@ -44,4 +48,17 @@ public abstract class PlainNode extends SimpleNode {
     public void setPlainParent(PlainNode parent) {
         this.parent = parent;
     }
+
+    public int getChildrenCount() {
+        if(/*getChildren().length == 0 ||*/ children.isEmpty()) {
+            return 0;
+        }
+        else return children.size();
+    }
+
+    public ReviewToolWindowSettings getSettings() {
+        return settings;
+    }
+
+   // public abstract Object getObject();
 }

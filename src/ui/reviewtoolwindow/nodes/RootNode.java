@@ -1,11 +1,14 @@
 package ui.reviewtoolwindow.nodes;
 
 
+import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
+import ui.reviewtoolwindow.Searcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,11 +20,9 @@ import java.util.List;
  * Time: 5:21 PM
  */
 public class RootNode extends PlainNode {
-    private ReviewToolWindowSettings settings;
 
     public RootNode(Project project, ReviewToolWindowSettings settings) {
-        super(project);
-        this.settings = settings;
+        super(project,settings);
         for(Module module : ModuleManager.getInstance(project).getModules()) {
             ModuleNode moduleNode = new ModuleNode(project, module, settings);
             addChild(moduleNode);
@@ -31,14 +32,26 @@ public class RootNode extends PlainNode {
     @Override
     public SimpleNode[] getChildren() {
         List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
-        if(!settings.isGroupByModule()) {
+        final Searcher instance = Searcher.getInstance(myProject);
+        if(instance.isEmpty()) return new SimpleNode[]{new SimpleNode() {
+            @Override
+            protected void update(PresentationData presentation) {
+                presentation.addText("No occurences of " + instance.getFilter() + " found", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            }
+
+            @Override
+            public SimpleNode[] getChildren() {
+                return new SimpleNode[0];
+            }
+        }};
+        if(!getSettings().isGroupByModule()) {
             for (SimpleNode child : children) {
                     newChildren.addAll(Arrays.asList(child.getChildren()));
             }
         }
         else {
             for(PlainNode node : children) {
-                if(!node.getPlainChildren().isEmpty()) {
+                if(node.getChildrenCount() != 0) {
                     newChildren.add(node);
                 }
             }
