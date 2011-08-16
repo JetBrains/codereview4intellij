@@ -25,14 +25,16 @@ public abstract class PlainNode extends SimpleNode {
     }
 
     public List<PlainNode> getPlainChildren() {
-        return Collections.unmodifiableList(children);
+        return children;
     }
 
-    public void removeChild(PlainNode child) {
-        if(children.contains(child)) {
-            children.remove(child);
+    public void removeChild(PlainNode childToRemove) {
+        if(children.contains(childToRemove)) {
+            children.remove(childToRemove);
         }
     }
+
+    public abstract Object getObject();
 
     public void removeFromParent() {
             parent.removeChild(this);
@@ -59,6 +61,4 @@ public abstract class PlainNode extends SimpleNode {
     public ReviewToolWindowSettings getSettings() {
         return settings;
     }
-
-   // public abstract Object getObject();
 }

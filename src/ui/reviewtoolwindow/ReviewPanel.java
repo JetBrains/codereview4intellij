@@ -173,7 +173,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         if(selectedNode == null) return;
         SimpleNode node = (SimpleNode) selectedNode.getElement();
         if(node instanceof ReviewNode) {
-            final Review review = ((ReviewNode) node).getReview();
+            final Review review = (Review) ((ReviewNode) node).getObject();
             final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -205,12 +205,12 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             }
             if(PlatformDataKeys.VIRTUAL_FILE.is(dataId)) {
                 if (element instanceof FileNode) {
-                    return ((FileNode) element).getFile();
+                    return ((FileNode) element).getObject();
                 }
             }
             if(Review.REVIEW_DATA_KEY.is(dataId)) {
                 if (element instanceof ReviewNode) {
-                    return ((ReviewNode) element).getReview();
+                    return ((ReviewNode) element).getObject();
                 }
             }
      return null;
@@ -289,7 +289,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             else return;
         }
         if (element instanceof ReviewNode) {
-            review = ((ReviewNode) element).getReview();
+            review = (Review) ((ReviewNode) element).getObject();
         }
         if(review == null) return;
         previewPanel.update(review);
@@ -338,7 +338,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                                                             reviewTreeBuilder.getRootNode(),
                                                             node
                                                       );
-                if(nodeToUpdate == null) return;
+                if(nodeToUpdate == null) {
+                    reviewTreeBuilder.getUi().doUpdateFromRoot();
+                    return;
+                }
                 reviewTreeBuilder.addSubtreeToUpdate(nodeToUpdate);
                 reviewTreeBuilder.queueUpdate();
             }

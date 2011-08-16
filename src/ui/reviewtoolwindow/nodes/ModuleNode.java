@@ -96,7 +96,8 @@ public class ModuleNode extends PlainNode implements Navigatable{
         return false;
     }
 
-    public Module getModule() {
+    @Override
+    public Object getObject() {
         return module;
     }
 

@@ -76,7 +76,9 @@ public class ReviewNode extends PlainNode implements Navigatable{
         }
     }
 
-    public Review getReview() {
+
+    @Override
+    public Object getObject() {
         return review;
     }
 
@@ -100,16 +102,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
 
     @Override
     public void removeFromParent() {
-        List<PlainNode> plainChildren = getPlainParent().getPlainChildren();
-        ReviewNode nodeToRemove = null;
-        for (PlainNode node : plainChildren) {
-            if(((ReviewNode) node).getReview().equals(review)) {
-                nodeToRemove = (ReviewNode) node;
-            }
-        }
-        if(nodeToRemove != null) {
-            getPlainParent().removeChild(nodeToRemove);
-        }
+        getPlainParent().removeChild(this);
     }
 
     @Override

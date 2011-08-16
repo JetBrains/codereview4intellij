@@ -69,4 +69,8 @@ public class RootNode extends PlainNode {
         }
     }
 
+    @Override
+    public Object getObject() {
+        return null;
+    }
 }

@@ -58,6 +58,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
             }
             return parent;
         }
+        rootElement.update();
         return null;
     }
 
@@ -72,14 +73,14 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
     private PlainNode findAncestorNode(PlainNode rootElement, VirtualFile file) {
         for(PlainNode node : rootElement.getPlainChildren()) {
             if (node instanceof ModuleNode) {
-                Module module = ((ModuleNode) node).getModule();
+                Module module = (Module) node.getObject();
                 if(ModuleRootManager.getInstance(module).getFileIndex().isInContent(file)){
                     return findAncestorNode(node, file);
                 }
             }
 
             if(node instanceof FileNode) {
-                if(VfsUtil.isAncestor(((FileNode) node).getFile(),file, false)) {
+                if(VfsUtil.isAncestor((VirtualFile) node.getObject(),file, false)) {
                     return findAncestorNode(node, file);
                 }
             }
@@ -94,20 +95,20 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         for(PlainNode node : rootChildren) {
             final VirtualFile virtualFile = review.getVirtualFile();
             if (node instanceof ModuleNode) {
-                Module module = ((ModuleNode) node).getModule();
+                Module module = (Module) node.getObject();
                 if(ModuleRootManager.getInstance(module).getFileIndex().isInContent(virtualFile)) {
                     invalid = findInvalidAncestorNode(node, review);
                 }
             }
 
             if(node instanceof FileNode) {
-                if(VfsUtil.isAncestor(((FileNode) node).getFile(), virtualFile, false)) {
+                if(VfsUtil.isAncestor((VirtualFile) node.getObject(), virtualFile, false)) {
                     invalid = findInvalidAncestorNode(node, review);
                 }
             }
 
             if(node instanceof ReviewNode) {
-                if(((ReviewNode)node).getReview().equals(review)) {
+                if(node.getObject().equals(review)) {
                     return node;
                 }
             }
@@ -137,14 +138,14 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         VirtualFile parentFile = null;
         VirtualFile childFile = null;
         if(finalChild instanceof ReviewNode) {
-            childFile = ((ReviewNode) finalChild).getReview().getVirtualFile();
+            childFile = ((Review)finalChild.getObject()).getVirtualFile();
         }
         if(finalChild instanceof FileNode) {
-            childFile = ((FileNode) finalChild).getFile();
+            childFile = (VirtualFile) finalChild.getObject();
         }
         if(childFile == null) return;
         if(root instanceof FileNode) {
-            parentFile = ((FileNode) root).getFile();
+            parentFile = (VirtualFile) root.getObject();
         }
         if(root instanceof ModuleNode) {
             parentFile = ProjectRootManager.getInstance(project).getFileIndex().getContentRootForFile(childFile);
@@ -154,6 +155,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
             ModuleNode node = new ModuleNode(project, module, settings);
             addChildrenToAncestorNode(node, finalChild);
             root.addChild(node);
+            return;
         }
         getFilePath(path, childFile, parentFile);
         path.add(finalChild);
@@ -170,7 +172,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
          PlainNode node = findAncestorNode(rootElement, ((Review) o).getVirtualFile());
          if(node instanceof FileNode) {
              for(PlainNode child : node.getPlainChildren()) {
-                if(child instanceof ReviewNode && ((ReviewNode) child).getReview().equals(o)) {return child;}
+                if(child.getObject().equals(o)) {return child;}
              }
          }
     }

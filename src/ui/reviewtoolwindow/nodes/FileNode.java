@@ -53,7 +53,7 @@ public class FileNode extends PlainNode implements Navigatable{
         List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
         for (PlainNode child : children) {
             if(child instanceof ReviewNode) {
-                if(Searcher.getInstance(project).containsReview(((ReviewNode)child).getReview()))  {
+                if(Searcher.getInstance(project).containsReview((Review) child.getObject()))  {
                     newChildren.add(child);
                 }
             } else {
@@ -114,7 +114,8 @@ public class FileNode extends PlainNode implements Navigatable{
         return false;
     }
 
-    public VirtualFile getFile() {
+    @Override
+    public Object getObject() {
         return file;
     }
 
@@ -125,10 +126,5 @@ public class FileNode extends PlainNode implements Navigatable{
             children.add(node);
         }
     }
-
-
-
-
-
 
 }
