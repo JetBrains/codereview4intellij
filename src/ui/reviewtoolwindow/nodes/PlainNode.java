@@ -15,11 +15,11 @@ import java.util.List;
  * Time: 1:13 PM
  */
 public abstract class PlainNode extends SimpleNode {
-    protected List<PlainNode> children = new ArrayList<PlainNode>();
+    final List<PlainNode> children = new ArrayList<PlainNode>();
     private PlainNode parent;
-    private ReviewToolWindowSettings settings;
+    private final ReviewToolWindowSettings settings;
 
-    public PlainNode(Project project, ReviewToolWindowSettings settings) {
+    PlainNode(Project project, ReviewToolWindowSettings settings) {
         super(project);
         this.settings = settings;
     }
@@ -28,7 +28,7 @@ public abstract class PlainNode extends SimpleNode {
         return children;
     }
 
-    public void removeChild(PlainNode childToRemove) {
+    void removeChild(PlainNode childToRemove) {
         if(children.contains(childToRemove)) {
             children.remove(childToRemove);
         }
@@ -47,18 +47,18 @@ public abstract class PlainNode extends SimpleNode {
         return parent;
     }
 
-    public void setPlainParent(PlainNode parent) {
+    void setPlainParent(PlainNode parent) {
         this.parent = parent;
     }
 
-    public int getChildrenCount() {
+    int getChildrenCount() {
         if(/*getChildren().length == 0 ||*/ children.isEmpty()) {
             return 0;
         }
         else return children.size();
     }
 
-    public ReviewToolWindowSettings getSettings() {
+    ReviewToolWindowSettings getSettings() {
         return settings;
     }
 }

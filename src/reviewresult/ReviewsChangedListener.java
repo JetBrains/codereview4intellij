@@ -1,7 +1,5 @@
 package reviewresult;
 
-import com.intellij.openapi.project.DumbAware;
-
 import java.util.EventListener;
 
 /**

@@ -54,7 +54,7 @@ public class AddReviewAction extends AnAction implements DumbAware{
             ReviewView.showTwoCommentsOnOnewLineMessage(oldReview);
             return;
         }
-        Review review = new Review(project, null, start, end, virtualFile);
+        Review review = new Review(project, start, end, virtualFile);
 
         if(review.isValid()) {
             ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(review);

@@ -31,8 +31,8 @@ import java.util.List;
  * Time: 5:50 PM
  */
 public class FileNode extends PlainNode implements Navigatable{
-    private Project project;
-    private VirtualFile file;
+    private final Project project;
+    private final VirtualFile file;
 
     public FileNode(Project project, VirtualFile value, ReviewToolWindowSettings settings) {
         super(project, settings);

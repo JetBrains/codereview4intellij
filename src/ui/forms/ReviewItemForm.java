@@ -1,19 +1,24 @@
 package ui.forms;
 
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.IdeFocusManager;
+import com.intellij.ui.EditorCustomization;
+import com.intellij.ui.EditorTextField;
+import com.intellij.ui.EditorTextFieldProvider;
 import com.intellij.util.text.DateFormatUtil;
 import reviewresult.persistent.ReviewItem;
-import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicTextUI;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * User: Alisa.Afonina
@@ -21,27 +26,36 @@ import java.awt.event.KeyEvent;
  * Time: 3:07 PM
  */
 public class ReviewItemForm {
-    private JTextArea reviewItemText;
-    private JPanel reviewItemContent;
-    private JLabel headerLabel;
-    private ReviewItem reviewItem;
-    private Searcher searcher;
+    private final EditorTextField reviewItemText;
+    private JPanel reviewItemContent = new JPanel(new BorderLayout());
 
-    private Highlighter highlighter;
-    public ReviewItemForm(ReviewItem data, Searcher searcher) {
+    private Project project;
+    private final ReviewItem reviewItem;
+
+
+
+    public ReviewItemForm(Project project, ReviewItem reviewItem) {
+        this.project = project;
+        this.reviewItem = reviewItem;
+
         reviewItemContent.setFocusable(true);
-        reviewItem = data;
-        this.searcher = searcher;
-            headerLabel.setText(data.getAuthor() + " wrote " + DateFormatUtil.formatPrettyDateTime(data.getDate()));
 
-        String text = data.getText();
-        reviewItemText.setBorder(BorderFactory.createEmptyBorder());
+        JLabel headerLabel = new JLabel();
+        headerLabel.setText(reviewItem.getAuthor() + " wrote " + DateFormatUtil.formatPrettyDateTime(reviewItem.getDate()));
+
+        reviewItemText = createInputField(true, false);
+        reviewItemText.setBackground(Color.WHITE);
+        /*final Editor editor = reviewItemText.getEditor();
+        if(editor != null) {
+            editor.getSettings().setAdditionalPageAtBottom(true);
+            editor.getSettings().setAdditionalLinesCount(2);
+        }*/
+        String text = reviewItem.getText();
         reviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
         if(text != null) {
             reviewItemText.setText(text);
         }
-        highlighter = new BasicTextUI.BasicHighlighter();
-        reviewItemText.setHighlighter(highlighter);
+        reviewItemText.setMaximumSize(reviewItemText.getPreferredSize());
         reviewItemText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -52,7 +66,7 @@ public class ReviewItemForm {
         reviewItemText.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                reviewItemText.setCaretPosition(reviewItemText.getText().length());
+                //reviewItemText.setCaretPosition(reviewItemText.getText().length());
             }
 
             @Override
@@ -63,10 +77,29 @@ public class ReviewItemForm {
 
             }
         });
-        updateSelection();
+        reviewItemContent.add(headerLabel);
+        reviewItemContent.add(reviewItemText);
     }
 
-    public boolean onExit() {
+    private EditorTextField createInputField(boolean checkSpelling, boolean oneLine) {
+        final EnumSet<EditorCustomization.Feature> enabledFeatures = EnumSet.of(EditorCustomization.Feature.SOFT_WRAP);
+        if(!oneLine)
+            enabledFeatures.add(EditorCustomization.Feature.ADDITIONAL_PAGE_AT_BOTTOM);
+        Set<EditorCustomization.Feature> disabledFeatures = EnumSet.of( EditorCustomization.Feature.HORIZONTAL_SCROLLBAR);
+        if (checkSpelling) {
+          enabledFeatures.add(EditorCustomization.Feature.SPELL_CHECK);
+        }
+        else {
+          disabledFeatures.add(EditorCustomization.Feature.SPELL_CHECK);
+        }
+        EditorTextFieldProvider service = ServiceManager.getService(project, EditorTextFieldProvider.class);
+        return service.getEditorField(FileTypes.PLAIN_TEXT.getLanguage(),
+                                      project,
+                                      enabledFeatures,
+                                      disabledFeatures);
+    }
+
+    public boolean onSave() {
         String text = reviewItemText.getText();
         if("".equals(text)) {
             setEmptyComment();
@@ -78,37 +111,18 @@ public class ReviewItemForm {
         }
     }
 
-    public void updateSelection() {
-        int searchStart = searcher.getItemSearchResult(reviewItem).first;
-        int searchEnd = searcher.getItemSearchResult(reviewItem).second;
-        if(highlighter == null) return;
-        if(highlighter.getHighlights().length > 0) {
-                highlighter.removeAllHighlights();
-        }
-        if(searchStart >= 0) {
-            if(highlighter != null) {
-                try {
-                    highlighter.addHighlight(searchStart,
-                                                searchEnd,
-                                                new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW));
-                } catch (BadLocationException e) {
-                   /// e.printStackTrace();
-                }
-            }
-        }
-    }
 
-    public JPanel getContent(boolean editable) {
-        reviewItemText.setEditable(editable);
+    public JPanel getContent() {
         return reviewItemContent;
     }
 
-    public void setEmptyComment() {
+    private void setEmptyComment() {
         reviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
         reviewItemText.invalidate();
     }
 
-    public Component getItemTextField() {
-        return reviewItemText;
+
+    public void requestFocus() {
+        IdeFocusManager.findInstanceByComponent(reviewItemContent).requestFocus(reviewItemText, true);
     }
 }

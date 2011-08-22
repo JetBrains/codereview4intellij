@@ -1,7 +1,6 @@
 package ui.reviewtoolwindow;
 
 import com.intellij.openapi.components.AbstractProjectComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,7 @@ public class Searcher  extends AbstractProjectComponent {
     private Map<ReviewItem, Pair<Integer, Integer>> reviewitem2searchresult = new HashMap<ReviewItem, Pair<Integer, Integer>>();
     private Set<String> filteredFileNames = new HashSet<String>();
     private String filter = "";
-    private Project project;
+    private final Project project;
 
     protected Searcher(Project project) {
         super(project);
@@ -39,7 +38,7 @@ public class Searcher  extends AbstractProjectComponent {
         } else return ReviewManager.getInstance(project).getFileNames();
     }
 
-    public boolean filterIsSet(){
+    private boolean filterIsSet(){
         return !("".equals(filter));
     }
 
@@ -83,7 +82,7 @@ public class Searcher  extends AbstractProjectComponent {
                 }
             }
         }
-        if(contains) filteredFileNames.add(review.getReviewBean().getFilePath());
+        if(contains) filteredFileNames.add(review.getFilePath());
     }
 
     public void emptyFilter() {
@@ -114,7 +113,7 @@ public class Searcher  extends AbstractProjectComponent {
         return !filterIsSet() || contains;
     }
 
-    public boolean containsReviewItem(ReviewItem reviewItem) {
+    private boolean containsReviewItem(ReviewItem reviewItem) {
         return !filterIsSet() || reviewitem2searchresult.containsKey(reviewItem);
     }
 

@@ -1,7 +1,6 @@
 package ui.gutterpoint;
 
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -15,7 +14,6 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
@@ -25,7 +23,7 @@ import ui.actions.DeleteReviewAction;
 import ui.actions.EditReviewAction;
 import ui.actions.ReviewActionManager;
 import ui.actions.ShowReviewAction;
-import ui.reviewtoolwindow.ReviewView;
+import utils.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +39,7 @@ public class ReviewPoint{
     private final Review review;
     private GutterIconRenderer gutterIconRenderer;
     private RangeHighlighter highlighter = null;
-    public static final DataKey<ReviewPoint> REVIEW_POINT_DATA_KEY = DataKey.create("ReviewPoint");
+    //public static final DataKey<ReviewPoint> REVIEW_POINT_DATA_KEY = DataKey.create("ReviewPoint");
 
     public ReviewPoint(Review review) {
         this.review = review;
@@ -50,15 +48,14 @@ public class ReviewPoint{
     public void updateUI() {
         final Project project = review.getProject();
         if(project == null) return;
-        final ReviewView reviewView = ServiceManager.getService(project, ReviewView.class);
         if(review.isValid()) {
             if(highlighter == null) {
-                OpenFileDescriptor element = review.getElement();
+                OpenFileDescriptor element = Util.getInstance(project).getOpenFileDescriptor(review.getFilePath(), review.getStart());
                 if(element == null) return;
                 Document document = FileDocumentManager.getInstance().getDocument(element.getFile());
                 if(document == null) return;
                 MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
-                int line = review.getLine();
+                int line = review.getLineNumber();
                 if(line < 0) return;
                 highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
                 if(highlighter == null) return;
@@ -71,11 +68,11 @@ public class ReviewPoint{
                         int newStart = highlighter.getStartOffset();
                         int newEnd = highlighter.getEndOffset();
                         if(!highlighter.isValid()) {
-                            review.setValid(false);
+                            review.setValid();
                         }
                         else {
-                            review.getReviewBean().setStart(newStart);
-                            review.getReviewBean().setEnd(newEnd);
+                            review.getReviewBean().getContext().setStart(newStart);
+                            review.getReviewBean().getContext().setEnd(newEnd);
                         }
                         ReviewManager.getInstance(project).changeReview(review);
                     }
@@ -172,7 +169,7 @@ public class ReviewPoint{
                 else {
                     group.add(new ShowReviewAction("Edit Last Comment... "));
                 }
-            group.add(new DeleteReviewAction("Delete Review..."));
+            group.add(new DeleteReviewAction());
             return group;
         }
     }
@@ -191,7 +188,9 @@ public class ReviewPoint{
         newHighlighter.setGutterIconRenderer(highlighter.getGutterIconRenderer());
         highlighter.dispose();
         highlighter = newHighlighter;
-        review.setLine(line);
+        review.getReviewBean().getContext().setStart(document.getLineStartOffset(line));
+        review.getReviewBean().getContext().setEnd(document.getLineEndOffset(line));
+
         ReviewManager.getInstance(review.getProject()).changeReview(review);
         return true;
     }

@@ -1,5 +1,6 @@
 package ui.reviewtoolwindow;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.actions.NextOccurenceToolbarAction;
 import com.intellij.ide.actions.PreviousOccurenceToolbarAction;
 import com.intellij.ide.actions.ShowFilePathAction;
@@ -24,13 +25,16 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewsState;
+import ui.forms.ReviewSaveForm;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.net.URL;
 
 /**
  * User: Alisa.Afonina
@@ -38,8 +42,8 @@ import java.io.StringReader;
  * Time: 4:55 PM
  */
 public class ReviewToolWindowActionManager implements DumbAware{
-    private ReviewPanel panel;
-    private ReviewToolWindowSettings settings;
+    private final ReviewPanel panel;
+    private final ReviewToolWindowSettings settings;
 
     public ReviewToolWindowActionManager(ReviewPanel panel, ReviewToolWindowSettings settings) {
         this.panel = panel;
@@ -127,7 +131,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
     private static final class ExportToFileAction extends AnAction  implements DumbAware {
 
-        private static int FADEOUT_TIME = 1000;
+        private static final int FADEOUT_TIME = 3000;
 
         public ExportToFileAction() {
             super("Export to file...", "Export reviews to file", IconLoader.getIcon("/actions/export.png"));
@@ -135,49 +139,72 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public void actionPerformed(AnActionEvent e) {
-            FileSaverDescriptor descriptor = new FileSaverDescriptor("Save Reviews", "Export reviews to file", "xml");
             Project project = e.getData(PlatformDataKeys.PROJECT);
-            FileSaverDialog saverDialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project);
-            if(project == null) {return;}
-            final VirtualFile baseDir = project.getBaseDir();
-            VirtualFileWrapper wrapper = saverDialog.save(baseDir, null);
-            if(wrapper == null) return;
-            final VirtualFile file = wrapper.getVirtualFile(true);
-
-            String text = ReviewManager.getInstance(project).getExportText();
-            if(text == null) Messages.showInfoMessage("There are no reviews to export", "Nothing To Export");
-            if( file == null || !file.isWritable()) return;
             BalloonBuilder balloonBuilder;
             final Component component = e.getInputEvent().getComponent();
             final Point centerPoint = new Point(component.getHeight()/ 2 ,component.getWidth()/ 2);
+            if(project == null) {return;}
+
+            ReviewSaveForm saveDialog = new ReviewSaveForm(project);
+
+            saveDialog.show();
+
+            if(saveDialog.isOK()) {
+                final VirtualFile selectedFile = saveDialog.getFile();
+                if(selectedFile == null) return;
+                final boolean xmlFormat = saveDialog.isXMLFormat();
+                String text = ReviewManager.getInstance(project).getExportText(!xmlFormat);
+
+                if(text == null || "".equals(text)) Messages.showInfoMessage("There are no reviews to export", "Nothing To Export");
+
+                if(createReport(selectedFile, text)) {
+                    final String htmlContent ="Reviews successfully exported to a file <br/>" +
+                                              "<a href= \"" + selectedFile.getPath() + "\">Show reviews</a>";
+                     balloonBuilder = JBPopupFactory.getInstance().
+                                                    createHtmlTextBalloonBuilder(
+                                                            htmlContent,
+                                                            MessageType.INFO,
+                                                            new HyperlinkAdapter() {
+                                                                @Override
+                                                                protected void hyperlinkActivated(HyperlinkEvent e) {
+                                                                    if(xmlFormat)
+                                                                        ShowFilePathAction.open(VfsUtil.virtualToIoFile(selectedFile), null);
+                                                                    else
+                                                                        BrowserUtil.launchBrowser(selectedFile.getPath());
+
+                                                                }
+                                                            });
+                    balloonBuilder.setFadeoutTime(FADEOUT_TIME);
+                } else {
+                    showErrorBalloon("While saving " + selectedFile.getName() + " error occured", component, centerPoint);
+                    return;
+                }
+            } else {
+                showErrorBalloon("While saving error occured", component, centerPoint);
+                return;
+            }
+
+            showBalloon(balloonBuilder, component, centerPoint);
+
+
+        }
+
+
+
+        private boolean  createReport(VirtualFile file, String text) {
+            if(text == null) return false;
             try {
                 OutputStream outputStream = file.getOutputStream(null);
-                if(text == null) return;
                 outputStream.write(text.getBytes());
                 outputStream.flush();
                 outputStream.close();
-                final String htmlContent = "<a href= \"" + file.getPath() + "\">Patch successfully created</a>";
-                 balloonBuilder = JBPopupFactory.getInstance().
-                                                createHtmlTextBalloonBuilder(
-                                                        htmlContent,
-                                                        MessageType.INFO,
-                                                        new HyperlinkAdapter() {
-                                                            @Override
-                                                            protected void hyperlinkActivated(HyperlinkEvent e) {
-                                                                ShowFilePathAction.open(VfsUtil.virtualToIoFile(file), null);
-                                                            }
-                                                        });
-                balloonBuilder.setFadeoutTime(FADEOUT_TIME);
-
-            } catch (IOException e1) {
-                balloonBuilder = JBPopupFactory.getInstance().
-                                                createHtmlTextBalloonBuilder("While saving " + file.getName() + " error occured",
-                                                        MessageType.ERROR, null);
+            } catch (IOException e) {
+               return false;
             }
-            Balloon balloon = balloonBuilder.createBalloon();
-            balloon.show(new RelativePoint(component, centerPoint), Balloon.Position.above);
-
+            return true;
         }
+
+
     }
 
     private static final class ImportFromFileAction extends AnAction  implements DumbAware {
@@ -188,7 +215,11 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public void actionPerformed(AnActionEvent e) {
+             BalloonBuilder balloonBuilder;
+            final Component component = e.getInputEvent().getComponent();
+            final Point centerPoint = new Point(component.getHeight()/ 2 ,component.getWidth()/ 2);
             Project project = e.getData(PlatformDataKeys.PROJECT);
+            if(project == null) {return;}
             FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false);
             FileChooserDialog chooserDialog = FileChooserFactory.getInstance().createFileChooser(descriptor, project);
             VirtualFile[] files = chooserDialog.choose(null, project);
@@ -196,17 +227,27 @@ public class ReviewToolWindowActionManager implements DumbAware{
             VirtualFile virtualFile = files[0];
             try {
                 String contents = new String(virtualFile.contentsToByteArray());
+                final boolean htmlFile = "html".equals(virtualFile.getExtension());
+                if(htmlFile) {
+                    final int beginIndex = contents.indexOf("<!--");
+                    final int endIndex = contents.indexOf("-->");
+                    contents = contents.substring(beginIndex + 4, endIndex);
+                }
                 SAXBuilder builder = new SAXBuilder();
                 Element root = builder.build(new StringReader(contents)).getRootElement();
                 ReviewsState.State state = XmlSerializer.deserialize(root, ReviewsState.State.class);
                 ReviewManager reviewManager = ReviewManager.getInstance(project);
                 reviewManager.loadReviews(state.reviews, true);
+                String htmlContent ="Reviews successfully imported<br/>";
+                balloonBuilder = JBPopupFactory.getInstance().
+                                            createHtmlTextBalloonBuilder(htmlContent, MessageType.INFO, null);
+                showBalloon(balloonBuilder, component, centerPoint);
             } catch(JDOMException e2) {
-              //todo  e2.printStackTrace();
+                showErrorBalloon("While importing reviews from " + virtualFile.getName() + " error occured", component, centerPoint);
             } catch(NullPointerException e2) {
-              //todo  e2.printStackTrace();
+                showErrorBalloon("File is empty or doesn't exist", component, centerPoint);
             } catch (IOException e2) {
-              //todo  e2.printStackTrace();
+                showErrorBalloon("While importing reviews " + virtualFile.getName() + " error occured", component, centerPoint);
             }
         }
     }
@@ -233,5 +274,16 @@ public class ReviewToolWindowActionManager implements DumbAware{
         return toolBar;
     }
 
+    private static void showBalloon(BalloonBuilder balloonBuilder, Component component, Point centerPoint) {
 
+            Balloon balloon = balloonBuilder.createBalloon();
+            balloon.show(new RelativePoint(component, centerPoint), Balloon.Position.above);
+        }
+
+    private static void showErrorBalloon(String message, Component component, Point centerPoint) {
+        BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().
+                                                        createHtmlTextBalloonBuilder(message,
+                                                                MessageType.ERROR, null);
+        showBalloon(balloonBuilder, component, centerPoint);
+    }
 }

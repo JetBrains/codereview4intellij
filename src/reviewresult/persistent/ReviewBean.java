@@ -19,10 +19,7 @@ public class ReviewBean {
 
     private String guid = UUID.randomUUID().toString();
     private String name;
-    private int start;
-    private int end;
-    private String filePath;
-
+    private Context context;
     private boolean isValid = true;
     private boolean isDeleted;
 
@@ -30,15 +27,15 @@ public class ReviewBean {
 
     public ReviewBean() {}
 
-    public ReviewBean(String name, int start, int end, String filePath) {
+    public ReviewBean(String name, int start, int end) {
         this.name = name;
-        this.start = start;
-        this.end = end;
-        this.filePath = filePath;
+        this.context = new Context(start, end);
     }
 
     public void checkValid(long length, boolean isFileValid) {
-            setValid(isValid()
+        final int start = context.getStart();
+        final int end = context.getEnd();
+        setValid(isValid()
                     && isFileValid
                     && start > 0 && end > 0
                     && start <= end
@@ -55,25 +52,6 @@ public class ReviewBean {
         this.name = name;
     }
 
-    @Tag("start")
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-
-    @Tag("end")
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
 
     @Tag("review_items")
     @AbstractCollection(surroundWithTag = false)
@@ -86,14 +64,6 @@ public class ReviewBean {
         this.reviewItems = reviewItems;
     }
 
-    @Tag("filepath")
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
 
     public void addReviewItem(ReviewItem reviewItem) {
         reviewItems.add(reviewItem);
@@ -130,7 +100,7 @@ public class ReviewBean {
 
     public void setDeleted(boolean deleted) {
         isValid = !deleted;
-        isDeleted = deleted;
+        isDeleted = true;
     }
 
     @Override
@@ -140,13 +110,23 @@ public class ReviewBean {
 
         ReviewBean that = (ReviewBean) o;
 
-        if (guid != null ? !guid.equals(that.guid) : that.guid != null) return false;
+        return !(guid != null ? !guid.equals(that.guid) : that.guid != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         return guid != null ? guid.hashCode() : 0;
     }
+
+    @Tag("context")
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+
 }

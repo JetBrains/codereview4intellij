@@ -16,10 +16,8 @@ import ui.actions.ReviewActionManager;
  */
 public class ReviewView {
 
-    private ReviewPanel reviewPanel;
-
     public void initToolWindow(Project project, ToolWindow toolWindow ) {
-        reviewPanel = new ReviewPanel(project);
+        ReviewPanel reviewPanel = new ReviewPanel(project);
         Content allReviewsContent= ContentFactory.SERVICE.getInstance().createContent(reviewPanel, "Reviews" ,false);
         toolWindow.getContentManager().addContent(allReviewsContent);
     }

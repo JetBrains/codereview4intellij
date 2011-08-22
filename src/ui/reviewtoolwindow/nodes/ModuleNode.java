@@ -26,8 +26,8 @@ import java.util.List;
  * Time: 5:50 PM
  */
 public class ModuleNode extends PlainNode implements Navigatable{
-    private Project project;
-    private Module module;
+    private final Project project;
+    private final Module module;
 
     public ModuleNode(Project project, Module module, ReviewToolWindowSettings settings) {
         super(project, settings);

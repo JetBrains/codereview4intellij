@@ -2,6 +2,7 @@ package ui.reviewtoolwindow;
 
 import reviewresult.Review;
 import ui.forms.EditReviewForm;
+import ui.forms.PreviewReviewForm;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,9 +12,9 @@ import java.awt.*;
  * Date: 8/8/11
  * Time: 11:32 AM
  */
-public class ReviewsPreviewPanel extends JPanel {
+class ReviewsPreviewPanel extends JPanel {
 
-    private EditReviewForm editReviewForm;
+    private PreviewReviewForm previewReviewForm;
 
     public ReviewsPreviewPanel() {
         super(new BorderLayout());
@@ -23,8 +24,8 @@ public class ReviewsPreviewPanel extends JPanel {
     public void update(Review review) {
         removeAll();
         if(review.isValid()) {
-            editReviewForm = new EditReviewForm(review, false, false);
-            add(editReviewForm.getItemsContent());
+            previewReviewForm = new PreviewReviewForm(review);
+            add(previewReviewForm.getContent());
 
         } else {
             add(new JLabel("This element became invalid"));
@@ -34,8 +35,8 @@ public class ReviewsPreviewPanel extends JPanel {
     }
 
     public void updateSelection() {
-        if(editReviewForm != null) {
-            editReviewForm.updateSelection();
+        if(previewReviewForm != null) {
+            previewReviewForm.updateSelection();
         }
     }
 }

@@ -14,7 +14,7 @@ public class ReviewToolWindowSettings {
     private boolean groupByFile;
     private boolean searchEnabled;
     private boolean showPreviewEnabled;
-    private Project project;
+    private final Project project;
 
     public ReviewToolWindowSettings(Project project) {
         this.project = project;
@@ -64,7 +64,7 @@ public class ReviewToolWindowSettings {
     }
 
 
-    public void loadState() {
+    private void loadState() {
         groupByFile = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.fileEnabled", false);
         groupByModule = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.moduleEnabled", false);
         showPreviewEnabled = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.previewEnabled", false);

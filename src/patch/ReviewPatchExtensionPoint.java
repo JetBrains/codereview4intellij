@@ -5,17 +5,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.xmlb.XmlSerializer;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.ReviewManager;
-import reviewresult.persistent.ReviewsState;
-
-import java.io.IOException;
-import java.io.StringReader;
 
 /**
  * User: Alisa.Afonina
@@ -47,7 +39,7 @@ public class ReviewPatchExtensionPoint implements PatchEP{
     @Override
     public void consumeContent(@NotNull String path, @NotNull CharSequence content) {
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
-            ReviewManager.getInstance(project).importReviewsToFile(path, content.toString());
+            ReviewManager.getInstance(project).importReviewsFromFile(path, content.toString());
         }
     }
 

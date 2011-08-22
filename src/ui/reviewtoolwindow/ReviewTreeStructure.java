@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.reviewtoolwindow.nodes.*;
+import utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +25,9 @@ import java.util.Set;
  */
 
 public class ReviewTreeStructure extends SimpleTreeStructure {
-    private Project project;
+    private final Project project;
     private RootNode rootElement;
-    private ReviewToolWindowSettings settings;
+    private final ReviewToolWindowSettings settings;
 
     public ReviewTreeStructure(Project project, ReviewToolWindowSettings settings) {
         super();
@@ -47,24 +48,21 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         return rootElement;
     }
 
-    public PlainNode removeReview(Review review) {
+    public void removeReview(Review review) {
         PlainNode invalidChild = findInvalidAncestorNode(rootElement, review);
         if(invalidChild != null) {
-            PlainNode parent = invalidChild.getPlainParent();
             if((invalidChild instanceof RootNode)) {
                 rootElement = new RootNode(project, settings);
             } else {
                 invalidChild.removeFromParent();
             }
-            return parent;
         }
         rootElement.update();
-        return null;
     }
 
     public PlainNode addReview(Review review) {
         Searcher.getInstance(project).addSearchResult(review);
-        PlainNode ancestor = findAncestorNode(rootElement, review.getVirtualFile());
+        PlainNode ancestor = findAncestorNode(rootElement, Util.getInstance(project).getVirtualFile(review.getFilePath()));
         addChildrenToAncestorNode(ancestor, new ReviewNode(project, review, settings));
         ancestor.update();
         return ancestor;
@@ -93,7 +91,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         List<PlainNode> rootChildren = rootElement.getPlainChildren();
         PlainNode invalid = null;
         for(PlainNode node : rootChildren) {
-            final VirtualFile virtualFile = review.getVirtualFile();
+            final VirtualFile virtualFile = Util.getInstance(project).getVirtualFile(review.getFilePath());
             if (node instanceof ModuleNode) {
                 Module module = (Module) node.getObject();
                 if(ModuleRootManager.getInstance(module).getFileIndex().isInContent(virtualFile)) {
@@ -138,7 +136,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         VirtualFile parentFile = null;
         VirtualFile childFile = null;
         if(finalChild instanceof ReviewNode) {
-            childFile = ((Review)finalChild.getObject()).getVirtualFile();
+            childFile = Util.getInstance(project).getVirtualFile(((Review)finalChild.getObject()).getFilePath());
         }
         if(finalChild instanceof FileNode) {
             childFile = (VirtualFile) finalChild.getObject();
@@ -169,7 +167,7 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
 
     public PlainNode getNode(Object o) {
      if(o instanceof Review) {
-         PlainNode node = findAncestorNode(rootElement, ((Review) o).getVirtualFile());
+         PlainNode node = findAncestorNode(rootElement, Util.getInstance(project).getVirtualFile(((Review) o).getFilePath()));
          if(node instanceof FileNode) {
              for(PlainNode child : node.getPlainChildren()) {
                 if(child.getObject().equals(o)) {return child;}

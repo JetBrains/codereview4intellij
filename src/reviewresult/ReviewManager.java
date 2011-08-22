@@ -8,21 +8,33 @@ import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.vfs.*;
+import com.intellij.util.io.URLUtil;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.jdom.transform.JDOMSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewsState;
-import sun.security.jca.GetInstance;
 import ui.gutterpoint.ReviewPointManager;
+import utils.Util;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -36,7 +48,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     private final StartupManagerEx startupManager;
 
     private Map<String, List<Review>> filePath2reviews = new HashMap<String, List<Review>>();
-    private ReviewsChangedListener eventPublisher;
+    private final ReviewsChangedListener eventPublisher;
 
     private boolean saveReviewsToPatch;
 
@@ -50,42 +62,61 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     }
 
     public static ReviewManager getInstance(@NotNull Project project) {
-        final ReviewManager manager = project.getComponent(ReviewManager.class);
-        //if(manager.eventPublisher == null){
-        //    manager.eventPublisher = project.getMessageBus().syncPublisher(ReviewChangedTopics.REVIEW_STATUS);
-        //}
-        return manager;
+        return project.getComponent(ReviewManager.class);
     }
 
-    public List<ReviewBean> getState() {
-        List<ReviewBean> result = new ArrayList<ReviewBean>();
+
+    public List<ReviewsState.FileReviewsList> getState() {
+        List<ReviewsState.FileReviewsList> result = new ArrayList<ReviewsState.FileReviewsList>();
+
         for (Map.Entry<String, List<Review>> entry : filePath2reviews.entrySet()) {
+            List<ReviewBean> resultBeans = new ArrayList<ReviewBean>();
             for (Review review : entry.getValue()) {
-                result.add(review.getReviewBean());
+                loadContext(review);
+                resultBeans.add(review.getReviewBean());
             }
+            final String filePath = entry.getKey();
+            result.add(new ReviewsState.FileReviewsList(filePath,
+                    Util.getInstance(myProject).getCheckSum(filePath),
+                    resultBeans));
         }
         return result;
     }
 
-    public void loadState(List<ReviewBean> reviewBeans) {
+    private void loadContext(Review review) {
+        if(review.isValid()) {
+            review.setLineText();
+            review.setBeforeLineText();
+            review.setAfterLineText();
+        }
+    }
+
+    public void loadState(List<ReviewsState.FileReviewsList> reviewBeans) {
         loadReviews(reviewBeans, false);
     }
 
-    public void loadReviewsForFile(List<ReviewBean> reviewBeans) {
+    private void loadReviewsForFile(List<ReviewsState.FileReviewsList> reviewBeans) {
         loadReviews(reviewBeans, true);
     }
 
-    public void loadReviews(final List<ReviewBean> reviewBeans, boolean isPartOfState) {
+    public void loadReviews(final List<ReviewsState.FileReviewsList> lists, boolean isPartOfState) {
         if(!isPartOfState) {
             filePath2reviews = new HashMap<String, List<Review>>();
         }
         final Runnable runnable = new DumbAwareRunnable() {
             public void run() {
-                for (ReviewBean reviewBean : reviewBeans) {
-                    final Review review = new Review(reviewBean, myProject);
-                    addReview(review);
+                for(ReviewsState.FileReviewsList list : lists) {
+                    String filePath = list.getFilePath();
+
+                    boolean checkSumIsCorrect = list.getChecksum().equals(Util.getInstance(myProject).getCheckSum(filePath));
+                    for (ReviewBean reviewBean : list.getReviewBeans()) {
+                        final Review review = new Review(reviewBean, myProject, filePath);
+                        if(!checkSumIsCorrect)
+                            review.checkContext();
+                        placeReview(review);
+                    }
+                    }
                 }
-            }
         };
         if (startupManager.startupActivityPassed()) {
             runnable.run();
@@ -96,35 +127,35 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     }
 
 
-    public void addReview(Review newReview) {
-        String filePath = newReview.getReviewBean().getFilePath();
-        List<Review> reviewList = filePath2reviews.get(filePath);
-
-        if(!(reviewList == null || reviewList.isEmpty())) {
+    public void placeReview(Review newReview) {
+            List<Review> reviewList = filePath2reviews.get(newReview.getFilePath());
+            if(reviewList == null || reviewList.isEmpty()) {
+                    reviewList = new ArrayList<Review>();
+            }
             int existingReviewIndex = reviewList.indexOf(newReview);
             if(existingReviewIndex >= 0) {
                 Review review = reviewList.get(existingReviewIndex);
                 if(!newReview.isValid() || !review.isValid()) {
-                    selectReviewState(review, newReview);
+                    selectReviewState(review/*, newReview*/);
                     } else {
                     mergeReviews(review, newReview);
                 }
             }
              else {
-                reviewList.add(newReview);
-                eventPublisher.reviewAdded(newReview);
+                if(newReview.isValid()) {
+                    if(reviewList.isEmpty()) {
+                        filePath2reviews.put(newReview.getFilePath(), reviewList);
+                    }
+                    reviewList.add(newReview);
+                    eventPublisher.reviewAdded(newReview);
+                }
             }
-        } else {
-            if(newReview.isValid()) {
-                ArrayList<Review> reviewsList = new ArrayList<Review>();
-                reviewsList.add(newReview);
-                eventPublisher.reviewAdded(newReview);
-                filePath2reviews.put(filePath, reviewsList);
-            } else {
-                 logInvalidReview(newReview);
-            }
-        }
+
         ReviewPointManager.getInstance(myProject).reloadReviewPoint(newReview);
+    }
+
+    public void changeReview(Review review) {
+        eventPublisher.reviewChanged(review);
     }
 
     private void mergeReviews(Review oldReview, Review newReview) {
@@ -132,9 +163,31 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         eventPublisher.reviewChanged(oldReview);
     }
 
-    private void selectReviewState(Review oldReview, Review newReview) {
+    private void selectReviewState(Review oldReview/*, Review newReview*/) {
         removeReview(oldReview);
     }
+
+    public void removeReview(Review review) {
+        if(review.isValid()) {
+            review.getReviewBean().setDeleted(true);
+        }
+        eventPublisher.reviewDeleted(review);
+        ReviewPointManager.getInstance(myProject).reloadReviewPoint(review);
+    }
+
+    public void removeAll(VirtualFile file) {
+        List<Review> reviews = filePath2reviews.get(getFilePath(file));
+        if(!(reviews == null || reviews.isEmpty())) {
+            for (Review review : reviews) {
+                removeReview(review);
+            }
+        } else {
+            for(VirtualFile child : file.getChildren()) {
+                removeAll(child);
+            }
+        }
+    }
+
 
 
     @Nullable
@@ -150,46 +203,26 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         return reviewsList;
     }
 
-    @Nullable
-    public Set<String> getFileNames() {
-        return filePath2reviews.keySet();
-    }
-
-    @NotNull
-    @Override
-    public String getComponentName() {
-        return "ReviewManager";
-    }
-
-    public void removeReview(Review review) {
-        if(review.isValid()) {
-            review.getReviewBean().setDeleted(true);
-        }
-        eventPublisher.reviewDeleted(review);
-        ReviewPointManager.getInstance(myProject).reloadReviewPoint(review);
-    }
-
-    public void logInvalidReview(Review review) {
-        String message = "Review with start offset " + String.valueOf(review.getStart())
-                    + " and file \"" + review.getReviewBean().getFilePath() + "\" became invalid";
-        LOG.warn(message);
-    }
-
-    @Nullable
-    public List<ReviewBean> getReviewsForFile(String filepath) {
+    private List<ReviewBean> getReviewsForFile(String filepath) {
         List<Review> reviewsPart = filePath2reviews.get(filepath);
         if(reviewsPart != null && !reviewsPart.isEmpty()) {
             List<ReviewBean> reviewBeans = new ArrayList<ReviewBean>();
             for(Review review : reviewsPart) {
+                loadContext(review);
                 reviewBeans.add(review.getReviewBean());
             }
             return reviewBeans;
         }
         return null;
     }
+    @Nullable
+    public Set<String> getFileNames() {
+        return filePath2reviews.keySet();
+    }
 
     public int getReviewCount(@NotNull Collection<VirtualFile> virtualFiles) {
         int reviewCount = 0;
+        if(!saveReviewsToPatch) return reviewCount;
         for(VirtualFile file : virtualFiles) {
                 List<Review> reviews = filePath2reviews.get(getFilePath(file));
                 if(!(reviews == null || reviews.isEmpty())) {
@@ -198,6 +231,32 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
             }
         return reviewCount;
     }
+
+    public Review getReviewInLine(String url, int line) {
+        List<Review> reviews = filePath2reviews.get(url);
+        if(!(reviews == null || reviews.isEmpty())) {
+            for(Review review : reviews) {
+                if(review.getLineNumber() == line) return review;
+            }
+        }
+        return null;
+    }
+
+
+    @NotNull
+    @Override
+    public String getComponentName() {
+        return "ReviewManager";
+    }
+
+    public void logInvalidReview(Review review) {
+        String message = "Review with start offset " + String.valueOf(review.getStart())
+                    + " and file \"" + review.getFilePath() + "\" became invalid";
+        LOG.warn(message);
+    }
+
+    @Nullable
+
 
     private String getFilePath(VirtualFile file) {
         VirtualFile baseDir = myProject.getBaseDir();
@@ -209,61 +268,57 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         this.saveReviewsToPatch = saveReviewsToPatch;
     }
 
-    @Nullable
-    public List<ReviewBean> getReviewsToExport(String filepath) {
-        List<ReviewBean> result = new ArrayList<ReviewBean>();
-        if("".equals(filepath)) {
-            for(String path : filePath2reviews.keySet()) {
-                result.addAll(getReviewsForFile(path));
-            }
-            return result;
-        }
-        return getReviewsForFile(filepath);
-    }
-
-   public String getExportText() {
-        return getExportTextForFile("");
-   }
-
-   public String getExportTextForFile(String filepath) {
+   public String getExportText(boolean prettyFormat) {
         ReviewsState.State state = new ReviewsState.State();
-        String result = "";
-        state.reviews = getReviewsToExport(filepath);
-        if((state.reviews == null || state.reviews.isEmpty())) return "";
-        Element addedElement = XmlSerializer.serialize(state);
-        XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
-        result += outputter.outputString(addedElement);
-        return result;
+        state.reviews = getState();
+        final String reportText = serialize(state);
+        if(prettyFormat) {
+            if(state.reviews.isEmpty()) return null;
+            return "<!--" + reportText + "-->"
+                    + getHTMLReport(XmlSerializer.serialize(state));
+        }
+        return reportText;
    }
 
-    public void removeAll(VirtualFile file) {
-        List<Review> reviews = filePath2reviews.get(getFilePath(file));
-        if(!(reviews == null || reviews.isEmpty())) {
-            for (Review review : reviews) {
-                removeReview(review);
-            }
-        } else {
-            for(VirtualFile child : file.getChildren()) {
-                removeAll(child);
-            }
-        }
-    }
-
-    public Review getReviewInLine(String url, int line) {
-        List<Review> reviews = filePath2reviews.get(url);
-        if(!(reviews == null || reviews.isEmpty())) {
-            for(Review review : reviews) {
-                if(review.getLine() == line) return review;
-            }
+    private String getHTMLReport(Element element) {
+        try {
+            URL xsltUrl = getClass().getResource("/web/report.xsl");
+            Source xslSource = new StreamSource(URLUtil.openStream(xsltUrl));
+            SAXTransformerFactory transformerFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
+            TransformerHandler handler = transformerFactory.newTransformerHandler(xslSource);
+            StringWriter w = new StringWriter();
+            handler.getTransformer().transform(new JDOMSource(element), new StreamResult(w));
+            return w.toString();
+        } catch (IOException e) {
+            System.out.println("IO");
+        } catch (TransformerConfigurationException e) {
+            System.out.println("TCE");
+        } catch (TransformerException e) {
+            System.out.println("TE");
         }
         return null;
     }
 
-    public void changeReview(Review review) {
-        eventPublisher.reviewChanged(review);
+    public String getExportTextForFile(String filepath) {
+       final List<ReviewBean> reviewsForFile = getReviewsForFile(filepath);
+       if(reviewsForFile == null || reviewsForFile.isEmpty()) return "";
+       ReviewsState.FileReviewsList fileReviewsList = new ReviewsState.FileReviewsList(filepath,
+                                                                                       Util.getInstance(myProject).getCheckSum(filepath),
+                                                                                       reviewsForFile);
+       ReviewsState.State state = new ReviewsState.State();
+       state.reviews.add(fileReviewsList);
+       return serialize(state);
+   }
+
+    private String serialize(Object state) {
+        String result = "";
+        Element addedElement = XmlSerializer.serialize(state);
+        XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+        result += outputter.outputString(addedElement);
+        return result;
     }
 
-    public void importReviewsToFile(String path, String content) {
+    public void importReviewsFromFile(String path, String content) {
         VirtualFile file = myProject.getBaseDir().findFileByRelativePath(path);
             if(file == null) return;
             try {
@@ -281,6 +336,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
             }
     }
 
+
     private class ReviewVirtualFileListener extends VirtualFileAdapter {
         @Override
         public void beforeFileMovement(VirtualFileMoveEvent event) {
@@ -292,7 +348,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                 filePath2reviews.put(newUrl, reviewList);
                 for (Review review : reviewList) {
                     eventPublisher.reviewDeleted(review);
-                    review.getReviewBean().setFilePath(newUrl);
+                    review.setFilePath(newUrl);
                 }
             }
         }
@@ -319,7 +375,6 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                     review.getReviewBean().setDeleted(true);
                 }
             }
-
         }
     }
 }

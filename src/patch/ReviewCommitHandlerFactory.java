@@ -27,7 +27,7 @@ public class ReviewCommitHandlerFactory  extends CheckinHandlerFactory {
     }
 
     private class ReviewCommitHandler extends CheckinHandler {
-        private CheckinProjectPanel checkinProjectPanel;
+        private final CheckinProjectPanel checkinProjectPanel;
         private JCheckBox checkbox;
 
         public ReviewCommitHandler(CheckinProjectPanel panel) {

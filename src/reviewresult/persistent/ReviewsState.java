@@ -2,12 +2,19 @@ package reviewresult.persistent;
 
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.ByteSequence;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
+import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.Tag;
+import org.jdesktop.swingx.plaf.BuddyTextFieldUI;
 import reviewresult.ReviewManager;
+import sun.security.provider.MD5;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: Alisa.Afonina
@@ -41,10 +48,55 @@ public class ReviewsState extends AbstractProjectComponent implements Persistent
             ReviewManager.getInstance(myProject).loadState(state.reviews);
         }
 
-        public static class State {
+        public static class FileReviewsList {
+            private String filePath;
+            private String checksum;
+            private List<ReviewBean> reviewBeans = new ArrayList<ReviewBean>(
+
+            );
+
+
+            public FileReviewsList() {
+            }
+
+            public FileReviewsList(String filePath, String checksum, List<ReviewBean> resultBeans) {
+                this.filePath = filePath;
+                this.checksum = checksum;
+                reviewBeans = resultBeans;
+            }
 
             @Tag("reviews")
             @AbstractCollection(surroundWithTag = false)
-            public List<ReviewBean> reviews = new ArrayList<ReviewBean>();
+            public List<ReviewBean> getReviewBeans() {
+                return reviewBeans;
+            }
+
+            public void setReviewBeans(List<ReviewBean> reviewBeans) {
+                this.reviewBeans = reviewBeans;
+            }
+
+            @Tag("file")
+            public String getFilePath() {
+                return filePath;
+            }
+
+            public void setFilePath(String filePath) {
+                this.filePath = filePath;
+            }
+
+            @Tag("checksum")
+            public String getChecksum() {
+                return checksum;
+            }
+
+            public void setChecksum(String checksum) {
+                this.checksum = checksum;
+            }
+        }
+        public static class State {
+            @Tag("all_reviews")
+            @AbstractCollection(surroundWithTag = false)
+            public List<FileReviewsList> reviews = new ArrayList<FileReviewsList>();
+
         }
 }

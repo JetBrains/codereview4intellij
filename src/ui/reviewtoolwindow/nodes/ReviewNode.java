@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 import ui.reviewtoolwindow.Searcher;
-
-import java.util.List;
+import utils.Util;
 
 /**
  * User: Alisa.Afonina
@@ -22,8 +21,8 @@ import java.util.List;
  * Time: 1:05 PM
  */
 public class ReviewNode extends PlainNode implements Navigatable{
-    private Review review;
-    private Searcher searcher;
+    private final Review review;
+    private final Searcher searcher;
 
     public ReviewNode(Project project, Review review, ReviewToolWindowSettings settings) {
         super(project, settings);
@@ -59,14 +58,14 @@ public class ReviewNode extends PlainNode implements Navigatable{
                 presentationData.addText(name, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
 
             }
-            int line = review.getLine();
+            int line = review.getLineNumber();
             if(line < 0) {
                 presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
                 return;
             }
             int lineNumber = line + 1;
             if(!getSettings().isGroupByFile()) {
-                presentationData.addText( " (" + review.getVirtualFile().getName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                presentationData.addText( " (" + review.getFileName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             } else {
                 presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
@@ -85,7 +84,10 @@ public class ReviewNode extends PlainNode implements Navigatable{
     @Override
     public void navigate(boolean requestFocus) {
 
-        OpenFileDescriptor element = review.getElement();
+        OpenFileDescriptor element = Util.getInstance(review.getProject()).
+                                            getOpenFileDescriptor(review.getFilePath(),
+                                                    review.getStart()
+                                            );
         if(element == null) return;
         element.navigate(false);
     }

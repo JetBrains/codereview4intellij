@@ -28,10 +28,7 @@ public class DeleteReviewAction extends AnAction  implements DumbAware {
     private static final Icon ICON = IconLoader.getIcon("/images/note_delete.png");
 
     public DeleteReviewAction() {
-    }
-
-    public DeleteReviewAction(String title) {
-        super(title, title, ICON);
+        super("Delete Review...", "Delete Review...", ICON);
     }
 
     @Override

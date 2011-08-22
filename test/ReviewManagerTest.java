@@ -1,4 +1,4 @@
-/*
+
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -17,12 +17,12 @@ import java.util.Map;
 import java.util.Set;
 
 
-*/
+
 /**
  * User: Alisa.Afonina
  * Date: 7/26/11
  * Time: 12:22 PM
- *//*
+ */
 
 
 public class ReviewManagerTest extends IdeaTestCase {
@@ -48,9 +48,9 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertEquals(1, reviews.size());
         Review addedReview = reviews.get(0);
         assertReviewsEquals(review, addedReview);
-        //reviewManager.clearAll();
-    }
 
+    }
+   /*
     public void testAddReviewAfterAnotherSameFile() throws Exception {
         Project project = getProject();
         VirtualFile firstFile = project.getBaseDir();
@@ -275,15 +275,14 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertFalse(reviewManager.getReviewPoints().containsKey(review));
         assertNullOrEmpty(reviewManager.getValidReviews(projectFile));
         assertFalse(reviewManager.getState().reviews.contains(review.getReviewBean()));
-*//*
+*/
 
-    }
 
-    private static void assertReviewBeansEquals(ReviewBean reviewBean, String name, int start, int end, List<ReviewItem> reviewItems, String url) {
+
+    private static void assertReviewBeansEquals(ReviewBean reviewBean, String name, int start, int end, List<ReviewItem> reviewItems) {
         assertEquals(reviewBean.getName(), name);
-        assertEquals(reviewBean.getStart(), start);
-        assertEquals(reviewBean.getEnd(), end);
-        assertEquals(reviewBean.getFilePath(), url);
+        assertEquals(reviewBean.getContext().getStart(), start);
+        assertEquals(reviewBean.getContext().getEnd(), end);
         for(ReviewItem item : reviewBean.getReviewItems()) {
             assertEquals(true, reviewItems.contains(item));
         }
@@ -292,9 +291,9 @@ public class ReviewManagerTest extends IdeaTestCase {
     private static void assertReviewsEquals(Review review, Review addedReview) {
         ReviewBean reviewBean = addedReview.getReviewBean();
         assertEquals(review.getProject(), addedReview.getProject());
-        assertEquals(review.getVirtualFile().getUrl(), addedReview.getVirtualFile().getUrl());
+        assertEquals(review.getFilePath(), addedReview.getFilePath());
         assertReviewBeansEquals(review.getReviewBean(),
-                reviewBean.getName(), reviewBean.getStart(), reviewBean.getEnd(), reviewBean.getReviewItems(), reviewBean.getFilePath());
+                reviewBean.getName(), reviewBean.getContext().getStart(), reviewBean.getContext().getEnd(), reviewBean.getReviewItems());
     }
 
     private Review addNewReview(VirtualFile file, String name, int start, int end) {
@@ -303,14 +302,15 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertNotNull(document);
         document.insertString(0, "1\n");
 
-        Review review = new Review(new ReviewBean(name, start, end, file.getUrl()), myProject);
-        review.setValid(true);
+        Review review = new Review(new ReviewBean(name, start, end), myProject, file.getPath());
+        review.setValid();
         //reviewManager.createReviewPoint(review);
-        reviewManager.addReview(review);
+        reviewManager.placeReview(review);
 
         return review;
     }
-
+}
+     /*
      private Review addNewReviewPoint(VirtualFile file, String name, int start, int end) {
         assertNotNull(file);
         Document document = FileDocumentManager.getInstance().getDocument(file);
@@ -320,7 +320,7 @@ public class ReviewManagerTest extends IdeaTestCase {
         Review review = new Review(new ReviewBean(name, start, end, file.getUrl()), myProject);
         review.setValid(true);
         //reviewManager.createReviewPoint(review);
-        //reviewManager.addReview(review)
+        //reviewManager.placeReview(review)
         return review;
     }
 }

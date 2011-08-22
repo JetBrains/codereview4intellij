@@ -15,18 +15,18 @@ import java.util.Date;
 @Tag("review_item")
 public class ReviewItem {
     private Date date = new Date();
-    private String author;//= System.getProperty("user.name");
-    private String text = "";// = "Add comment";
+    private String author;
+    private String text = "";
     private ReviewStatus status;
 
     public ReviewItem() {
     }
 
-    public ReviewItem(String text, ReviewStatus status) {
+    public ReviewItem(String text) {
         this.author = System.getProperty("user.name");
         this.text = text;
         this.date = new Date();
-        this.status = status;
+        this.status = ReviewStatus.COMMENT;
     }
 
     @Tag("author")

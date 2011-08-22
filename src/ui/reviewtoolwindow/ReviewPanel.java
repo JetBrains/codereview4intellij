@@ -1,5 +1,6 @@
 package ui.reviewtoolwindow;
 
+import com.intellij.openapi.ui.Splitter;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.OccurenceNavigatorSupport;
@@ -46,20 +47,20 @@ import java.util.Set;
  * Time: 2:39 PM
  */
 public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator, Disposable, DumbAware {
-    public static final String ACTION_GROUP = "TreeReviewItemActions";
+    private static final String ACTION_GROUP = "TreeReviewItemActions";
 
-    private Project project;
+    private final Project project;
     private SimpleTree reviewTree;
     private AbstractTreeBuilder reviewTreeBuilder;
 
-    private ReviewsPreviewPanel previewPanel = new ReviewsPreviewPanel();
+    private final ReviewsPreviewPanel previewPanel = new ReviewsPreviewPanel();
 
     @Nullable
     private OccurenceNavigatorSupport reviewNavigatorSupport;
-    private JTextField searchLine = new JTextField();
+    private final JTextField searchLine = new JTextField();
     private ReviewTreeStructure reviewTreeStructure;
 
-    private ReviewToolWindowSettings settings;
+    private final ReviewToolWindowSettings settings;
 
     public ReviewPanel(final Project project) {
         super(false);
@@ -74,7 +75,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         mainPanel.add(scrollPane);
 
         previewPanel.setVisible(settings.isShowPreviewEnabled());
-        mainPanel.add(previewPanel, BorderLayout.EAST);
+
+        //mainPanel.add(previewPanel, BorderLayout.EAST);
 
         searchLine.setVisible(settings.isSearchEnabled());
         searchLine.addActionListener(new ActionListener() {
@@ -96,9 +98,11 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             }
         });
         mainPanel.add(searchLine, BorderLayout.NORTH);
-
-        setContent(mainPanel);
-
+        Splitter pane = new Splitter();
+        pane.setFirstComponent(mainPanel);
+        pane.setSecondComponent(previewPanel);
+        pane.setProportion(.7f);
+        setContent(pane);
         MessageBusConnection connection = project.getMessageBus().connect(project);
         connection.subscribe(ReviewChangedTopics.REVIEW_STATUS, new ReviewsListener());
     }
@@ -184,7 +188,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         }
     }
 
-    public void createTreeStructure() {
+    private void createTreeStructure() {
         reviewTreeStructure = new ReviewTreeStructure(project, settings);
     }
 
@@ -281,7 +285,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         showPreview(reviewTree.getSelectedNode());
     }
 
-    public void showPreview(SimpleNode element) {
+    private void showPreview(SimpleNode element) {
         Review review = null;
         if (element instanceof RootNode || element instanceof ModuleNode || element instanceof FileNode) {
             if(element.getChildCount() > 0)
@@ -300,10 +304,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     public void dispose() {
         reviewTreeBuilder.dispose();
         settings.saveState();
-    }
-
-    public void updateStructure() {
-        reviewTreeBuilder.getUi().doUpdateFromRoot();
     }
 
     public class ReviewsListener implements ReviewsChangedListener, DumbAware {
@@ -326,11 +326,11 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         @Override
         public void reviewChanged(Review newReview) {
             update(reviewTreeStructure.getNode(newReview));
-
+            showPreview();
         }
 
         private void update(PlainNode node) {
-            if(node.equals(reviewTreeStructure.getRootElement())) {
+            if(node == null || node.equals(reviewTreeStructure.getRootElement())) {
                  reviewTreeBuilder.getUi().doUpdateFromRoot();
 
             } else {

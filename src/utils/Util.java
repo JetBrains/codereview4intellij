@@ -1,7 +1,21 @@
 package utils;
 
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.xmlb.annotations.Text;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 
 /**
@@ -9,7 +23,19 @@ import java.security.PrivateKey;
  * Date: 8/1/11
  * Time: 3:01 PM
  */
-public class Util {
+public class Util implements DumbAware {
+
+    private Project project;
+    private static Util instance;
+    private Util(@NotNull final Project project) {
+        this.project = project;
+    }
+
+    public static Util getInstance(@NotNull Project project) {
+        if(instance == null) instance = new Util(project);
+        return instance;
+    }
+
     private static int[] prefixFunction(String pattern) {
         int length = pattern.length();
         int[] p = new int[length];
@@ -24,6 +50,7 @@ public class Util {
     }
 
     public static int find(String text, String pattern) {
+        if(text == null || pattern == null) return -1;
         int patternLength = pattern.length();
         int textLength = text.length();
         int k = 0;
@@ -40,5 +67,52 @@ public class Util {
         }
         return -1;
     }
+
+    @Nullable
+    public String getCheckSum(String filePath) {
+        String text = getFileContents(filePath);
+        try {
+            if(text == null) return null;
+            byte[] textBytes = text.getBytes("UTF-8");
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            final BigInteger bigInteger = new BigInteger(1, messageDigest.digest(textBytes));
+            return bigInteger.toString(16);
+
+        } catch (NoSuchAlgorithmException e) {
+            //
+        } catch (UnsupportedEncodingException e) {
+            //
+        }
+        return null;
+    }
+
+    @Nullable
+    private String getFileContents(String filePath) {
+        Document document = getDocument(filePath);
+        if(document == null) return null;
+        return document.getText();
+    }
+
+    @Nullable
+    public Document getDocument(String filePath) {
+        VirtualFile file = getVirtualFile(filePath);
+        if(file == null) return null;
+        return FileDocumentManager.getInstance().getDocument(file);
+    }
+
+    @Nullable
+    public VirtualFile getVirtualFile(String filePath) {
+        final VirtualFile baseDir = project.getBaseDir();
+        if(baseDir == null)  {return null;}
+        return baseDir.findFileByRelativePath(filePath);
+    }
+
+    @Nullable
+    public OpenFileDescriptor getOpenFileDescriptor(String filePath, int offset) {
+        final VirtualFile virtualFile = getVirtualFile(filePath);
+        if(virtualFile == null) return null;
+        return new OpenFileDescriptor(project, virtualFile, offset);
+    }
 }
+
 
