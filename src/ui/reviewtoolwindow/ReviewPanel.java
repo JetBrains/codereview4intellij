@@ -76,15 +76,12 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
         previewPanel.setVisible(settings.isShowPreviewEnabled());
 
-        //mainPanel.add(previewPanel, BorderLayout.EAST);
 
         searchLine.setVisible(settings.isSearchEnabled());
         searchLine.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Searcher.getInstance(project).createFilter(searchLine.getText());
-                //createTreeStructure();
-                //updateUI();
                 reviewTreeBuilder.getUi().doUpdateFromRoot();
                 if(settings.isShowPreviewEnabled()) {
                     previewPanel.updateSelection();
@@ -257,15 +254,14 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     @Override
     public void updateUI() {
         if(settings != null) {
-
-            if(reviewTreeBuilder == null) return;
-            reviewTreeBuilder.getUi().doUpdateFromRoot();
-
             if(settings.isSearchEnabled())
                 IdeFocusManager.getInstance(project).requestFocus(searchLine, true);
 
             searchLine.setVisible(settings.isSearchEnabled());
             searchLine.setText(Searcher.getInstance(project).getFilter());
+
+            if(reviewTreeBuilder == null) return;
+            reviewTreeBuilder.getUi().doUpdateFromRoot();
 
             if(settings.isShowPreviewEnabled()) {
                 Set<String> fileNames = ReviewManager.getInstance(project).getFileNames();
