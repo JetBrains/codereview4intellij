@@ -39,7 +39,7 @@ public class ReviewPatchExtensionPoint implements PatchEP{
     @Override
     public void consumeContent(@NotNull String path, @NotNull CharSequence content) {
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
-            ReviewManager.getInstance(project).importReviewsFromFile(path, content.toString());
+            ReviewManager.getInstance(project).importReviewsForFile(path, content.toString());
         }
     }
 

@@ -98,8 +98,7 @@ public class ReviewBean {
     }
 
     public void setDeleted(boolean deleted) {
-        isValid = !deleted;
-        isDeleted = true;
+        isDeleted = deleted;
     }
 
     @Override

@@ -303,7 +303,7 @@ public class ReviewManagerTest extends IdeaTestCase {
         document.insertString(0, "1\n");
 
         Review review = new Review(new ReviewBean(name, start, end), myProject, file.getPath());
-        review.setValid();
+        review.setValid(true);
         //reviewManager.createReviewPoint(review);
         reviewManager.placeReview(review);
 

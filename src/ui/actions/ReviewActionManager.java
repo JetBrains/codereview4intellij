@@ -53,24 +53,24 @@ public class ReviewActionManager implements DumbAware {
             editReviewForm = new EditReviewForm(reviewPoint.getReview(), true, true);
             JComponent content = editReviewForm.getContent();
             final Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
-            showBalloon(editor, centerIconPoint, content, gutterComponent);
+            showBalloon(editor, centerIconPoint, content, gutterComponent, "Add Comment");
             editReviewForm.requestFocus();
         }
     }
 
 
     public void addNewComment(final Editor editor) {
-        final Point point = editor.logicalPositionToXY(editor.getCaretModel().getLogicalPosition());//editor.getContentComponent().getMousePosition();
+        final Point point = editor.logicalPositionToXY(editor.getCaretModel().getLogicalPosition());
         editReviewForm = new EditReviewForm(getReview(), true, true);
         JComponent content = editReviewForm.getContent();
-        showBalloon(editor, point, content, editor.getContentComponent());
+        showBalloon(editor, point, content, editor.getContentComponent(), "Add Comment");
         editReviewForm.requestFocus();
     }
 
-    private void showBalloon(final Editor editor, final Point point, JComponent balloonContent, final JComponent contentComponent) {
+    private void showBalloon(final Editor editor, final Point point, JComponent balloonContent, final JComponent contentComponent, String title) {
         if(!getReview().isValid()) return;
         hideBalloon();
-        balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(balloonContent, "Add Comment");
+        balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(balloonContent, title);
         balloonBuilder.setHideOnClickOutside(true);
         balloonBuilder.setHideOnKeyOutside(true);
         setActiveBalloon(balloonBuilder.createBalloon());
@@ -103,7 +103,7 @@ public class ReviewActionManager implements DumbAware {
             editReviewForm = new EditReviewForm(reviewPoint.getReview(), false, true);
             JComponent content = editReviewForm.getContent();
             final Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
-            showBalloon(editor, centerIconPoint, content, gutterComponent);
+            showBalloon(editor, centerIconPoint, content, gutterComponent, "Edit Comment");
             editReviewForm.requestFocus();
         }
     }

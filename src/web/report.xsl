@@ -65,9 +65,9 @@
         <pre>
             <div>
                 <table align="left" frame="hsides">
-                 <tr><th>Line before</th><td><xsl:value-of select="line_before"/></td></tr>
-                 <tr class="line"><th>Line</th><td><xsl:value-of select="line"/></td></tr>
-                 <tr><th>Line after</th><td><xsl:value-of select="line_after"/></td></tr>
+                 <tr><td><xsl:value-of select="line_before"/></td></tr>
+                 <tr><td class="line"><xsl:value-of select="line"/></td></tr>
+                 <tr><td><xsl:value-of select="line_after"/></td></tr>
                 </table>
             </div>
         </pre>

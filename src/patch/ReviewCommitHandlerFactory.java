@@ -36,7 +36,8 @@ public class ReviewCommitHandlerFactory  extends CheckinHandlerFactory {
 
         @Override
         public ReturnResult beforeCheckin() {
-            ReviewManager.getInstance(checkinProjectPanel.getProject()).setSaveReviewsToPatch(checkbox.isSelected());
+            if(checkbox != null)
+                ReviewManager.getInstance(checkinProjectPanel.getProject()).setSaveReviewsToPatch(checkbox.isSelected());
             return super.beforeCheckin();
         }
 

@@ -182,6 +182,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
     public void removeReview(Review review) {
         if(review.isValid()) {
+            review.setValid(false);
             review.getReviewBean().setDeleted(true);
         }
         eventPublisher.reviewDeleted(review);
@@ -334,7 +335,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         return result;
     }
 
-    public void importReviewsFromFile(String path, String content) {
+    public void importReviewsForFile(String path, String content) {
         VirtualFile file = myProject.getBaseDir().findFileByRelativePath(path);
             if(file == null) return;
             try {

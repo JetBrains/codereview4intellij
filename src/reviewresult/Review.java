@@ -123,11 +123,9 @@ public class Review {
         return reviewBean != null ? reviewBean.hashCode() : 0;
     }
 
-    public void setValid() {
-        reviewBean.setValid(false);
+    public void setValid(boolean valid) {
+        reviewBean.setValid(valid);
     }
-
-
 
     public void setReviewBean(ReviewBean reviewBean) {
         this.reviewBean = reviewBean;
