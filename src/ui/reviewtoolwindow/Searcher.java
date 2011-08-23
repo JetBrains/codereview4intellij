@@ -43,12 +43,12 @@ public class Searcher  extends AbstractProjectComponent {
     }
 
     public void createFilter(String text) {
+        emptyFilter();
         filter = text;
         ReviewManager instance = ReviewManager.getInstance(myProject);
         Set<String> fileNames = instance.getFileNames();
         if(fileNames == null) return;
-        emptyFilter();
-        if(!(text == null || "".equals(text))) {
+        if(!(filter == null || "".equals(filter))) {
             for(String url : fileNames) {
                 List<Review> validReviews = instance.getValidReviews(url);
                 if(validReviews == null) return;
@@ -86,6 +86,7 @@ public class Searcher  extends AbstractProjectComponent {
     }
 
     public void emptyFilter() {
+        filter = "";
         review2searchresult = new HashMap<Review, Pair<Integer, Integer>>();
         reviewitem2searchresult = new HashMap<ReviewItem, Pair<Integer, Integer>>();
         filteredFileNames = new HashSet<String>();

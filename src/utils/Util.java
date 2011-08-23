@@ -102,7 +102,7 @@ public class Util implements DumbAware {
 
     @Nullable
     public VirtualFile getVirtualFile(String filePath) {
-        final VirtualFile baseDir = project.getBaseDir();
+        VirtualFile baseDir = project.getBaseDir();
         if(baseDir == null)  {return null;}
         return baseDir.findFileByRelativePath(filePath);
     }

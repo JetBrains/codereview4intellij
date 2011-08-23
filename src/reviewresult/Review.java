@@ -1,7 +1,7 @@
 package reviewresult;
 
 import com.intellij.openapi.actionSystem.DataKey;
-import com.intellij.openapi.diff.DocumentContent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -31,6 +31,9 @@ public class Review {
     public static final DataKey<Review> REVIEW_DATA_KEY = DataKey.create("Review");
     private String filePath;
     private String fileName;
+
+
+    private static final Logger LOG = Logger.getInstance(Review.class.getName());
 
     public Review(@NotNull ReviewBean reviewBean, @NotNull Project project, @NotNull String filePath){
         this.reviewBean = reviewBean;
@@ -76,9 +79,8 @@ public class Review {
 
     public boolean isValid() {
         final VirtualFile virtualFile = Util.getInstance(project).getVirtualFile(filePath);
-        if(virtualFile == null) return false;
-        return reviewBean.isValid()
-          && ProjectRootManager.getInstance(project).getFileIndex().isInContent(virtualFile);
+        return virtualFile != null && reviewBean.isValid() && ProjectRootManager.getInstance(project).
+                                                                getFileIndex().isInContent(virtualFile);
     }
 
     public int getLineNumber() {
@@ -213,10 +215,9 @@ public class Review {
                     }
                 }
                //todo check at least for one
+                LOG.warn("May be reviewPoint would be wrond placed, because text was increeeedibly changed\n" +
+                    " Review name: " + reviewBean.getName() + " in " + getFileName() + " line " + getLineNumber());
             }
-        } else {
-            System.out.println("May be reviewPoint would'be wrond placed, because text was increeeedibly changed");
-            //todo show Message : May be reviewPoint would'be wrond placed, because text was increeeedibly changed
         }
         context.setStart(start);
         context.setEnd(end);

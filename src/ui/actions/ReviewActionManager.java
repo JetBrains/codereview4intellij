@@ -10,7 +10,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.PositionTracker;
 import reviewresult.Review;
@@ -55,17 +54,10 @@ public class ReviewActionManager implements DumbAware {
             JComponent content = editReviewForm.getContent();
             final Point centerIconPoint = new Point(point.x + icon.getIconWidth() / 2 + gutterComponent.getIconsAreaWidth(), point.y + icon.getIconHeight() / 2);
             showBalloon(editor, centerIconPoint, content, gutterComponent);
-            //editReviewForm.requestFocus();
+            editReviewForm.requestFocus();
         }
     }
 
-    private void setFocus(final Component component) {
-        IdeFocusManager.getInstance(getReview().getProject()).doWhenFocusSettlesDown(new Runnable() {
-            public void run() {
-                IdeFocusManager.getInstance(getReview().getProject()).requestFocus(component, true);
-            }
-        });
-    }
 
     public void addNewComment(final Editor editor) {
         final Point point = editor.logicalPositionToXY(editor.getCaretModel().getLogicalPosition());//editor.getContentComponent().getMousePosition();
@@ -78,22 +70,6 @@ public class ReviewActionManager implements DumbAware {
     private void showBalloon(final Editor editor, final Point point, JComponent balloonContent, final JComponent contentComponent) {
         if(!getReview().isValid()) return;
         hideBalloon();
-        /*balloonContent.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
-        balloonContent.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "exitReview");
-
-        balloonContent.getActionMap().put("saveReview", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editReviewForm.saveReview();
-            }
-        });
-        balloonContent.getActionMap().put("exitReview", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getActiveBalloon().hide();
-            }
-        });
-*/
         balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(balloonContent, "Add Comment");
         balloonBuilder.setHideOnClickOutside(true);
         balloonBuilder.setHideOnKeyOutside(true);

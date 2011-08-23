@@ -1,7 +1,6 @@
 package ui.reviewtoolwindow;
 
 import reviewresult.Review;
-import ui.forms.EditReviewForm;
 import ui.forms.PreviewReviewForm;
 
 import javax.swing.*;

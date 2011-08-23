@@ -1,6 +1,5 @@
 package ui.reviewtoolwindow;
 
-import com.intellij.openapi.ui.Splitter;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.OccurenceNavigatorSupport;
@@ -13,11 +12,15 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.treeStructure.*;
+import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
+import com.intellij.ui.treeStructure.SimpleNode;
+import com.intellij.ui.treeStructure.SimpleTree;
+import com.intellij.ui.treeStructure.SimpleTreeBuilder;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -81,8 +84,15 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         searchLine.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Searcher.getInstance(project).createFilter(searchLine.getText());
+                final Searcher instance = Searcher.getInstance(project);
+                instance.createFilter(searchLine.getText());
                 reviewTreeBuilder.getUi().doUpdateFromRoot();
+                if(instance.getFilteredFileNames().isEmpty()) {
+                    settings.setEnabled(false);
+                    previewPanel.setVisible(false);
+                } else {
+                    settings.setEnabled(true);
+                }
                 if(settings.isShowPreviewEnabled()) {
                     previewPanel.updateSelection();
                 }
@@ -254,6 +264,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     @Override
     public void updateUI() {
         if(settings != null) {
+
+
             if(settings.isSearchEnabled())
                 IdeFocusManager.getInstance(project).requestFocus(searchLine, true);
 
@@ -307,6 +319,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         @Override
         public void reviewAdded(Review review) {
             update(reviewTreeStructure.addReview(review));
+            if(!settings.isEnabled())settings.setEnabled(true);
+
         }
 
         @Override
@@ -314,7 +328,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             reviewTreeStructure.removeReview(review);
             reviewTreeBuilder.getUi().doUpdateFromRoot();
             if(((PlainNode)reviewTreeStructure.getRootElement()).getChildren().length == 0) {
-                settings.reset();
+                settings.setEnabled(false);
                 updateUI();
             }
         }

@@ -5,7 +5,9 @@ import com.intellij.ide.actions.NextOccurenceToolbarAction;
 import com.intellij.ide.actions.PreviousOccurenceToolbarAction;
 import com.intellij.ide.actions.ShowFilePathAction;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.fileChooser.*;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDialog;
+import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
@@ -16,7 +18,6 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.xmlb.XmlSerializer;
@@ -30,11 +31,9 @@ import ui.forms.ReviewSaveForm;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.net.URL;
 
 /**
  * User: Alisa.Afonina
@@ -54,17 +53,25 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         private GroupByModuleAction() {
              super("Group reviews by module", "Group reviews by module", IconLoader.getIcon("/objectBrowser/showModules.png"));///actions/modul.png"));
+            this.setEnabledInModalContext(false);
         }
 
         @Override
         public boolean isSelected(AnActionEvent e) {
             return settings.isGroupByModule();
+
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
+
             settings.setGroupByModule(state);
             updateUI();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled());
         }
     }
 
@@ -73,6 +80,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
         private GroupByFileAction() {
              super("Group reviews by file","Group reviews by file", IconLoader.getIcon("/fileTypes/text.png"));
         }
+
 
         @Override
         public boolean isSelected(AnActionEvent e) {
@@ -83,6 +91,11 @@ public class ReviewToolWindowActionManager implements DumbAware{
         public void setSelected(AnActionEvent e, boolean state) {
             settings.setGroupByFile(state);
             updateUI();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled());
         }
     }
 
@@ -107,6 +120,11 @@ public class ReviewToolWindowActionManager implements DumbAware{
             }
             updateUI();
         }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled());
+        }
     }
 
     private final class PreviewAction extends ToggleAction  implements DumbAware {
@@ -126,6 +144,11 @@ public class ReviewToolWindowActionManager implements DumbAware{
         public void setSelected(AnActionEvent e, boolean state) {
             settings.setShowPreviewEnabled(state);
             panel.showPreview();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled());
         }
     }
 
@@ -180,14 +203,11 @@ public class ReviewToolWindowActionManager implements DumbAware{
                     return;
                 }
             } else {
-                showErrorBalloon("While saving error occured", component, centerPoint);
                 return;
             }
 
             showBalloon(balloonBuilder, component, centerPoint);
-
-
-        }
+    }
 
 
 
@@ -223,7 +243,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
             FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false);
             FileChooserDialog chooserDialog = FileChooserFactory.getInstance().createFileChooser(descriptor, project);
             VirtualFile[] files = chooserDialog.choose(null, project);
-            if(files.length != 1) {return;} //may be show warning message?
+            if(files == null || files.length != 1) {return;} //may be show warning message?
             VirtualFile virtualFile = files[0];
             try {
                 String contents = new String(virtualFile.contentsToByteArray());

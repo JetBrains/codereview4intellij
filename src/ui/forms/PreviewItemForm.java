@@ -1,9 +1,5 @@
 package ui.forms;
 
-import com.intellij.ide.util.gotoByName.ChooseByNameFilterConfiguration;
-import com.intellij.openapi.project.Project;
-import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.text.DateFormatUtil;
 import reviewresult.persistent.ReviewItem;
 import ui.reviewtoolwindow.Searcher;
@@ -14,8 +10,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 /**
  * User: Alisa.Afonina

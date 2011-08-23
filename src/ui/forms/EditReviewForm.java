@@ -11,7 +11,6 @@ import com.intellij.ui.EditorTextFieldProvider;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.components.panels.VerticalBox;
 import reviewresult.Review;
-import reviewresult.ReviewChangedTopics;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
 
@@ -65,7 +64,7 @@ public class EditReviewForm {
         }
 
         mainPanel.add(reviewName, BorderLayout.NORTH);
-        resetItemsContent(spellCheck);
+        resetItemsContent();
 
         if(addItem) {
             newReviewItemText = createInputField(spellCheck, false);
@@ -172,7 +171,6 @@ public class EditReviewForm {
             }
 
             review.setName(name);
-
             if ("".equals(name)) {
                int nameLength = 6;
                name = (text.length() > nameLength) ? text.substring(0, nameLength) : text;
@@ -210,7 +208,7 @@ public class EditReviewForm {
         this.balloon = balloon;
     }
 
-    private void resetItemsContent(boolean spellCheck) {
+    private void resetItemsContent() {
         reviewItemFormsList = new ArrayList<ReviewItemForm>();
         itemsPanel.removeAll();
 
@@ -222,11 +220,6 @@ public class EditReviewForm {
         }
 
         if(!reviewItemFormsList.isEmpty()) {
-            //JScrollPane itemScrollPane = ScrollPaneFactory.createScrollPane(itemsPanel/*, JBScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER*/);
-            //itemScrollPane.setMaximumSize(itemScrollPane.getPreferredSize());
-            //Box surroundingPanel = new VerticalBox();
-            //surroundingPanel.add(itemScrollPane);
-            //mainPanel.add(itemScrollPane);
             mainPanel.add(itemsPanel);
         }
     }

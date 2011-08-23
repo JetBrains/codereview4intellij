@@ -1,7 +1,6 @@
 package ui.forms;
 
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.IdeFocusManager;
@@ -45,11 +44,6 @@ public class ReviewItemForm {
 
         reviewItemText = createInputField(true, false);
         reviewItemText.setBackground(Color.WHITE);
-        /*final Editor editor = reviewItemText.getEditor();
-        if(editor != null) {
-            editor.getSettings().setAdditionalPageAtBottom(true);
-            editor.getSettings().setAdditionalLinesCount(2);
-        }*/
         String text = reviewItem.getText();
         reviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
         if(text != null) {

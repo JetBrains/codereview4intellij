@@ -85,7 +85,6 @@ public class ReviewBean {
 
     @Tag("valid")
     public boolean isValid() {
-        //checkValid();
         return isValid;
     }
 

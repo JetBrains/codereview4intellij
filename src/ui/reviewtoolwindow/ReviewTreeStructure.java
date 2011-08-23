@@ -6,7 +6,6 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.impl.search.ThrowSearchUtil;
 import com.intellij.ui.treeStructure.SimpleTreeStructure;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
@@ -86,12 +85,13 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         return rootElement;
     }
 
-    //@Nullable
+    @Nullable
     private PlainNode findInvalidAncestorNode(PlainNode rootElement, Review review) {
         List<PlainNode> rootChildren = rootElement.getPlainChildren();
         PlainNode invalid = null;
         for(PlainNode node : rootChildren) {
             final VirtualFile virtualFile = Util.getInstance(project).getVirtualFile(review.getFilePath());
+            if(virtualFile == null) return null;
             if (node instanceof ModuleNode) {
                 Module module = (Module) node.getObject();
                 if(ModuleRootManager.getInstance(module).getFileIndex().isInContent(virtualFile)) {
@@ -127,7 +127,6 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
             getFilePath(path, parent, finalParent);
             path.add(new FileNode(project, file, settings));
         }
-
     }
 
     private void addChildrenToAncestorNode(PlainNode root, PlainNode finalChild) {
@@ -165,6 +164,8 @@ public class ReviewTreeStructure extends SimpleTreeStructure {
         }
     }
 
+
+    @Nullable
     public PlainNode getNode(Object o) {
      if(o instanceof Review) {
          PlainNode node = findAncestorNode(rootElement, Util.getInstance(project).getVirtualFile(((Review) o).getFilePath()));

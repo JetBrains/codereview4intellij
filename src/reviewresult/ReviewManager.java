@@ -30,7 +30,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -48,9 +47,10 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     private final StartupManagerEx startupManager;
 
     private Map<String, List<Review>> filePath2reviews = new HashMap<String, List<Review>>();
+    private List<Review> removed = new ArrayList<Review>();
     private final ReviewsChangedListener eventPublisher;
 
-    private boolean saveReviewsToPatch;
+    private boolean saveReviewsToPatch = true;
 
     public ReviewManager(@NotNull final Project project, final StartupManager startupManager) {
         super(project);
@@ -75,11 +75,18 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                 loadContext(review);
                 resultBeans.add(review.getReviewBean());
             }
+            for(Review removedReview : removed) {
+                if(removedReview.getFilePath().equals(entry.getKey())) {
+                    resultBeans.add(removedReview.getReviewBean());
+                }
+            }
             final String filePath = entry.getKey();
             result.add(new ReviewsState.FileReviewsList(filePath,
                     Util.getInstance(myProject).getCheckSum(filePath),
                     resultBeans));
         }
+
+
         return result;
     }
 
@@ -137,17 +144,23 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                 Review review = reviewList.get(existingReviewIndex);
                 if(!newReview.isValid() || !review.isValid()) {
                     selectReviewState(review/*, newReview*/);
-                    } else {
+                    return;
+                } else {
                     mergeReviews(review, newReview);
                 }
             }
              else {
-                if(newReview.isValid()) {
+                if(newReview.isValid() && !newReview.getReviewBean().isDeleted()) {
                     if(reviewList.isEmpty()) {
                         filePath2reviews.put(newReview.getFilePath(), reviewList);
                     }
                     reviewList.add(newReview);
                     eventPublisher.reviewAdded(newReview);
+                }
+                else {
+                    if(!removed.contains(newReview))
+                        removed.add(newReview);
+                    return;
                 }
             }
 
@@ -173,6 +186,9 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         }
         eventPublisher.reviewDeleted(review);
         ReviewPointManager.getInstance(myProject).reloadReviewPoint(review);
+        if(!removed.contains(review))
+            removed.add(review);
+        filePath2reviews.get(review.getFilePath()).remove(review);
     }
 
     public void removeAll(VirtualFile file) {
@@ -290,11 +306,11 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
             handler.getTransformer().transform(new JDOMSource(element), new StreamResult(w));
             return w.toString();
         } catch (IOException e) {
-            System.out.println("IO");
+           // todo
         } catch (TransformerConfigurationException e) {
-            System.out.println("TCE");
+           // todo
         } catch (TransformerException e) {
-            System.out.println("TE");
+           // todo
         }
         return null;
     }

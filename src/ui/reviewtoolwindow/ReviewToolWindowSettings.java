@@ -15,6 +15,7 @@ public class ReviewToolWindowSettings {
     private boolean searchEnabled;
     private boolean showPreviewEnabled;
     private final Project project;
+    private boolean enabled = true;
 
     public ReviewToolWindowSettings(Project project) {
         this.project = project;
@@ -70,8 +71,11 @@ public class ReviewToolWindowSettings {
         showPreviewEnabled = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.previewEnabled", false);
     }
 
-    public void reset() {
-        showPreviewEnabled = false;
-        searchEnabled = false;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

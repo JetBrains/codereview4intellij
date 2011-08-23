@@ -4,9 +4,7 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import reviewresult.Review;
-import reviewresult.ReviewManager;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,16 +22,6 @@ public class ReviewPointManager extends AbstractProjectComponent implements Dumb
 
     public static ReviewPointManager getInstance(Project project) {
         return project.getComponent(ReviewPointManager.class);
-    }
-
-    public Map<Review, ReviewPoint> getReviewPoints() {
-        return Collections.unmodifiableMap(reviewPoints);
-    }
-
-    public void updateUI() {
-        for (ReviewPoint point : reviewPoints.values()) {
-            point.updateUI();
-        }
     }
 
     public ReviewPoint findReviewPoint(Review review) {

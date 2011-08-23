@@ -9,7 +9,22 @@
                         <title>
                             <xsl:text>Reviews</xsl:text>
                         </title>
-                        <link rel="stylesheet" type="text/css" href="reviews.css" />
+                        <style type="text/css">
+                            tbody {
+                                background: #F5F5DC;
+                            }
+                            tr.line {
+                                background: lightBlue;
+                            }
+
+                            div.deleted div.review_item {
+                                    background: #FFCCCC;
+                                 }
+
+                            div.existing div.review_item {
+                                    background: #CCFFCC;
+                                 }
+                        </style>
                     </head>
                     <body>
                             <xsl:apply-templates/>
@@ -26,14 +41,25 @@
         </div>
     </xsl:template>
 
-    <xsl:template match="reviews/review">
-        <div>
-          <h3><strong><xsl:text>Name of review: </xsl:text> </strong><xsl:value-of select="@name"/></h3>
+    <xsl:template match="reviews/review[.//deleted='true']">
+        <div class="deleted">
+            <xsl:call-template name="review"/>
+        </div>
+    </xsl:template>
+
+    <xsl:template match="reviews/review[.//deleted='false']">
+        <div class="existing">
+            <xsl:call-template name="review"/>
+        </div>
+    </xsl:template>
+
+    <xsl:template name='review'>
+        <h3><strong><xsl:text>Name of review: </xsl:text> </strong><xsl:value-of select="@name"/></h3>
             <xsl:apply-templates select="context/Context"/>
             <br/>
             <xsl:apply-templates select="review_items/review_item"/>
-        </div>
-       </xsl:template>
+
+    </xsl:template>
 
     <xsl:template match="context/Context">
         <pre>
@@ -48,8 +74,9 @@
     </xsl:template>
 
      <xsl:template match="review_items/review_item">
+
          <p>
-             <div>
+             <div class="review_item">
                 <strong><xsl:value-of select="author"/></strong>
                 <xsl:text> at </xsl:text>
                 <strong><xsl:value-of select="date"/></strong>
@@ -60,4 +87,3 @@
      </xsl:template>
 
 </xsl:stylesheet>
-

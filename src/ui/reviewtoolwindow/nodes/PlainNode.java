@@ -6,7 +6,6 @@ import com.intellij.ui.treeStructure.SimpleNode;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
