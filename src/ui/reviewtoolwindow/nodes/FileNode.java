@@ -11,19 +11,19 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.refactoring.typeCook.Settings;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.util.IconUtil;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
+import reviewresult.persistent.ReviewItem;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: Alisa.Afonina
@@ -51,6 +51,22 @@ public class FileNode extends PlainNode implements Navigatable{
     @Override
     public SimpleNode[] getChildren() {
         List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
+        /*if(getSettings().isSortByDate())
+        Collections.sort(children, new Comparator<PlainNode>() {
+            @Override
+            public int compare(PlainNode o1, PlainNode o2) {
+                if(o1 instanceof FileNode || o2 instanceof FileNode) {
+                    System.out.println("FILES");
+                    return 0;
+                } else {
+                    final List<ReviewItem> reviewItemsO1 = ((Review) o1.getObject()).getReviewBean().getReviewItems();
+                    final List<ReviewItem> reviewItemsO2 = ((Review) o1.getObject()).getReviewBean().getReviewItems();
+                    return reviewItemsO1.get(reviewItemsO1.size() - 1).getDate().compareTo(reviewItemsO2.get(reviewItemsO2.size() - 1).getDate());
+                }
+            }
+        });*/
+
+        /*if(getSettings().filterByStatus())*/
         for (PlainNode child : children) {
             if(child instanceof ReviewNode) {
                 if(Searcher.getInstance(project).containsReview((Review) child.getObject()))  {

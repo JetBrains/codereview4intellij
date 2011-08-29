@@ -14,8 +14,15 @@ public class ReviewToolWindowSettings {
     private boolean groupByFile;
     private boolean searchEnabled;
     private boolean showPreviewEnabled;
+
     private final Project project;
     private boolean enabled = true;
+
+    private boolean sortByDate = true;
+    private boolean sortByStatus = false;
+    private boolean sortByAuthor = false;
+    private boolean sortByOffset = false;
+    private boolean sortByLastCommenter = false;
 
     public ReviewToolWindowSettings(Project project) {
         this.project = project;
@@ -77,5 +84,57 @@ public class ReviewToolWindowSettings {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isSortByDate() {
+        return !sortByLastCommenter && !sortByAuthor && sortByDate;
+    }
+
+    public void setSortByDate(boolean sortByDate) {
+        disableAllSorting();
+        this.sortByDate = sortByDate;
+    }
+
+    public boolean isSortByAuthor() {
+        return !sortByLastCommenter && sortByAuthor && !sortByDate;
+    }
+
+    public void setSortByAuthor(boolean sortByAuthor) {
+        disableAllSorting();
+        this.sortByAuthor = sortByAuthor;
+    }
+
+    public boolean isSortByStatus() {
+        return sortByStatus;
+    }
+
+    public void setSortByStatus(boolean sortByStatus) {
+        disableAllSorting();
+        this.sortByStatus = sortByStatus;
+    }
+
+    public boolean isSortByOffset() {
+        return sortByOffset;
+    }
+
+    public void setSortByOffset(boolean sortByOffset) {
+        //disableAllSorting();
+        this.sortByOffset = sortByOffset;
+    }
+
+    public boolean isSortByLastCommenter() {
+        return sortByLastCommenter && !sortByAuthor && !sortByDate;
+    }
+
+    public void setSortByLastCommenter(boolean sortByLastCommenter) {
+        //disableAllSorting();
+        this.sortByLastCommenter = sortByLastCommenter;
+    }
+
+    public void disableAllSorting() {
+        this.sortByAuthor = false;
+        this.sortByDate = false;
+        this.sortByLastCommenter = false;
+        this.sortByOffset = false;
     }
 }

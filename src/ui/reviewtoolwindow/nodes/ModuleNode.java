@@ -69,8 +69,8 @@ public class ModuleNode extends PlainNode implements Navigatable{
     @Override
     public void update(PresentationData data) {
         data.addText(module.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        Icon icon  = module.getModuleType().getNodeIcon(true);
-        data.setIcons(icon);
+        //Icon icon  = module.getPicoContainer()getModuleType().getNodeIcon(true);
+        //data.setIcons(icon);
 
     }
 

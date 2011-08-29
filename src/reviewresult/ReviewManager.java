@@ -1,5 +1,6 @@
 package reviewresult;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -48,9 +49,11 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
     private Map<String, List<Review>> filePath2reviews = new HashMap<String, List<Review>>();
     private List<Review> removed = new ArrayList<Review>();
+    private List<String> availableTags = new ArrayList<String>();
     private final ReviewsChangedListener eventPublisher;
 
     private boolean saveReviewsToPatch = true;
+    private List<String> authors = new ArrayList<String>();
 
     public ReviewManager(@NotNull final Project project, final StartupManager startupManager) {
         super(project);
@@ -72,7 +75,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         for (Map.Entry<String, List<Review>> entry : filePath2reviews.entrySet()) {
             List<ReviewBean> resultBeans = new ArrayList<ReviewBean>();
             for (Review review : entry.getValue()) {
-                loadContext(review);
+                //loadContext(review);
                 resultBeans.add(review.getReviewBean());
             }
             for(Review removedReview : removed) {
@@ -88,14 +91,6 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
 
         return result;
-    }
-
-    private void loadContext(Review review) {
-        if(review.isValid()) {
-            review.setLineText();
-            review.setBeforeLineText();
-            review.setAfterLineText();
-        }
     }
 
     public void loadState(List<ReviewsState.FileReviewsList> reviewBeans) {
@@ -155,16 +150,41 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                         filePath2reviews.put(newReview.getFilePath(), reviewList);
                     }
                     reviewList.add(newReview);
+                    addTags(newReview.getReviewBean().getTags());
+                    for(String author : newReview.getAuthors()) {
+                        if(!authors.contains(author))
+                            authors.add(author);
+                    }
                     eventPublisher.reviewAdded(newReview);
                 }
                 else {
-                    if(!removed.contains(newReview))
+                    if(!removed.contains(newReview)) {
+                        addTags(newReview.getReviewBean().getTags());
+                        for(String author : newReview.getAuthors()) {
+                        if(!authors.contains(author))
+                            authors.add(author);
+                        }
                         removed.add(newReview);
+                    }
                     return;
                 }
             }
 
         ReviewPointManager.getInstance(myProject).reloadReviewPoint(newReview);
+    }
+
+    public void addTags(List<String> tags) {
+        availableTags.addAll(tags);
+    }
+
+    public void addTag(String tag) {
+        if(!availableTags.contains(tag)) {
+            availableTags.add(tag);
+        }
+    }
+
+    public List<String> getAvailableTags() {
+        return Collections.unmodifiableList(availableTags);
     }
 
     public void changeReview(Review review) {
@@ -173,6 +193,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
     private void mergeReviews(Review oldReview, Review newReview) {
         oldReview.setReviewBean(newReview.getReviewBean());
+        addTags(newReview.getReviewBean().getTags());
         eventPublisher.reviewChanged(oldReview);
     }
 
@@ -195,7 +216,8 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     public void removeAll(VirtualFile file) {
         List<Review> reviews = filePath2reviews.get(getFilePath(file));
         if(!(reviews == null || reviews.isEmpty())) {
-            for (Review review : reviews) {
+            List<Review> removableReviews = new ArrayList<Review>(reviews);
+            for (Review review : removableReviews) {
                 removeReview(review);
             }
         } else {
@@ -225,7 +247,6 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         if(reviewsPart != null && !reviewsPart.isEmpty()) {
             List<ReviewBean> reviewBeans = new ArrayList<ReviewBean>();
             for(Review review : reviewsPart) {
-                loadContext(review);
                 reviewBeans.add(review.getReviewBean());
             }
             return reviewBeans;
@@ -351,6 +372,13 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
             } catch (IOException e) {
                 //todo e.printStackTrace();
             }
+    }
+
+    public String[] getAuthors() {
+        if(!authors.contains(System.getProperty("user.name"))) {
+            authors.add(System.getProperty("user.name"));
+        }
+        return authors.toArray(new String[authors.size()]);
     }
 
 

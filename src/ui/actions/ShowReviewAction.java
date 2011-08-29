@@ -9,6 +9,8 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import reviewresult.Review;
+import ui.gutterpoint.ReviewPoint;
+import ui.gutterpoint.ReviewPointManager;
 
 import javax.swing.*;
 
@@ -37,6 +39,6 @@ public class ShowReviewAction extends AnAction implements DumbAware{
         if(editor == null) return;
         Review review = ActionManager.getInstance().getReviewForAction(e);
         if(review == null || !review.isValid()) {return;}
-        ReviewActionManager.getInstance(review).showExistingComments(editor);
+        ReviewActionManager.getInstance().showExistingComments(editor, review);
     }
 }

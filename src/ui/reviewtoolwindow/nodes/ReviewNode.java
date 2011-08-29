@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
+import com.intellij.util.text.DateFormatUtil;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
@@ -46,16 +47,17 @@ public class ReviewNode extends PlainNode implements Navigatable{
         if(review.isValid()) {
             int searchStart = searcher.getReviewSearchResult(review).first;
             int searchEnd = searcher.getReviewSearchResult(review).second;
-            String name = review.getName();
+            String presentationInfo = review.getPresentationInfo(false);
+            presentationData.setTooltip(review.getPresentationInfo(true));
             if(searchStart >= 0) {
                 EditorColorsManager colorManager = EditorColorsManager.getInstance();
                 TextAttributes attributes = colorManager.getGlobalScheme().getAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
-                presentationData.addText(name.substring(0, searchStart), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                presentationData.addText(name.substring(searchStart, searchEnd), SimpleTextAttributes.fromTextAttributes(attributes));
-                presentationData.addText(name.substring(searchEnd, name.length()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                presentationData.addText(presentationInfo.substring(0, searchStart), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                presentationData.addText(presentationInfo.substring(searchStart, searchEnd), SimpleTextAttributes.fromTextAttributes(attributes));
+                presentationData.addText(presentationInfo.substring(searchEnd, presentationInfo.length()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
             else {
-                presentationData.addText(name, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                presentationData.addText(presentationInfo, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
 
             }
             int line = review.getLineNumber();
@@ -65,12 +67,25 @@ public class ReviewNode extends PlainNode implements Navigatable{
             }
             int lineNumber = line + 1;
             if(!getSettings().isGroupByFile()) {
-                presentationData.addText( " (" + review.getFileName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                if(getSettings().isSortByAuthor()) {
+                    presentationData.addText(" (" + review.getAuthor() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                } else {
+                    if(getSettings().isSortByDate()) {
+                        presentationData.addText(" (" + DateFormatUtil.formatPrettyDateTime(review.getFirstDate()) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    } else {
+                        if(getSettings().isSortByLastCommenter()) {
+                            presentationData.addText(" (" + review.getLastCommenter() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                        } else {
+                            presentationData.addText( " (" + review.getFileName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                        }
+                    }
+                }
             } else {
                 presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
         } else {
-            presentationData.addText(review.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            presentationData.addText(review.getPresentationInfo(false), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+            presentationData.setTooltip(review.getPresentationInfo(true));
             presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
         }
     }

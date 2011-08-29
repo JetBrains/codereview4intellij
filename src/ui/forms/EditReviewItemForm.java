@@ -3,6 +3,7 @@ package ui.forms;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.EditorCustomization;
 import com.intellij.ui.EditorTextField;
@@ -11,11 +12,9 @@ import com.intellij.util.text.DateFormatUtil;
 import reviewresult.persistent.ReviewItem;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -24,25 +23,27 @@ import java.util.Set;
  * Date: 7/20/11
  * Time: 3:07 PM
  */
-public class ReviewItemForm {
+public class EditReviewItemForm {
     private final EditorTextField reviewItemText;
-    private JPanel reviewItemContent = new JPanel(new BorderLayout());
+    private JPanel mainPanel = new JPanel(new BorderLayout());
 
     private Project project;
     private final ReviewItem reviewItem;
 
 
 
-    public ReviewItemForm(Project project, ReviewItem reviewItem) {
+    public EditReviewItemForm(Project project, ReviewItem reviewItem) {
         this.project = project;
         this.reviewItem = reviewItem;
 
-        reviewItemContent.setFocusable(true);
+        mainPanel.setFocusable(true);
 
-        JLabel headerLabel = new JLabel();
-        headerLabel.setText(reviewItem.getAuthor() + " wrote " + DateFormatUtil.formatPrettyDateTime(reviewItem.getDate()));
+        JLabel headerLabel = new JLabel(reviewItem.getAuthor()
+                                        + " wrote "
+                                        + DateFormatUtil.formatPrettyDateTime(reviewItem.getDate()));
 
         reviewItemText = createInputField(true, false);
+        reviewItemText.setEnabled(isMyReviewItem());
         reviewItemText.setBackground(Color.WHITE);
         String text = reviewItem.getText();
         reviewItemText.setFont(new Font("Verdana", Font.PLAIN, 14));
@@ -56,11 +57,10 @@ public class ReviewItemForm {
                 reviewItemText.setBorder(BorderFactory.createEmptyBorder());
             }
         });
-
         reviewItemText.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                //reviewItemText.setCaretPosition(reviewItemText.getText().length());
+                reviewItemText.getCaretModel().moveToOffset(reviewItemText.getText().length());
             }
 
             @Override
@@ -71,8 +71,11 @@ public class ReviewItemForm {
 
             }
         });
-        reviewItemContent.add(headerLabel);
-        reviewItemContent.add(reviewItemText);
+        mainPanel.add(headerLabel, BorderLayout.NORTH);
+        mainPanel.add(reviewItemText);
+        /*final TitledBorder titledBorder = BorderFactory.createTitledBorder(reviewItem.getStatus().name());
+        titledBorder.setTitleJustification(TitledBorder.RIGHT);
+        mainPanel.setBorder(titledBorder);*/
     }
 
     private EditorTextField createInputField(boolean checkSpelling, boolean oneLine) {
@@ -93,7 +96,7 @@ public class ReviewItemForm {
                                       disabledFeatures);
     }
 
-    public boolean onSave() {
+    public boolean canSave() {
         String text = reviewItemText.getText();
         if("".equals(text)) {
             setEmptyComment();
@@ -107,7 +110,11 @@ public class ReviewItemForm {
 
 
     public JPanel getContent() {
-        return reviewItemContent;
+        return mainPanel;
+    }
+
+    private boolean isMyReviewItem() {
+        return reviewItem.getAuthor().equals(System.getProperty("user.name"));
     }
 
     private void setEmptyComment() {
@@ -117,6 +124,6 @@ public class ReviewItemForm {
 
 
     public void requestFocus() {
-        IdeFocusManager.findInstanceByComponent(reviewItemContent).requestFocus(reviewItemText, true);
+        IdeFocusManager.findInstanceByComponent(mainPanel).requestFocus(reviewItemText, true);
     }
 }

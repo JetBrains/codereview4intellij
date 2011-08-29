@@ -8,6 +8,8 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import reviewresult.Review;
 import ui.actions.ReviewActionManager;
+import ui.gutterpoint.ReviewPoint;
+import ui.gutterpoint.ReviewPointManager;
 
 /**
  * User: Alisa.Afonina
@@ -26,7 +28,8 @@ public class ReviewView {
         if(Messages.showYesNoDialog( "This line already contains one comment. " +
                                     "Would you like to add your comment to existing?",
                 "Two comments one one line", Messages.getWarningIcon()) == Messages.YES) {
-            ReviewActionManager.getInstance(oldReview).addToExistingComments(FileEditorManager.getInstance(oldReview.getProject()).getSelectedTextEditor());
+            ReviewPoint reviewPoint = ReviewPointManager.getInstance(oldReview.getProject()).findReviewPoint(oldReview);
+            ReviewActionManager.getInstance().addToExistingComments(FileEditorManager.getInstance(oldReview.getProject()).getSelectedTextEditor(), reviewPoint);
         }
     }
 }

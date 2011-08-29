@@ -1,5 +1,8 @@
 package reviewresult;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * User: Alisa.Afonina
  * Date: 7/11/11
@@ -7,5 +10,13 @@ package reviewresult;
  */
 public enum ReviewStatus {
     BUG,
-    COMMENT
+    COMMENT;
+
+    public static String[] getVariants() {
+        List<String> variants = new ArrayList<String>();
+        for(ReviewStatus status : values()) {
+            variants.add(status.name());
+        }
+        return variants.toArray(new String[variants.size()]);
+    }
 }

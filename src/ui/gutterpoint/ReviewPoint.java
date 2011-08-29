@@ -2,6 +2,7 @@ package ui.gutterpoint;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
@@ -10,7 +11,9 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -20,7 +23,7 @@ import reviewresult.Review;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
 import ui.actions.DeleteReviewAction;
-import ui.actions.EditReviewAction;
+import ui.actions.AddReviewItemAction;
 import ui.actions.ReviewActionManager;
 import ui.actions.ShowReviewAction;
 import utils.Util;
@@ -50,13 +53,14 @@ public class ReviewPoint{
         if(project == null) return;
         if(review.isValid()) {
             if(highlighter == null) {
-                OpenFileDescriptor element = Util.getInstance(project).getOpenFileDescriptor(review.getFilePath(), review.getStart());
-                if(element == null) return;
-                Document document = FileDocumentManager.getInstance().getDocument(element.getFile());
+                Document document = Util.getInstance(review.getProject()).getDocument(review.getFilePath());
                 if(document == null) return;
-                MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(project);
                 int line = review.getLineNumber();
                 if(line < 0) return;
+                OpenFileDescriptor openFileDescriptor = Util.getInstance(project).getOpenFileDescriptor(review.getFilePath(), review.getStart());
+                Editor editor = FileEditorManagerEx.getInstance(project).openTextEditor(openFileDescriptor, true);
+                if(editor == null) return;
+                MarkupModelEx markup = (MarkupModelEx) editor.getMarkupModel();
                 highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
                 if(highlighter == null) return;
                 gutterIconRenderer = new ReviewGutterIconRenderer();
@@ -129,29 +133,13 @@ public class ReviewPoint{
 
         @Override
         public AnAction getClickAction() {
-            if(!review.isActivated()) {
-                review.setActivated(true);
-                List<ReviewItem> reviewItems = review.getReviewItems();
-                if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
-                    return new EditReviewAction("Add review");
-                }
-                else {
-                    return new ShowReviewAction("View review");
-                }
-            } else {
-                return  new AnAction() {
-                    @Override
-                    public void actionPerformed(AnActionEvent e) {
-                        ReviewActionManager.getInstance(review).disposeActiveBalloon();
-                    }
-                };
-            }
+            return ReviewActionManager.getInstance().getGutterAction(review);
         }
 
         @Override
         public String getTooltipText() {
             List<ReviewItem> reviewItems = review.getReviewItems();
-            return "<b>Name:</b> " + review.getName() + "\n<b>Last edited by:</b> " + reviewItems.get(reviewItems.size()-1).getAuthor();
+            return "<b>Name:</b> " + review.getPresentationInfo(false) + "\n<b>Last edited by:</b> " + reviewItems.get(reviewItems.size()-1).getAuthor();
         }
 
         @Override
@@ -164,7 +152,7 @@ public class ReviewPoint{
             DefaultActionGroup group = new DefaultActionGroup();
             List<ReviewItem> reviewItems = review.getReviewItems();
             if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
-                     group.add(new EditReviewAction("Add New Comment..."));
+                     group.add(new AddReviewItemAction("Add New Comment..."));
                 }
                 else {
                     group.add(new ShowReviewAction("Edit Last Comment... "));
@@ -181,7 +169,10 @@ public class ReviewPoint{
     private boolean moveTo(VirtualFile virtualFile, int line) {
         Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
         if(document == null) return false;
-        MarkupModelEx markup = (MarkupModelEx) document.getMarkupModel(review.getProject());
+        //Editor[] editors = EditorFactory.getInstance().getEditors(document);
+        Editor editor = FileEditorManager.getInstance(review.getProject()).getSelectedTextEditor();
+        if(editor == null) return false;
+        MarkupModelEx markup = (MarkupModelEx) editor.getMarkupModel();
         if(line < 0) return false;
         RangeHighlighter newHighlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
         if(newHighlighter == null || !newHighlighter.isValid()) return false;
@@ -190,7 +181,6 @@ public class ReviewPoint{
         highlighter = newHighlighter;
         review.getReviewBean().getContext().setStart(document.getLineStartOffset(line));
         review.getReviewBean().getContext().setEnd(document.getLineEndOffset(line));
-
         ReviewManager.getInstance(review.getProject()).changeReview(review);
         return true;
     }

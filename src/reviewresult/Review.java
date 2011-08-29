@@ -14,7 +14,7 @@ import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
 import utils.Util;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * User: Alisa.Afonina
@@ -22,18 +22,18 @@ import java.util.List;
  * Time: 7:02 PM
  */
 
-public class Review {
+public class Review{
     private ReviewBean reviewBean;
     private final Project project;
-
-    private boolean activated = false;
 
     public static final DataKey<Review> REVIEW_DATA_KEY = DataKey.create("Review");
     private String filePath;
     private String fileName;
 
+    private boolean activated = false;
 
     private static final Logger LOG = Logger.getInstance(Review.class.getName());
+    private static final int INFO_LENGTH = 20;
 
     public Review(@NotNull ReviewBean reviewBean, @NotNull Project project, @NotNull String filePath){
         this.reviewBean = reviewBean;
@@ -43,6 +43,11 @@ public class Review {
         if(virtualFile == null)  {reviewBean.setValid(false); return;}
         fileName = virtualFile.getName();
         this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
+        if(isValid()) {
+            setLineText();
+            setBeforeLineText();
+            setAfterLineText();
+        }
     }
 
     public Review(Project project, int start, int end, VirtualFile virtualFile) {
@@ -54,6 +59,11 @@ public class Review {
         this.filePath = relativePath;
         fileName = virtualFile.getName();
         this.reviewBean.checkValid(virtualFile.getLength(), virtualFile.isValid());
+        if(isValid()) {
+            setLineText();
+            setBeforeLineText();
+            setAfterLineText();
+        }
     }
 
 
@@ -100,14 +110,6 @@ public class Review {
         return reviewBean;
     }
 
-    public void setActivated(boolean activated) {
-        this.activated = activated;
-    }
-
-    public boolean isActivated() {
-        return activated;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -152,21 +154,21 @@ public class Review {
             Document document = Util.getInstance(project).getDocument(filePath);
             if(document == null) return;
             int start = document.getLineStartOffset(beforeLineNumber);
-            int end = document.getLineEndOffset(beforeLineNumber);
+            //int end = document.getLineEndOffset(beforeLineNumber);
             final Context context = reviewBean.getContext();
-            context.setLineBefore(document.getText(new TextRange(start, end)));
+            context.setLineBefore(document.getText(new TextRange(start, getStart())));
         }
     }
 
     public void setAfterLineText() {
-        int afterLineNumber = getLineNumber() + 1;
         Document document = Util.getInstance(project).getDocument(filePath);
         if(document == null) return;
+        int afterLineNumber = document.getLineNumber(reviewBean.getContext().getEnd()) + 1;
         if(afterLineNumber < document.getLineCount()) {
-            int start = document.getLineStartOffset(afterLineNumber);
+            //int start = document.getLineStartOffset(afterLineNumber);
             int end = document.getLineEndOffset(afterLineNumber);
             final Context context = reviewBean.getContext();
-            context.setLineAfter(document.getText(new TextRange(start, end)));
+            context.setLineAfter(document.getText(new TextRange(getEnd(), end)));
         }
     }
 
@@ -194,6 +196,7 @@ public class Review {
                     final int afterLineNumber = document.getLineNumber(afterOffset);
 
                     if(beforeLineNumber < document.getLineCount() && afterLineNumber > 0 ) {
+                        //todo since comment is not to one line anymore - change it
                         if((beforeLineNumber + 2)==afterLineNumber) { // if between these two lines exactly one placed;
                             start = document.getLineStartOffset(beforeLineNumber + 1);
                             end = document.getLineEndOffset(beforeLineNumber + 1);
@@ -223,5 +226,81 @@ public class Review {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public void addTag(String tag) {
+        List<String> tags = reviewBean.getTags();
+        if(!tags.contains(tag)) {
+            tags.add(tag);
+        }
+    }
+
+    public void deleteTag(String tag) {
+        List<String> tags = reviewBean.getTags();
+        tags.remove(tag);
+    }
+
+    public String getPresentationInfo(boolean full) {
+        if(reviewBean.getReviewItems().isEmpty())
+            return "EMPTY COMMENT";
+        final String text = reviewBean.getReviewItems().get(0).getText();
+        if(full)return text;
+        String infoText = text.split("\n")[0];
+        return (infoText.length() > INFO_LENGTH) ? infoText.substring(0, INFO_LENGTH - 3) + "..." : infoText ;
+    }
+
+    public int getEnd() {
+        return reviewBean.getContext().getEnd();
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
+
+    public String getLastCommenter() {
+        String lastCommenter = "";
+        Date lastCommentDate = new Date(0);
+        for(ReviewItem item : getReviewItems()) {
+            final Date date = item.getDate();
+            if(date.compareTo(lastCommentDate) > 0) {
+                lastCommentDate = date;
+                lastCommenter = item.getAuthor();
+            }
+        }
+        return lastCommenter;
+    }
+
+    public Date getFirstDate() {
+        Date firstCommentDate = new Date();
+        for(ReviewItem item : getReviewItems()) {
+            final Date date = item.getDate();
+            if(date.compareTo(firstCommentDate) < 0) {
+                firstCommentDate = date;
+            }
+        }
+        return firstCommentDate;
+    }
+
+    public String getAuthor() {
+        return reviewBean.getReviewItems().get(0).getAuthor();
+    }
+
+    public void addTags(List<String> tags) {
+        reviewBean.getTags().addAll(tags);
+    }
+
+    public List<String> getAuthors() {
+        List<String> authors = new ArrayList<String>();
+        for(ReviewItem item : reviewBean.getReviewItems()) {
+            String author = item.getAuthor();
+            if(!authors.contains(author)){
+                authors.add(author);
+            }
+        }
+        return authors;
     }
 }

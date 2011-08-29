@@ -13,9 +13,7 @@ import reviewresult.ReviewManager;
 import ui.reviewtoolwindow.nodes.*;
 import utils.Util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Alisa.Afonina

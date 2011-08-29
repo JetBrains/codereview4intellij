@@ -10,10 +10,26 @@
                             <xsl:text>Reviews</xsl:text>
                         </title>
                         <style type="text/css">
+                            div.review {
+                                border: 1px solid black;
+                            }
+                            div.tag_wrapper {
+                                border-bottom: 1px solid #CBCBCB;
+                                border-top: 1px solid #CBCBCB;
+                                float: left;
+                                line-height: 13px;
+                                margin: 1px 5px 1px 1px;
+                            }
+                            div.tag_text {
+                               background-color: lightGray;
+                               border-color: gray;
+                               color: #333333;
+                            }
+
                             tbody {
                                 background: #F5F5DC;
                             }
-                            tr.line {
+                            td.line {
                                 background: lightBlue;
                             }
 
@@ -54,12 +70,23 @@
     </xsl:template>
 
     <xsl:template name='review'>
-        <h3><strong><xsl:text>Name of review: </xsl:text> </strong><xsl:value-of select="@name"/></h3>
+        <!--<h3><strong><xsl:text>Name of review: </xsl:text> </strong><xsl:value-of select="@name"/></h3>-->
+        <div class="review">
+            <xsl:apply-templates select="tags/tag"/>
             <xsl:apply-templates select="context/Context"/>
             <br/>
             <xsl:apply-templates select="review_items/review_item"/>
-
+        </div>
     </xsl:template>
+
+    <xsl:template match="tags/tag">
+        <div class="tag_wrapper">
+            <div class="tag_text">
+                <xsl:value-of select="@value"/> <xsl:text> </xsl:text>
+             </div>
+        </div>
+    </xsl:template>
+
 
     <xsl:template match="context/Context">
         <pre>

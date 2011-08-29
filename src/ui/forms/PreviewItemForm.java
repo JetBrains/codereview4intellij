@@ -5,6 +5,8 @@ import reviewresult.persistent.ReviewItem;
 import ui.reviewtoolwindow.Searcher;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicTextUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -27,10 +29,10 @@ public class PreviewItemForm {
         this.searcher = searcher;
         this.reviewItem = reviewItem;
 
-        JLabel headerLabel = new JLabel();
-        headerLabel.setText(reviewItem.getAuthor() + " wrote " + DateFormatUtil.formatPrettyDateTime(reviewItem.getDate()));
-        JTextArea itemText = new JTextArea();
-        itemText.setText(reviewItem.getText());
+        JLabel headerLabel = new JLabel(reviewItem.getAuthor()
+                                        + " wrote "
+                                        + DateFormatUtil.formatPrettyDateTime(reviewItem.getDate()));
+        JTextArea itemText = new JTextArea(reviewItem.getText(), 3, 2);
         itemText.setFont(new Font("Verdana", Font.PLAIN, 14));
         highlighter = new BasicTextUI.BasicHighlighter();
         itemText.setHighlighter(highlighter);
@@ -39,6 +41,9 @@ public class PreviewItemForm {
         itemText.setWrapStyleWord(true);
         mainPanel.add(headerLabel, BorderLayout.NORTH);
         mainPanel.add(itemText);
+        //final TitledBorder titledBorder = BorderFactory.createTitledBorder(reviewItem.getStatus().name());
+        //titledBorder.setTitleJustification(TitledBorder.RIGHT);
+        //mainPanel.setBorder(titledBorder);
         updateSelection();
     }
 
@@ -58,6 +63,8 @@ public class PreviewItemForm {
                ///
             }
         }
+       /* mainPanel.revalidate();
+        mainPanel.repaint();*/
     }
 
     public JPanel getContents() {

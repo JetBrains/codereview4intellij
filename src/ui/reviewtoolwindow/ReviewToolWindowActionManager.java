@@ -12,14 +12,13 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.ui.popup.BalloonBuilder;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.*;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.awt.RelativePoint;
+import com.intellij.ui.switcher.SwitchTarget;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -43,10 +42,23 @@ import java.io.StringReader;
 public class ReviewToolWindowActionManager implements DumbAware{
     private final ReviewPanel panel;
     private final ReviewToolWindowSettings settings;
+    private ComponentPopupBuilder popupBuilder;
+
 
     public ReviewToolWindowActionManager(ReviewPanel panel, ReviewToolWindowSettings settings) {
         this.panel = panel;
         this.settings = settings;
+    }
+
+    public void createSortMenu() {
+        DefaultActionGroup sortGroup = new DefaultActionGroup();
+        sortGroup.addAction(new SortByAuthorAction());
+        sortGroup.addAction(new SortByLastCommenterAction());
+        sortGroup.addAction(new SortByDateAction());
+        sortGroup.addAction(new SortByOffsetAction());
+        final ActionToolbar sortToolbar = ActionManager.getInstance()
+                .createActionToolbar(ActionPlaces.TODO_VIEW_TOOLBAR, sortGroup, true);
+        popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(sortToolbar.getComponent(), panel);
     }
 
     private final class GroupByModuleAction extends ToggleAction implements DumbAware {
@@ -84,11 +96,14 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-            return settings.isGroupByFile();
+            //final boolean sortingInNotFileMode = (settings.isSortByAuthor() || settings.isSortByDate() || settings.isSortByLastCommenter());
+            return settings.isGroupByFile();// && !sortingInNotFileMode;
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
+            //final boolean sortingInNotFileMode = (settings.isSortByAuthor() || settings.isSortByDate() || settings.isSortByLastCommenter());
+            //if(!sortingInNotFileMode)
             settings.setGroupByFile(state);
             updateUI();
         }
@@ -96,6 +111,133 @@ public class ReviewToolWindowActionManager implements DumbAware{
         @Override
         public void update(AnActionEvent e) {
             e.getPresentation().setEnabled(settings.isEnabled());
+        }
+    }
+
+    private final class SortByAuthorAction extends ToggleAction  implements DumbAware {
+
+        private SortByAuthorAction() {
+             super("Sort reviews by author","Sort reviews by author", IconLoader.getIcon("/icons/inspector/sortByName.png"));
+        }
+
+
+        @Override
+        public boolean isSelected(AnActionEvent e) {
+           ///System.out.println("Is sort by author selected: "  + settings.isSortByAuthor());
+            return true;
+        }
+
+        @Override
+        public void setSelected(AnActionEvent e, boolean state) {
+                /*boolean selected = state && (!settings.isSortByDate()
+                                            || !settings.isSortByLastCommenter()
+                                            || !settings.isSortByOffset());*/
+                settings.setSortByAuthor(!settings.isSortByAuthor());
+                panel.rebuidTree();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled() && !settings.isGroupByFile());
+        }
+    }
+
+    private final class SortByLastCommenterAction extends ToggleAction  implements DumbAware {
+
+        private SortByLastCommenterAction() {
+             super("Sort reviews by author of last comment","Sort reviews by author of last comment", IconLoader.getIcon("/icons/inspector/sortByName.png"));
+        }
+
+
+        @Override
+        public boolean isSelected(AnActionEvent e) {
+            return true;
+        }
+
+        @Override
+        public void setSelected(AnActionEvent e, boolean state) {
+                settings.setSortByLastCommenter(!settings.isSortByLastCommenter());
+                panel.rebuidTree();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled() && !settings.isGroupByFile());
+        }
+    }
+
+    private final class SortByDateAction extends ToggleAction  implements DumbAware {
+
+        private SortByDateAction() {
+             super("Sort reviews by date of creation","Sort reviews by date of creation", IconLoader.getIcon("/actions/analyze.png"));
+        }
+
+
+        @Override
+        public boolean isSelected(AnActionEvent e) {
+            return true;
+        }
+
+        @Override
+        public void setSelected(AnActionEvent e, boolean state) {
+                settings.setSortByDate(!settings.isSortByDate());
+                panel.rebuidTree();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled() && !settings.isGroupByFile());
+        }
+    }
+
+    private final class SortByOffsetAction extends ToggleAction  implements DumbAware {
+
+        private SortByOffsetAction() {
+             super("Sort reviews by offset in file","Sort reviews by offset in file", IconLoader.getIcon("/icons/inspector/sortByCategory.png"));
+        }
+
+
+        @Override
+        public boolean isSelected(AnActionEvent e) {
+            return true;
+        }
+
+        @Override
+        public void setSelected(AnActionEvent e, boolean state) {
+            settings.setSortByOffset(!settings.isSortByOffset());
+            panel.rebuidTree();
+        }
+
+        @Override
+        public void update(AnActionEvent e) {
+            e.getPresentation().setEnabled(settings.isEnabled() && settings.isGroupByFile());
+        }
+    }
+
+    private final class ShowSortingFuctionsAction extends ToggleAction implements DumbAware {
+        private boolean showSort;
+        private JBPopup popup;
+
+        private ShowSortingFuctionsAction() {
+            super("Sorting functions...", "Sort reviews", IconLoader.getIcon("/general/secondaryGroup.png"));
+        }
+
+        @Override
+        public boolean isSelected(AnActionEvent e) {
+            return showSort;
+        }
+
+        @Override
+        public void setSelected(AnActionEvent e, boolean state) {
+            showSort = state;
+            if(state) {
+                popup = popupBuilder.createPopup();
+                popup.showUnderneathOf(e.getInputEvent().getComponent());
+            }
+            else {
+                settings.disableAllSorting();
+                popup.dispose();
+            }
         }
     }
 
@@ -167,14 +309,13 @@ public class ReviewToolWindowActionManager implements DumbAware{
             final Component component = e.getInputEvent().getComponent();
             final Point centerPoint = new Point(component.getHeight()/ 2 ,component.getWidth()/ 2);
             if(project == null) {return;}
-
             ReviewSaveForm saveDialog = new ReviewSaveForm(project);
 
             saveDialog.show();
 
             if(saveDialog.isOK()) {
                 final VirtualFile selectedFile = saveDialog.getFile();
-                if(selectedFile == null) return;
+                if(selectedFile == null || !selectedFile.exists()) return;
                 final boolean xmlFormat = saveDialog.isXMLFormat();
                 String text = ReviewManager.getInstance(project).getExportText(!xmlFormat);
 
@@ -205,7 +346,6 @@ public class ReviewToolWindowActionManager implements DumbAware{
             } else {
                 return;
             }
-
             showBalloon(balloonBuilder, component, centerPoint);
     }
 
@@ -258,7 +398,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
                 ReviewsState.State state = XmlSerializer.deserialize(root, ReviewsState.State.class);
                 ReviewManager reviewManager = ReviewManager.getInstance(project);
                 reviewManager.loadReviews(state.reviews, true);
-                String htmlContent ="Reviews successfully imported<br/>";
+                String htmlContent = /*successfullyLoaded + " of " + state.reviews.size() + */" Reviews successfully imported<br/>";
                 balloonBuilder = JBPopupFactory.getInstance().
                                             createHtmlTextBalloonBuilder(htmlContent, MessageType.INFO, null);
                 showBalloon(balloonBuilder, component, centerPoint);
@@ -277,20 +417,23 @@ public class ReviewToolWindowActionManager implements DumbAware{
     }
 
     public JPanel createLeftMenu() {
-        JPanel toolBar = new JPanel(new GridLayout());
+        JPanel toolBar = new JPanel(new BorderLayout());
 
         DefaultActionGroup leftGroup = new DefaultActionGroup();
         leftGroup.add(new PreviousOccurenceToolbarAction(panel));
-        leftGroup.add(new NextOccurenceToolbarAction(panel));
+        leftGroup.addAction(new NextOccurenceToolbarAction(panel));
         leftGroup.add(new PreviewAction());
         leftGroup.add(new GroupByModuleAction());
         leftGroup.add(new GroupByFileAction());
         leftGroup.add(new SearchAction());
         leftGroup.add(new ExportToFileAction());
         leftGroup.add(new ImportFromFileAction());
-        toolBar.add(ActionManager.getInstance()
-                    .createActionToolbar(ActionPlaces.TODO_VIEW_TOOLBAR, leftGroup, false)
-                    .getComponent());
+        leftGroup.add(new ShowSortingFuctionsAction());
+
+        final ActionToolbar actionToolbar = ActionManager.getInstance()
+                .createActionToolbar(ActionPlaces.TODO_VIEW_TOOLBAR, leftGroup, false);
+        toolBar.add(actionToolbar.getComponent());
+        createSortMenu();
         return toolBar;
     }
 
@@ -306,4 +449,6 @@ public class ReviewToolWindowActionManager implements DumbAware{
                                                                 MessageType.ERROR, null);
         showBalloon(balloonBuilder, component, centerPoint);
     }
+
+
 }

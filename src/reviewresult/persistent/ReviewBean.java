@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @Tag("review")
 public class ReviewBean {
-
     private String guid = UUID.randomUUID().toString();
     private String name;
     private Context context;
@@ -24,6 +23,8 @@ public class ReviewBean {
     private boolean isDeleted;
 
     private List<ReviewItem> reviewItems = new ArrayList<ReviewItem>();
+    private List<String> tags = new ArrayList<String>();
+
 
     public ReviewBean() {}
 
@@ -127,4 +128,17 @@ public class ReviewBean {
     }
 
 
+    @Tag("tags")
+    @AbstractCollection(surroundWithTag = false, elementTag = "tag")
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public void removeReviewItem(ReviewItem item) {
+        reviewItems.remove(item);
+    }
 }

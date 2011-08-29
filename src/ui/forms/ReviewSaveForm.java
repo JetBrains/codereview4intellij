@@ -68,27 +68,24 @@ public class ReviewSaveForm extends DialogWrapper{
         targetFolderTextField.addBrowseFolderListener("Save Reviews",
                                                  "Save reviews into file",
                                                  project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
-        field.getField().addFocusListener(new FocusAdapter() {
+        final VirtualFile selectedFile = field.getSelectedFile();
+        if(selectedFile != null) {
+            targetFolderTextField.setText(selectedFile.getPath());
+        }
+
+        fileName.addActionListener(new ActionListener() {
             @Override
-            public void focusLost(FocusEvent e) {
-                String text = fileName.getText();
-                checkFileExistence(text);
+            public void actionPerformed(ActionEvent e) {
+                setExtension(xmlButton.isSelected());
             }
         });
-
         fileName.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                String text = fileName.getText();
-                if(!"".equals(text)) {
-                    if(!text.contains(".xml") && !text.contains(".html")) {
-                        String extension = (xmlButton.isSelected())?".xml":".html";
-                        fileName.setText(text + extension);
-                    }
-                }
-                checkFileExistence(text);
+                setExtension(xmlButton.isSelected());
             }
         });
+
         mainPanel.add(new JLabel("Select output format: "));
         mainPanel.add(xmlButton);
         mainPanel.add(htmlButton);
@@ -99,20 +96,27 @@ public class ReviewSaveForm extends DialogWrapper{
         return mainPanel;
     }
 
-    private void checkFileExistence(String text) {
+    private void setExtension(boolean isXML) {
+        String text = fileName.getText();
+        if(!"".equals(text)) {
+            if(!text.contains(".xml") && !text.contains(".html")) {
+                String extension = isXML ? ".xml":".html";
+                fileName.setText(text + extension);
+            }
+        }
+    }
+
+    private boolean fileExists() {
+        String text = fileName.getText();
         if(text != null && !"".equals(text)) {
             final VirtualFile selectedFile = field.getSelectedFile();
             if(selectedFile != null) {
                 final VirtualFile child = selectedFile.findChild(text);
                 if(child != null)
-                    if(Messages.showOkCancelDialog("Selected file already exists. Would you like to overwrite it?",
-                            "File Already Exists",
-                            Messages.getWarningIcon()) == Messages.CANCEL) {
-                        fileName.setText("");
-                    }
-
+                    return true;
             }
         }
+        return false;
     }
 
     private void changeFileExtension(String oldExt, String newExt) {
@@ -164,5 +168,19 @@ public class ReviewSaveForm extends DialogWrapper{
 
     public boolean isXMLFormat() {
         return fileName.getText().contains(".xml");
+    }
+
+    @Override
+    protected void doOKAction() {
+        if(fileExists()) {
+            if(Messages.showOkCancelDialog("This file already exists." +
+                                            " Would you like to overwrite it?",
+                                            "File Already Exists",
+                                            Messages.getWarningIcon()) == Messages.OK) {
+                super.doOKAction();
+            }
+        } else {
+            super.doOKAction();
+        }
     }
 }

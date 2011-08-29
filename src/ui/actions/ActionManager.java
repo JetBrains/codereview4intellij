@@ -35,7 +35,13 @@ public class ActionManager implements DumbAware {
         Editor editor = PlatformDataKeys.EDITOR.getData(e.getDataContext());
         if(editor != null) {
             Document document = editor.getDocument();
-            int offset = editor.getCaretModel().getOffset();
+            int offset = -1;
+            if(editor.getSelectionModel().hasSelection()) {
+               offset  = editor.getSelectionModel().getSelectionStart();
+            } else {
+                offset = editor.getCaretModel().getOffset();
+            }
+            if(offset < 0) return null;
             int line = document.getLineNumber(offset);
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
             VirtualFile baseDir = project.getBaseDir();
