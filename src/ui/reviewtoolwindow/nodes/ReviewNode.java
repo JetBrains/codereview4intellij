@@ -67,7 +67,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
             }
             int lineNumber = line + 1;
             if(!getSettings().isGroupByFile()) {
-                if(getSettings().isSortByAuthor()) {
+               /* if(getSettings().isSortByAuthor()) {
                     presentationData.addText(" (" + review.getAuthor() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
                 } else {
                     if(getSettings().isSortByDate()) {
@@ -75,11 +75,11 @@ public class ReviewNode extends PlainNode implements Navigatable{
                     } else {
                         if(getSettings().isSortByLastCommenter()) {
                             presentationData.addText(" (" + review.getLastCommenter() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                        } else {
+                        } else {*/
                             presentationData.addText( " (" + review.getFileName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                        }
+                /*        }
                     }
-                }
+                }*/
             } else {
                 presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             }

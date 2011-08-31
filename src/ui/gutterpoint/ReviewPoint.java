@@ -22,10 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
-import ui.actions.DeleteReviewAction;
-import ui.actions.AddReviewItemAction;
-import ui.actions.ReviewActionManager;
-import ui.actions.ShowReviewAction;
+import ui.actions.*;
 import utils.Util;
 
 import javax.swing.*;
@@ -103,6 +100,7 @@ public class ReviewPoint{
 
     private class ReviewGutterIconRenderer extends GutterIconRenderer{
         private final Icon icon = IconLoader.getIcon("/images/note.png");
+        private boolean activated = false;
         @NotNull
         @Override
         public Icon getIcon() {
@@ -126,15 +124,38 @@ public class ReviewPoint{
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             ReviewGutterIconRenderer that = (ReviewGutterIconRenderer) o;
             return icon.equals(that.getIcon());
         }
 
         @Override
         public AnAction getClickAction() {
-            return ReviewActionManager.getInstance().getGutterAction(review);
+            final BalloonWithSelection activeBalloon = ReviewActionManager.getInstance().getActiveBalloon();
+            if(activeBalloon.compare(review) && (activated ^ review.isActivated())) {
+                return new AnAction() {
+                    @Override
+                    public void actionPerformed(AnActionEvent e) {
+                        review.setActivated(false);
+                        activated = false;
+                        activeBalloon.dispose();
+                    }
+                };
+            }
+
+            if(!activeBalloon.isValid() ||  !review.isActivated()) {
+                final ReviewItem lastReviewItem = review.getLastReviewItem();
+                if(lastReviewItem == null) return null;
+                activated = true;
+                if(lastReviewItem.isMine()) {
+                    return new ShowReviewAction("View review");
+                } else {
+                    return new AddReviewItemAction("Add review");
+                }
+            }
+            return null;
         }
+
+
 
         @Override
         public String getTooltipText() {
@@ -150,14 +171,15 @@ public class ReviewPoint{
         @Nullable
         public ActionGroup getPopupMenuActions() {
             DefaultActionGroup group = new DefaultActionGroup();
-            List<ReviewItem> reviewItems = review.getReviewItems();
-            if(!reviewItems.get(reviewItems.size() - 1).getAuthor().equals(System.getProperty("user.name"))) {
-                     group.add(new AddReviewItemAction("Add New Comment..."));
-                }
-                else {
-                    group.add(new ShowReviewAction("Edit Last Comment... "));
-                }
+            String title = "Add New Comment...";
+            final ReviewItem lastReviewItem = review.getLastReviewItem();
+            if(lastReviewItem == null) return null;
+            if(lastReviewItem.isMine()) {
+                title = "Edit Last Comment... ";
+            }
+            group.add(new AddReviewItemAction(title));
             group.add(new DeleteReviewAction());
+            group.add(new ConvertToTextCommentAction("Convert Review To Text Comment"));
             return group;
         }
     }
@@ -169,7 +191,6 @@ public class ReviewPoint{
     private boolean moveTo(VirtualFile virtualFile, int line) {
         Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
         if(document == null) return false;
-        //Editor[] editors = EditorFactory.getInstance().getEditors(document);
         Editor editor = FileEditorManager.getInstance(review.getProject()).getSelectedTextEditor();
         if(editor == null) return false;
         MarkupModelEx markup = (MarkupModelEx) editor.getMarkupModel();

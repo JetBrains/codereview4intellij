@@ -1,6 +1,5 @@
 package reviewresult;
 
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -8,6 +7,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.*;
 import com.intellij.util.io.URLUtil;
 import com.intellij.util.xmlb.XmlSerializer;
@@ -192,9 +192,14 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     }
 
     private void mergeReviews(Review oldReview, Review newReview) {
-        oldReview.setReviewBean(newReview.getReviewBean());
-        addTags(newReview.getReviewBean().getTags());
-        eventPublisher.reviewChanged(oldReview);
+        if(Messages.showYesNoDialog("This review already exists. Would you like to overwrite it?",
+                "Review Exists",
+                Messages.getInformationIcon()) == Messages.OK) {
+                    oldReview.setReviewBean(newReview.getReviewBean());
+                    addTags(newReview.getReviewBean().getTags());
+                    eventPublisher.reviewChanged(oldReview);
+
+        }
     }
 
     private void selectReviewState(Review oldReview/*, Review newReview*/) {
@@ -318,15 +323,15 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         return reportText;
    }
 
-    private String getHTMLReport(Element element) {
+    public String getHTMLReport(Element element) {
         try {
             URL xsltUrl = getClass().getResource("/web/report.xsl");
             Source xslSource = new StreamSource(URLUtil.openStream(xsltUrl));
             SAXTransformerFactory transformerFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
             TransformerHandler handler = transformerFactory.newTransformerHandler(xslSource);
-            StringWriter w = new StringWriter();
-            handler.getTransformer().transform(new JDOMSource(element), new StreamResult(w));
-            return w.toString();
+            StringWriter stringWriter = new StringWriter();
+            handler.getTransformer().transform(new JDOMSource(element), new StreamResult(stringWriter));
+            return Util.getInstance(myProject).getHTMLContents(stringWriter.toString());
         } catch (IOException e) {
            // todo
         } catch (TransformerConfigurationException e) {
@@ -348,7 +353,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
        return serialize(state);
    }
 
-    private String serialize(Object state) {
+    public String serialize(Object state) {
         String result = "";
         Element addedElement = XmlSerializer.serialize(state);
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());

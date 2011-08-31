@@ -103,7 +103,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                     }
                     if (settings.isShowPreviewEnabled()) {
                         showPreview();
-                        previewPanel.updateSelection();
+                        //previewPanel.updateSelection();
                     }
                 }
             }
@@ -122,7 +122,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                     }
                     if (settings.isShowPreviewEnabled() && settings.isEnabled()) {
                         showPreview();
-                        previewPanel.updateSelection();
+                        //previewPanel.updateSelection();
                     }
                 }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -413,6 +413,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
                 boolean visible = !(fileNames.isEmpty() && filteredFileNames.isEmpty());
                 previewPanel.setVisible(visible);
+                showPreview();
             } else {
                 previewPanel.setVisible(false);
             }
@@ -436,7 +437,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         }
         if(review == null) return;
         previewPanel.update(review);
-        updateUI();
+        //updateUI();
     }
 
     @Override

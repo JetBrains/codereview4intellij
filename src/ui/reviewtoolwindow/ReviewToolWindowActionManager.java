@@ -335,10 +335,10 @@ public class ReviewToolWindowActionManager implements DumbAware{
                                                                         ShowFilePathAction.open(VfsUtil.virtualToIoFile(selectedFile), null);
                                                                     else
                                                                         BrowserUtil.launchBrowser(selectedFile.getPath());
-
                                                                 }
                                                             });
                     balloonBuilder.setFadeoutTime(FADEOUT_TIME);
+
                 } else {
                     showErrorBalloon("While saving " + selectedFile.getName() + " error occured", component, centerPoint);
                     return;

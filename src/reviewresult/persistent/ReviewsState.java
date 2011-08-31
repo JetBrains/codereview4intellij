@@ -2,19 +2,12 @@ package reviewresult.persistent;
 
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.ByteSequence;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
-import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.Tag;
-import org.jdesktop.swingx.plaf.BuddyTextFieldUI;
 import reviewresult.ReviewManager;
-import sun.security.provider.MD5;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: Alisa.Afonina

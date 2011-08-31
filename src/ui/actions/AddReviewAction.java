@@ -15,12 +15,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import groovyjarjarantlr.LexerSharedInputState;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.gutterpoint.ReviewPoint;
 import ui.gutterpoint.ReviewPointManager;
-import ui.reviewtoolwindow.ReviewView;
 
 /**
  * User: Alisa.Afonina

@@ -1,23 +1,35 @@
 package ui.forms;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.*;
-import com.intellij.ui.components.panels.VerticalBox;
+import com.intellij.ui.awt.RelativePoint;
+import com.intellij.util.ui.UIUtil;
+import com.intellij.util.xmlb.XmlSerializer;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
+import reviewresult.ReviewStatus;
 import reviewresult.persistent.ReviewItem;
 import ui.actions.ReviewActionManager;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * User: Alisa.Afonina
@@ -25,33 +37,31 @@ import java.util.Set;
  * Time: 2:27 PM
  */
 public class EditReviewForm {
-    //private final EditorTextField reviewName;
-
     private final JPanel mainPanel = new JPanel(new BorderLayout());
-    private final Box itemsPanel = new VerticalBox();
-    private final EditorComboBox tagsComboBox = new EditorComboBox("");
-    private List<EditReviewItemForm> reviewItemFormsList;
-
     private EditorTextField newReviewItemText;
-
     private List<String> tags = new ArrayList<String>();
 
     private final Review review;
-    private final boolean showNewItem;
+    private final boolean addOrEditItem;
     private static final int TAG_LENGTH = 20;
+    private static final int BALLOON_WIDTH = 250;
+    private static final int BALLOON_HEIGHT = 400;
+    private static final int MIN_BALLOON_WIDTH = 450;
+    private static final int MIN_BALLOON_HEIGHT = 400;
     private TextFieldWithAutoCompletion tagsField;
+    private JComboBox statusCombo;
+    private static final long FADEOUT_TIME = 1000;
+    private JPanel tagsPanel;
 
-    public EditReviewForm(final Review review, boolean addItem, boolean spellCheck) {
+    public EditReviewForm(final Review review, boolean addOrEditItem, boolean spellCheck) {
         this.review = review;
-        this.showNewItem = addItem;
+        this.addOrEditItem = addOrEditItem;
 
-        //setupReviewName(spellCheck);
         setupTags();
         setupItemsContent();
 
-        if(addItem) {
-            setupNewItem(spellCheck);
-            //setupOKCancel();
+        if(addOrEditItem) {
+            setupLastItem(spellCheck);
         }
 
         mainPanel.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
@@ -69,12 +79,36 @@ public class EditReviewForm {
                  ReviewActionManager.getInstance().disposeActiveBalloon();
             }
         });
+
+        final Dimension preferredSize = mainPanel.getPreferredSize();
+        if(preferredSize.getHeight() > BALLOON_HEIGHT) {
+            preferredSize.height = BALLOON_HEIGHT;
+        }
+
+        if(preferredSize.getWidth() > BALLOON_WIDTH) {
+            preferredSize.width = BALLOON_WIDTH;
+        }
+
+        if(preferredSize.getHeight() < MIN_BALLOON_HEIGHT) {
+            preferredSize.height = MIN_BALLOON_HEIGHT;
+        }
+
+        if(preferredSize.getWidth() < MIN_BALLOON_WIDTH) {
+            preferredSize.width = MIN_BALLOON_WIDTH;
+        }
+
+        mainPanel.setPreferredSize(preferredSize);
+        setupTagsPanelSize();
     }
 
-    private void setupNewItem(boolean spellCheck) {
+    private void setupLastItem(boolean spellCheck) {
         newReviewItemText = createInputField(spellCheck, false);
+        final ReviewItem lastReviewItem = review.getLastReviewItem();
+        if(lastReviewItem != null && lastReviewItem.isMine()) {
+            newReviewItemText.setText(lastReviewItem.getText());
+        }
         newReviewItemText.setBackground(Color.WHITE);
-        newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 16));
+        newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, 12));
         final Editor editor = newReviewItemText.getEditor();
         newReviewItemText.setMaximumSize(newReviewItemText.getPreferredSize());
         if(editor != null) {
@@ -90,47 +124,93 @@ public class EditReviewForm {
             }
         });
 
-
-        JPanel newReviewItemPanel = new JPanel(new GridLayout(1, 1));
+        statusCombo = new JComboBox(ReviewStatus.values());
+        JPanel newReviewItemPanel = new JPanel(new BorderLayout());
         newReviewItemPanel.add(newReviewItemText);
-        mainPanel.add(newReviewItemText, BorderLayout.SOUTH);
+        newReviewItemPanel.add(statusCombo, BorderLayout.SOUTH);
+        final List<ReviewItem> reviewItems = review.getReviewItems();
+        if(reviewItems.isEmpty() || (lastReviewItem != null && reviewItems.size() == 1 && lastReviewItem.isMine())) {
+            mainPanel.add(newReviewItemPanel);
+        }
+        else {
+            mainPanel.add(newReviewItemPanel, BorderLayout.SOUTH);
+        }
     }
 
     private void setupTags() {
-        final JPanel tagsPanel = new JPanel(new GridLayout(0, 1));
-        for(String tag : review.getReviewBean().getTags()) {
-            final JButton comp = new JButton(tag);
-            comp.setEnabled(false);
-            comp.setBorderPainted(false);
+        JPanel mainTagsPanel = new JPanel(new BorderLayout());
+        tagsPanel = new JPanel();
+        for(final String tag : review.getReviewBean().getTags()) {
+            final JLabel tagLabel = new JLabel(tag);
+            //comp.setBorderPainted(false);
             if(tag.length() > TAG_LENGTH) {
-                comp.setToolTipText(tag);
-                comp.setText(tag.substring(0,TAG_LENGTH - 3) + "...");
+                tagLabel.setToolTipText(tag);
+                tagLabel.setText(tag.substring(0, TAG_LENGTH - 3) + "...");
             }
-            tagsPanel.add(comp);
+            tagsPanel.add(tagLabel);
+            /*if(addOrEditItem) {
+                final Icon icon = IconLoader.getIcon("/actions/delete.png");
+                JButton deleteTagButton = new JButton(icon);
+                deleteTagButton.setSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
+                deleteTagButton.setBorderPainted(false);
+                deleteTagButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        review.deleteTag(tag);
+                        tags.remove(tag);
+                    }
+                });
+                tagsPanel.add(deleteTagButton);
+            }*/
         }
+
         final List<String> availableTags = ReviewManager.getInstance(review.getProject()).getAvailableTags();
         tagsField = new TextFieldWithAutoCompletion(review.getProject());
         tagsField.setVariants(availableTags.toArray(new String[availableTags.size()]));
         tagsField.setBackground(Color.WHITE);
         tagsPanel.setFocusable(true);
         tagsField.setRequestFocusEnabled(true);
+        tagsField.setFont(new Font("Verdana", Font.PLAIN, 12));
         tagsField.registerKeyboardAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final String text = tagsField.getText();
-                tags.add(text);
-                tagsPanel.add(new JLabel(text));
-                tagsField.setText("");
-                tagsPanel.revalidate();
-                tagsPanel.repaint();
-                mainPanel.updateUI();
+                final String tag = tagsField.getText();
+                if("".equals(tag.trim()) || tags.contains(tag)) {
+                    BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().
+                            createHtmlTextBalloonBuilder(
+                                    "Tag already exists", MessageType.WARNING, null);
+                    balloonBuilder.setFadeoutTime(FADEOUT_TIME);
+                    balloonBuilder.setHideOnKeyOutside(true);
+                    balloonBuilder.setHideOnClickOutside(true);
+                    balloonBuilder.createBalloon().show(new RelativePoint(tagsPanel, tagsPanel.getLocation()), Balloon.Position.above);
+                } else {
+                    tags.add(tag);
+                    final JLabel comp = new JLabel(tag);
+                    if(tag.length() > TAG_LENGTH) {
+                        comp.setToolTipText(tag);
+                        comp.setText(tag.substring(0, TAG_LENGTH - 3) + "...");
+                    }
+                    tagsPanel.add(comp);
+                    tagsField.setText("");
+                    setupTagsPanelSize();
+                    tagsPanel.revalidate();
+                    tagsPanel.repaint();
+                }
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        if(showNewItem){
-            tagsPanel.add(tagsField);
+        mainTagsPanel.add(tagsPanel);
+        if(addOrEditItem){
+            mainTagsPanel.add(tagsField, BorderLayout.SOUTH);
         }
-        mainPanel.add(tagsPanel, BorderLayout.NORTH);
+        mainPanel.add(mainTagsPanel, BorderLayout.NORTH);
 
+    }
+
+    private void setupTagsPanelSize() {
+        Dimension layoutSize = tagsPanel.getLayout().preferredLayoutSize(tagsPanel);
+        int width = mainPanel.getPreferredSize().width;
+        int tagsPanelHeight =  layoutSize.height * (int)(((float)layoutSize.width/width) + 1);
+        tagsPanel.setPreferredSize(new Dimension(mainPanel.getSize().width,tagsPanelHeight));
     }
 
     private void setupOKCancel() {
@@ -157,28 +237,8 @@ public class EditReviewForm {
         });
     }
 
- /*   private void setupReviewName(boolean spellCheck) {
-        reviewName = createInputField(spellCheck, true);
-        reviewName.setBackground(Color.WHITE);
-        reviewName.setOneLineMode(true);
-        reviewName.setFont(new Font("Verdana", Font.PLAIN, 14));
-        reviewName.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                reviewName.setBorder(BorderFactory.createEmptyBorder());
-            }
-        });
-        if(review.getName() != null) {
-            reviewName.setText(review.getName());
-        }
-
-        mainPanel.add(reviewName, BorderLayout.NORTH);
-    }*/
-
     private EditorTextField createInputField(boolean checkSpelling, boolean oneLine) {
         final EnumSet<EditorCustomization.Feature> enabledFeatures = EnumSet.of(EditorCustomization.Feature.SOFT_WRAP);
-        if(!oneLine)
-            enabledFeatures.add(EditorCustomization.Feature.ADDITIONAL_PAGE_AT_BOTTOM);
         Set<EditorCustomization.Feature> disabledFeatures = EnumSet.of( EditorCustomization.Feature.HORIZONTAL_SCROLLBAR);
         if (checkSpelling) {
           enabledFeatures.add(EditorCustomization.Feature.SPELL_CHECK);
@@ -193,33 +253,28 @@ public class EditReviewForm {
                                       disabledFeatures);
     }
 
-    private boolean canSaveItems() {
-        for(EditReviewItemForm form : reviewItemFormsList) {
-            if(!form.canSave()) return false;
-        }
-        return true;
-    }
 
     public void saveReview() {
-        if(!canSaveItems()) {
-            mainPanel.updateUI();
-            return;
-        }
         if(!tags.isEmpty()) {
             ReviewManager.getInstance(review.getProject()).addTags(tags);
             review.addTags(tags);
         }
 
-
-        if(showNewItem) {
+        if(addOrEditItem) {
             String text = newReviewItemText.getText().trim();
             if ("".equals(text)) {
                 newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
                 newReviewItemText.invalidate();
                 return;
             }
+            final ReviewItem lastReviewItem = review.getLastReviewItem();
 
-            review.addReviewItem(new ReviewItem(text));
+            if(lastReviewItem != null && lastReviewItem.isMine()) {
+                lastReviewItem.setText(text);
+                lastReviewItem.setDate(new Date());
+            } else {
+                review.addReviewItem(new ReviewItem(text, (ReviewStatus)statusCombo.getSelectedItem()));
+            }
             final JScrollPane newItemScrollPane = ScrollPaneFactory.createScrollPane(new JPanel());
             newItemScrollPane.add(newReviewItemText);
 
@@ -234,7 +289,7 @@ public class EditReviewForm {
         }
 
         ReviewActionManager.getInstance().disposeActiveBalloon();
-        if (showNewItem && review.getReviewItems().size() == 1) {
+        if (addOrEditItem && review.getReviewItems().size() == 1) {
                 ReviewManager.getInstance(review.getProject()).placeReview(review);
         } else {
             ReviewManager.getInstance(review.getProject()).changeReview(review);
@@ -247,50 +302,50 @@ public class EditReviewForm {
     }
 
     private void setupItemsContent() {
-        reviewItemFormsList = new ArrayList<EditReviewItemForm>();
-        itemsPanel.removeAll();
+        JEditorPane itemsText = new JEditorPane();
+        itemsText.setEditable(false);
+        itemsText.setContentType(UIUtil.HTML_MIME);
 
-        for (final ReviewItem reviewItem : review.getReviewItems()) {
-            final EditReviewItemForm itemForm = new EditReviewItemForm(review.getProject(), reviewItem);
-            final JPanel deleteItemsPanel = new JPanel(new BorderLayout());
-            JButton deleteReviewItemButton = new JButton("x");
-            deleteReviewItemButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if(review.getReviewBean().getReviewItems().size() > 1) {
-                        review.getReviewBean().removeReviewItem(reviewItem);
-                        reviewItemFormsList.remove(itemForm);
-                        itemsPanel.remove(deleteItemsPanel);
-                        itemsPanel.revalidate();
-                        itemsPanel.repaint();
-                    } else {
-                        ReviewActionManager.getInstance().disposeActiveBalloon();
-                        ReviewManager.getInstance(review.getProject()).removeReview(review);
-                    }
-                }
-            });
-            if(review.getReviewBean().getReviewItems().size() > 1) {
-                deleteItemsPanel.add(deleteReviewItemButton, BorderLayout.NORTH);
+        final HTMLEditorKit htmlEditorKit = UIUtil.getHTMLEditorKit();
+        final StyleSheet styleSheet = htmlEditorKit.getStyleSheet();
+        styleSheet.addRule("html body div.review_item span.highlight {background-color:FFFF00}");
+        htmlEditorKit.setStyleSheet(styleSheet);
+        itemsText.setEditorKit(htmlEditorKit);
+        String result = "";
+
+        final List<ReviewItem> reviewItems = review.getReviewItems();
+        if(reviewItems.isEmpty())return;
+        for (int i = 0; i < reviewItems.size(); i++) {
+            ReviewItem reviewItem = reviewItems.get(i);
+            if(!(i == reviewItems.size() - 1 && reviewItem.isMine() && addOrEditItem)) {
+                final ReviewManager instance = ReviewManager.getInstance(review.getProject());
+                result += instance.getHTMLReport(XmlSerializer.serialize(reviewItem));
             }
-            deleteItemsPanel.add(itemForm.getContent());
-            itemsPanel.add(deleteItemsPanel);
-            reviewItemFormsList.add(itemForm);
-            itemForm.requestFocus();
         }
+        if("".equals(result)) return;
+        itemsText.setText(result);
+        itemsText.addHyperlinkListener(new HyperlinkAdapter() {
+            @Override
+            protected void hyperlinkActivated(HyperlinkEvent hyperlinkEvent) {
+                BrowserUtil.launchBrowser(hyperlinkEvent.getURL().toString());
+            }
+        });
 
-        if(!reviewItemFormsList.isEmpty()) {
-            mainPanel.add(itemsPanel);
-        }
+
+
+        JScrollPane pane = ScrollPaneFactory.createScrollPane(itemsText);
+        //pane.setPreferredSize(preferredSize);
+        pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        mainPanel.add(pane);
     }
 
     public void requestFocus() {
-        if(showNewItem) {
+        if(addOrEditItem) {
             Component component;
             //component = newReviewItemText;
             component = tagsField;
             IdeFocusManager.findInstanceByComponent(component).requestFocus(component, true);
-        } else {
-            reviewItemFormsList.get(reviewItemFormsList.size() - 1).requestFocus();
         }
     }
 }

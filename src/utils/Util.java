@@ -1,5 +1,6 @@
 package utils;
 
+import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -11,9 +12,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.annotations.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ui.reviewtoolwindow.Searcher;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -23,17 +27,14 @@ import java.security.PrivateKey;
  * Date: 8/1/11
  * Time: 3:01 PM
  */
-public class Util implements DumbAware {
+public class Util extends AbstractProjectComponent implements DumbAware {
 
-    private Project project;
-    private static Util instance;
-    private Util(@NotNull final Project project) {
-        this.project = project;
+    protected Util(Project project) {
+        super(project);
     }
 
     public static Util getInstance(@NotNull Project project) {
-        if(instance == null) instance = new Util(project);
-        return instance;
+        return project.getComponent(Util.class);
     }
 
     private static int[] prefixFunction(String pattern) {
@@ -102,7 +103,7 @@ public class Util implements DumbAware {
 
     @Nullable
     public VirtualFile getVirtualFile(String filePath) {
-        VirtualFile baseDir = project.getBaseDir();
+        VirtualFile baseDir = myProject.getBaseDir();
         if(baseDir == null)  {return null;}
         return baseDir.findFileByRelativePath(filePath);
     }
@@ -111,7 +112,25 @@ public class Util implements DumbAware {
     public OpenFileDescriptor getOpenFileDescriptor(String filePath, int offset) {
         final VirtualFile virtualFile = getVirtualFile(filePath);
         if(virtualFile == null) return null;
-        return new OpenFileDescriptor(project, virtualFile, offset);
+        return new OpenFileDescriptor(myProject, virtualFile, offset);
+    }
+
+
+    public String getHTMLContents(String text) {
+        String[] parts = text.split("\\s");
+        final Searcher searcher = Searcher.getInstance(myProject);
+        final String filter = searcher.getFilter();
+        String result = text;
+        if(!"".equals(filter)) {
+             result = result.replace(filter, "<span class=\"highlight\">" + filter + "</span>");
+        }
+        for(String part : parts) {
+            try {
+                URL url = new URL(part);
+                result = result.replace(part, "<a href=\"" + url + "\">"+ url + "</a>");
+            } catch (MalformedURLException e) {}
+        }
+        return result;
     }
 }
 

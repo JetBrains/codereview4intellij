@@ -9,8 +9,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import reviewresult.Review;
-import ui.gutterpoint.ReviewPoint;
-import ui.gutterpoint.ReviewPointManager;
 
 import javax.swing.*;
 

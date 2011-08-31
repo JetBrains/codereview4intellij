@@ -10,7 +10,12 @@ import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
 import utils.Util;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.Key;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Alisa.Afonina
@@ -25,7 +30,7 @@ public class Searcher  extends AbstractProjectComponent {
     private final Project project;
     private static final String AUTHOR = "author:";
     private static final String STATUS = "status:";
-
+    private final Set<String> issues = new HashSet<String>();
     private boolean authorSpecified;
     private boolean statusSpecified;
 
@@ -35,6 +40,7 @@ public class Searcher  extends AbstractProjectComponent {
     protected Searcher(Project project) {
         super(project);
         this.project = project;
+        issues.add("PLUGIN-\\d+");//, "<a href=\"http://codereview4intellij.myjetbrains.com/youtrack/issue/PLUGIN-*\">CR-*</a>");
     }
 
     public static Searcher getInstance(@NotNull Project project) {

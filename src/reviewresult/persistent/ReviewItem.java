@@ -22,11 +22,11 @@ public class ReviewItem {
     public ReviewItem() {
     }
 
-    public ReviewItem(String text) {
+    public ReviewItem(String text, ReviewStatus status) {
         this.author = System.getProperty("user.name");
         this.text = text;
         this.date = new Date();
-        this.status = ReviewStatus.COMMENT;
+        this.status = status;
     }
 
     @Tag("author")
@@ -86,5 +86,9 @@ public class ReviewItem {
         result = 31 * result + text.hashCode();
         result = 31 * result + status.hashCode();
         return result;
+    }
+
+    public boolean isMine() {
+        return author.equals(System.getProperty("user.name"));
     }
 }

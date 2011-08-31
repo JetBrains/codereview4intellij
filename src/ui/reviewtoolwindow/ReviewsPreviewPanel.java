@@ -1,7 +1,7 @@
 package ui.reviewtoolwindow;
 
 import reviewresult.Review;
-import ui.forms.PreviewReviewForm;
+import ui.forms.EditReviewForm;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.*;
  */
 class ReviewsPreviewPanel extends JPanel {
 
-    private PreviewReviewForm previewReviewForm;
+    private EditReviewForm previewReviewForm;
 
     public ReviewsPreviewPanel() {
         super(new BorderLayout());
@@ -23,7 +23,7 @@ class ReviewsPreviewPanel extends JPanel {
     public void update(Review review) {
         removeAll();
         if(review.isValid()) {
-            previewReviewForm = new PreviewReviewForm(review);
+            previewReviewForm = new EditReviewForm(review, false, false);
             add(previewReviewForm.getContent());
 
         } else {
@@ -33,9 +33,9 @@ class ReviewsPreviewPanel extends JPanel {
         repaint();
     }
 
-    public void updateSelection() {
+    /*public void updateSelection() {
         if(previewReviewForm != null) {
             previewReviewForm.updateSelection();
         }
-    }
+    }*/
 }

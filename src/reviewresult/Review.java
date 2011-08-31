@@ -8,13 +8,17 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.text.DateFormatUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.Context;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
 import utils.Util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * User: Alisa.Afonina
@@ -174,14 +178,17 @@ public class Review{
 
     public void checkContext() {
         Document document = Util.getInstance(project).getDocument(filePath);
-        if(document == null) return;
+
+        if(document == null || "".equals(document.getText())) return;
+        final String text = document.getText();
         final Context context = reviewBean.getContext();
         int start = context.getStart();
         int end = context.getEnd();
-        final int beforeOffset = Util.find(document.getText(), context.getLineBefore());
-        final int afterOffset = Util.find(document.getText(), context.getLineAfter());
+
+        final int beforeOffset = Util.find(text, context.getLineBefore());
+        final int afterOffset = Util.find(text, context.getLineAfter());
         if(!context.getLine().equals(document.getText(new TextRange(context.getStart(), context.getEnd())))) {
-            int offset = Util.find(document.getText(), context.getLine());
+            int offset = Util.find(text, context.getLine());
             if(offset > 0) {
                 if(offset != context.getStart()) {
                     // todo check context around
@@ -302,5 +309,27 @@ public class Review{
             }
         }
         return authors;
+    }
+
+    public String getReviewText() {
+        StringBuilder result = new StringBuilder("");
+        for(ReviewItem item : reviewBean.getReviewItems()) {
+            result.append(item.getAuthor());
+            result.append(" reported a ");
+            result.append(item.getStatus().name().toLowerCase());
+            result.append(" ");
+            result.append(DateFormatUtil.formatDateTime(item.getDate()));
+            result.append("\n");
+            result.append(item.getText());
+            result.append("\n");
+        }
+        return result.toString();
+    }
+
+    @Nullable
+    public ReviewItem getLastReviewItem() {
+        final List<ReviewItem> reviewItems = reviewBean.getReviewItems();
+        if(reviewItems.isEmpty()) return null;
+        return reviewItems.get(reviewItems.size() - 1);
     }
 }

@@ -5,6 +5,7 @@
     <version>1.0</version>
     <vendor>JetBrains</vendor>
     <idea-version since-build="8000"/>
+    <!--<depends optional="true" config-file="IdeTalk" />-->
   <application-components>
   </application-components>
 
@@ -14,6 +15,9 @@
       </component>
       <component>
             <implementation-class>ui.reviewtoolwindow.Searcher</implementation-class>
+      </component>
+      <component>
+            <implementation-class>utils.Util</implementation-class>
       </component>
       <component>
             <implementation-class>ui.gutterpoint.ReviewPointManager</implementation-class>
@@ -39,6 +43,8 @@
               description="Edit review"/>
       <action id="ui.actions.ShowReviewAction" class="ui.actions.ShowReviewAction" text="Show Review"
               description="Show review"/>
+      <action id="ui.actions.ConvertToTextCommentAction" class="ui.actions.ConvertToTextCommentAction"
+              text="Convert To Text Comment Action"/>
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
