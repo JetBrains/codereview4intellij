@@ -4,30 +4,13 @@
     <option name="ANALYZE_TEST_SOURCES" value="false" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="79011e2a-efca-420a-a259-2c0cb35195ed" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ui/actions/ConvertToTextCommentAction.java" />
-      <change type="DELETED" beforePath="C:\Documents and Settings\alisa.afonina\IdeaProjects\codereview4intellij\src\ui\forms\EditReviewItemForm.java" afterPath="" />
-      <change type="DELETED" beforePath="C:\Documents and Settings\alisa.afonina\IdeaProjects\codereview4intellij\src\ui\forms\PreviewItemForm.java" afterPath="" />
-      <change type="DELETED" beforePath="C:\Documents and Settings\alisa.afonina\IdeaProjects\codereview4intellij\src\ui\forms\PreviewReviewForm.java" afterPath="" />
+    <list default="true" id="79011e2a-efca-420a-a259-2c0cb35195ed" name="Default" comment="issues to Plugin">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/META-INF/plugin.xml" afterPath="$PROJECT_DIR$/META-INF/plugin.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/Review.java" afterPath="$PROJECT_DIR$/src/reviewresult/Review.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" afterPath="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java" afterPath="$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/reviewresult/persistent/ReviewsState.java" afterPath="$PROJECT_DIR$/src/reviewresult/persistent/ReviewsState.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/actions/AddReviewAction.java" afterPath="$PROJECT_DIR$/src/ui/actions/AddReviewAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java" afterPath="$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/actions/ShowReviewAction.java" afterPath="$PROJECT_DIR$/src/ui/actions/ShowReviewAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" afterPath="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/gutterpoint/BalloonWithSelection.java" afterPath="$PROJECT_DIR$/src/ui/gutterpoint/BalloonWithSelection.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" afterPath="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/Searcher.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/SmartTextFieldWithAutoComplete.java" afterPath="$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/SmartTextFieldWithAutoComplete.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/Util.java" afterPath="$PROJECT_DIR$/src/utils/Util.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/web/report.xsl" afterPath="$PROJECT_DIR$/src/web/report.xsl" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/ReviewManagerTest.java" afterPath="$PROJECT_DIR$/test/ReviewManagerTest.java" />
     </list>
     <ignored path="codereview4intellij.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -108,31 +91,61 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="ReviewActionManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java">
+      <file leaf-file-name="Util.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/utils/Util.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="48" column="82" selection-start="1900" selection-end="1900" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="128" column="18" selection-start="4542" selection-end="4542" vertical-scroll-proportion="-0.07725322">
+              <folding>
+                <element signature="method#getCheckSum#0;class#Util#0" expanded="false" />
+                <element signature="method#getFileContents#0;class#Util#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ReviewPoint.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java">
+      <file leaf-file-name="ReviewItem.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="125" column="70" selection-start="4998" selection-end="4998" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EditReviewForm.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/ui/forms/EditReviewForm.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="163" column="23" selection-start="5744" selection-end="6422" vertical-scroll-proportion="0.65914786">
+            <state line="83" column="26" selection-start="1816" selection-end="1816" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="method#isMine#0;class#ReviewItem#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="EditReviewForm.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ui/forms/EditReviewForm.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="317" column="83" selection-start="13294" selection-end="13294" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="docComment;class#EditReviewForm#0" expanded="false" />
+                <element signature="method#EditReviewForm#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="class#2544:2695" expanded="false" />
+                <element signature="method#actionPerformed#0;class#2544:2695" expanded="false" />
+                <element signature="class#2753:2949" expanded="false" />
+                <element signature="method#actionPerformed#0;class#2753:2949" expanded="false" />
+                <element signature="method#setupLastItem#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="class#4370:4605" expanded="false" />
+                <element signature="method#keyTyped#0;class#4370:4605" expanded="false" />
+                <element signature="method#setupTags#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="class#5870:6928" expanded="false" />
+                <element signature="method#actionPerformed#0;class#5870:6928" expanded="false" />
+                <element signature="method#setupTagLabel#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="class#7987:8326" expanded="false" />
+                <element signature="method#mouseEntered#0;class#7987:8326" expanded="false" />
+                <element signature="method#mouseExited#0;class#7987:8326" expanded="false" />
+                <element signature="class#8536:8871" expanded="false" />
+                <element signature="method#actionPerformed#0;class#8536:8871" expanded="false" />
+                <element signature="method#setupTagsPanelSize#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="method#createInputField#0;class#EditReviewForm#0" expanded="false" />
                 <element signature="method#saveReview#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="class#11578:11847" expanded="false" />
+                <element signature="method#keyTyped#0;class#11578:11847" expanded="false" />
+                <element signature="method#getContent#0;class#EditReviewForm#0" expanded="false" />
+                <element signature="class#13526:13750" expanded="false" />
+                <element signature="method#hyperlinkActivated#0;class#13526:13750" expanded="false" />
                 <element signature="method#requestFocus#0;class#EditReviewForm#0" expanded="false" />
               </folding>
             </state>
@@ -153,22 +166,22 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/ui/forms/PreviewItemForm.java" />
-        <option value="$PROJECT_DIR$/src/ui/forms/PreviewReviewForm.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
-        <option value="$PROJECT_DIR$/src/web/report.xsl" />
-        <option value="$PROJECT_DIR$/META-INF/plugin.xml" />
-        <option value="$PROJECT_DIR$/src/utils/Util.java" />
-        <option value="$PROJECT_DIR$/src/ui/actions/ConvertToTextCommentAction.java" />
-        <option value="$PROJECT_DIR$/src/reviewresult/ReviewManager.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewsPreviewPanel.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java" />
-        <option value="$PROJECT_DIR$/src/reviewresult/Review.java" />
-        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
-        <option value="$PROJECT_DIR$/src/ui/gutterpoint/BalloonWithSelection.java" />
-        <option value="$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java" />
-        <option value="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" />
+        <option value="$PROJECT_DIR$/src/ui/actions/DeleteReviewAction.java" />
+        <option value="$PROJECT_DIR$/src/ui/actions/ShowReviewAction.java" />
         <option value="$PROJECT_DIR$/src/ui/forms/EditReviewForm.java" />
+        <option value="$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ModuleNode.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/PlainNode.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewView.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/Filter.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/Searcher.java" />
+        <option value="$PROJECT_DIR$/src/web/report.xsl" />
+        <option value="$PROJECT_DIR$/src/reviewresult/persistent/ReviewsState.java" />
+        <option value="$PROJECT_DIR$/src/ui/gutterpoint/BalloonWithSelection.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java" />
+        <option value="$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/SmartTextFieldWithAutoComplete.java" />
+        <option value="$PROJECT_DIR$/src/utils/Util.java" />
       </list>
     </option>
   </component>
@@ -230,7 +243,186 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ide" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icons" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icons" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="inspector" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="icons" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ide" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="gutter" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ui" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="Favorites" />
       <pane id="ProjectPane">
         <subPane>
@@ -260,7 +452,43 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="web" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="codereview4intellij" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="utils" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -308,7 +536,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="nodes" />
+              <option name="myItemId" value="filter" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -396,132 +624,45 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="reviewresult" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="persistent" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="openapi" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="openapi" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="fileChooser" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="codereview4intellij" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -556,7 +697,7 @@
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
-    <property name="options.lastSelected" value="preferences.pluginManager" />
+    <property name="options.lastSelected" value="reference.settings.ide.settings.file-colors" />
     <property name="ReviewToolWindowSettings.fileEnabled" value="true" />
     <property name="ReviewToolWindowSettings.moduleEnabled" value="true" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -878,21 +1019,21 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="3" y="1" width="1276" height="990" extended-state="0" />
+    <frame x="3" y="0" width="1276" height="990" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17803468" sideWeight="0.4935275" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17762399" sideWeight="0.4935275" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.18653691" sideWeight="0.83731514" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2249135" sideWeight="0.48381877" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4521338" sideWeight="0.48381877" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24979724" sideWeight="0.6996587" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.49365628" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3283237" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.43137255" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32756633" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32641292" sideWeight="0.48058254" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32716763" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32641292" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31807032" sideWeight="0.19884393" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32927817" sideWeight="0.6211604" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32923833" sideWeight="0.5755479" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3998378" sideWeight="0.8259386" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23914824" sideWeight="0.5063437" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33005732" sideWeight="0.5686275" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32992035" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3252595" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32869992" sideWeight="0.5606936" order="2" side_tool="false" content_ui="tabs" />
@@ -933,7 +1074,7 @@
     <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
     <option name="DEFAULT_PATCH_EXTENSION" value="patch" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="tags added&#10;sorting added" />
+    <option name="LAST_COMMIT_MESSAGE" value="Search line added&#10;Sorting fixed&#10;" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -966,6 +1107,8 @@
     <MESSAGE value="format of html report changed&#10;apply patch bug fixed&#10;left panel disabled when no reviews" />
     <MESSAGE value="export-import problem fixed&#10;" />
     <MESSAGE value="tags added&#10;sorting added" />
+    <MESSAGE value="UI changed from Swing to html in forms&#10;bugs fixed" />
+    <MESSAGE value="Search line added&#10;Sorting fixed&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -975,122 +1118,293 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/utils/Util.java">
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewToolWindowActionManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="28" selection-start="3861" selection-end="3861" vertical-scroll-proportion="0.21441774">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.6.0_26/src.zip!/javax/swing/JComponent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1611" column="16" selection-start="60774" selection-end="60774" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/idea/platform/platform-api/src/com/intellij/openapi/ui/popup/Balloon.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="7" selection-start="1004" selection-end="1004" vertical-scroll-proportion="0.3325359">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/actions/ConvertToTextCommentAction.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="46" selection-start="1776" selection-end="1776" vertical-scroll-proportion="0.4190141">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/idea/platform/platform-impl/src/com/intellij/openapi/editor/textarea/TextComponentEditor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="168" column="0" selection-start="5148" selection-end="5148" vertical-scroll-proportion="0.39260563">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/idea/platform/platform-api/src/com/intellij/openapi/editor/Editor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="204" column="38" selection-start="7059" selection-end="7059" vertical-scroll-proportion="0.33333334">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/idea/platform/platform-impl/src/com/intellij/openapi/editor/impl/EditorImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3301" column="14" selection-start="124075" selection-end="124075" vertical-scroll-proportion="0.05765766">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/reviewresult/Review.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="259" column="0" selection-start="9769" selection-end="9769" vertical-scroll-proportion="0.0">
+        <state line="320" column="0" selection-start="10999" selection-end="10999" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="docComment;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#ReviewToolWindowActionManager#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#createSortMenu#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#GroupByModuleAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#GroupByModuleAction#0;class#GroupByModuleAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#GroupByModuleAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#GroupByModuleAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#GroupByModuleAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#GroupByFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#GroupByFileAction#0;class#GroupByFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#GroupByFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#GroupByFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#GroupByFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#SortByAuthorAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#SortByAuthorAction#0;class#SortByAuthorAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#SortByAuthorAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#SortByAuthorAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#SortByAuthorAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#SortByLastCommenterAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#SortByLastCommenterAction#0;class#SortByLastCommenterAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#SortByLastCommenterAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#SortByLastCommenterAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#SortByLastCommenterAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#SortByDateAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#SortByDateAction#0;class#SortByDateAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#SortByDateAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#SortByDateAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#SortByDateAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#SortByOffsetAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#SortByOffsetAction#0;class#SortByOffsetAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#SortByOffsetAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#SortByOffsetAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#SortByOffsetAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#ShowSortingFuctionsAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#ShowSortingFuctionsAction#0;class#ShowSortingFuctionsAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#ShowSortingFuctionsAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#ShowSortingFuctionsAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#7910:8113" expanded="false" />
+            <element signature="method#onClosed#0;class#7910:8113" expanded="false" />
+            <element signature="class#SearchAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#SearchAction#0;class#SearchAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#SearchAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#SearchAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#SearchAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#PreviewAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#PreviewAction#0;class#PreviewAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#isSelected#0;class#PreviewAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#setSelected#0;class#PreviewAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#update#0;class#PreviewAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#ExportToFileAction#0;class#ExportToFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#11759:12519" expanded="false" />
+            <element signature="method#hyperlinkActivated#0;class#11759:12519" expanded="false" />
+            <element signature="method#createReport#0;class#ExportToFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="class#ImportFromFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#ImportFromFileAction#0;class#ImportFromFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#actionPerformed#0;class#ImportFromFileAction#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#updateUI#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#createLeftMenu#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#showBalloon#0;class#ReviewToolWindowActionManager#0" expanded="false" />
+            <element signature="method#showErrorBalloon#0;class#ReviewToolWindowActionManager#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/ReviewNode.java">
+    <entry file="file://$PROJECT_DIR$/src/reviewresult/persistent/ReviewsState.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="86" column="44" selection-start="4033" selection-end="4033" vertical-scroll-proportion="1.1777004">
+        <state line="97" column="56" selection-start="3188" selection-end="3188" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/FileNode.java">
+    <entry file="file://$PROJECT_DIR$/src/reviewresult/ReviewManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="23" selection-start="1804" selection-end="1804" vertical-scroll-proportion="0.3322785">
+        <state line="300" column="25" selection-start="11440" selection-end="11440" vertical-scroll-proportion="0.020689655">
+          <folding>
+            <element signature="docComment;class#ReviewManager#0" expanded="false" />
+            <element signature="method#ReviewManager#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getInstance#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getState#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#loadState#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#loadReviewsForFile#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#loadReviews#0;class#ReviewManager#0" expanded="false" />
+            <element signature="class#4090:4773" expanded="false" />
+            <element signature="method#run#0;class#4090:4773" expanded="false" />
+            <element signature="method#placeReview#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#changeReview#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#mergeReviews#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#updateReview#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#selectReviewState#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#removeReview#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#removeAll#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getValidReviews#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getReviewsForFile#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getFileNames#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getReviewCount#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getReviewInLine#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getComponentName#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#logInvalidReview#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getFilePath#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#setSaveReviewsToPatch#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getExportTextForFile#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#serialize#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#importReviewsForFile#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getAuthors#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#addTags#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#getAvailableTags#0;class#ReviewManager#0" expanded="false" />
+            <element signature="class#ReviewVirtualFileListener#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#beforeFileMovement#0;class#ReviewVirtualFileListener#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#fileMoved#0;class#ReviewVirtualFileListener#0;class#ReviewManager#0" expanded="false" />
+            <element signature="method#beforeFileDeletion#0;class#ReviewVirtualFileListener#0;class#ReviewManager#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/nodes/PlainNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="42" selection-start="828" selection-end="828" vertical-scroll-proportion="0.4527897">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/idea/platform/platform-api/src/com/intellij/openapi/actionSystem/AnAction.java">
+    <entry file="file://$PROJECT_DIR$/src/web/report.xsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="107" column="0" selection-start="3668" selection-end="3668" vertical-scroll-proportion="0.3313783">
+        <state line="120" column="33" selection-start="4423" selection-end="4423" vertical-scroll-proportion="3.3267107">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/actions/ShowReviewAction.java">
+    <entry file="file://$USER_HOME$/idea/platform/platform-api/src/com/intellij/util/OpenSourceUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="0" selection-start="1362" selection-end="1362" vertical-scroll-proportion="1.3385826">
+        <state line="27" column="21" selection-start="921" selection-end="921" vertical-scroll-proportion="0.33261803">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/idea/platform/platform-impl/src/com/intellij/ui/BalloonImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="305" column="0" selection-start="10203" selection-end="10203" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/idea/platform/lang-impl/src/com/intellij/find/impl/livePreview/LivePreview.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="463" column="46" selection-start="17759" selection-end="17759" vertical-scroll-proportion="1.1456953">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/Searcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="265" column="27" selection-start="10631" selection-end="10631" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="method#getFilteredFileNames#0;class#Searcher#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/BalloonWithSelection.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="38" selection-start="2377" selection-end="2377" vertical-scroll-proportion="0.69473684">
+        <state line="66" column="43" selection-start="2691" selection-end="2691" vertical-scroll-proportion="0.41379312">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/ReviewPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="111" column="36" selection-start="4659" selection-end="4659" vertical-scroll-proportion="0.17218544">
           <folding>
-            <element signature="method#recalculateLocation#0;class#ReviewPositionTracker#0;class#BalloonWithSelection#0" expanded="false" />
+            <element signature="class#5248:5525" expanded="false" />
+            <element signature="method#beforeDocumentChange#0;class#5248:5525" expanded="false" />
+            <element signature="class#5786:6093" expanded="false" />
+            <element signature="method#mouseEntered#0;class#5786:6093" expanded="false" />
+            <element signature="method#mouseExited#0;class#5786:6093" expanded="false" />
+            <element signature="class#7628:7825" expanded="false" />
+            <element signature="method#keyPressed#0;class#7628:7825" expanded="false" />
+            <element signature="class#7877:8116" expanded="false" />
+            <element signature="method#valueChanged#0;class#7877:8116" expanded="false" />
+            <element signature="class#8157:8683" expanded="false" />
+            <element signature="method#createDescriptorForNode#0;class#8157:8683" expanded="false" />
+            <element signature="method#getNextOccurenceActionName#0;class#8157:8683" expanded="false" />
+            <element signature="method#getPreviousOccurenceActionName#0;class#8157:8683" expanded="false" />
+            <element signature="method#rebuidTree#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#getComparator#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="class#9972:10812" expanded="false" />
+            <element signature="method#compare#0;class#9972:10812" expanded="false" />
+            <element signature="class#11716:12426" expanded="false" />
+            <element signature="method#compare#0;class#11716:12426" expanded="false" />
+            <element signature="method#createTreeStructure#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#getNavigatableForNode#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#hasNextOccurence#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#hasPreviousOccurence#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#goNextOccurence#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#goPreviousOccurence#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#getNextOccurenceActionName#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#getPreviousOccurenceActionName#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#showPreview#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#showPreview#1;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#dispose#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="class#ReviewsListener#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#reviewAdded#0;class#ReviewsListener#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#reviewDeleted#0;class#ReviewsListener#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#reviewChanged#0;class#ReviewsListener#0;class#ReviewPanel#0" expanded="false" />
+            <element signature="method#update#0;class#ReviewsListener#0;class#ReviewPanel#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ui/reviewtoolwindow/filter/SmartTextFieldWithAutoComplete.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="84" column="60" selection-start="3320" selection-end="3320" vertical-scroll-proportion="0.45064378">
+          <folding>
+            <element signature="method#extractSuffix#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="method#createDocument#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="class#VariantsCompletionAction#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="method#showLookup#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="class#5890:6158" expanded="false" />
+            <element signature="method#setVariants#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="method#calcLookupItems#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="method#getCurrentLookupPrefix#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
+            <element signature="method#setDelimiter#0;class#SmartTextFieldWithAutoComplete#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ui/actions/ReviewActionManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="82" selection-start="1900" selection-end="1900" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ui/gutterpoint/ReviewPoint.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="125" column="70" selection-start="4998" selection-end="4998" vertical-scroll-proportion="0.0">
+        <state line="79" column="0" selection-start="3583" selection-end="3583" vertical-scroll-proportion="0.39955848">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ui/forms/EditReviewForm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="163" column="23" selection-start="5744" selection-end="6422" vertical-scroll-proportion="0.65914786">
+        <state line="317" column="83" selection-start="13294" selection-end="13294" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="docComment;class#EditReviewForm#0" expanded="false" />
+            <element signature="method#EditReviewForm#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="class#2544:2695" expanded="false" />
+            <element signature="method#actionPerformed#0;class#2544:2695" expanded="false" />
+            <element signature="class#2753:2949" expanded="false" />
+            <element signature="method#actionPerformed#0;class#2753:2949" expanded="false" />
+            <element signature="method#setupLastItem#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="class#4370:4605" expanded="false" />
+            <element signature="method#keyTyped#0;class#4370:4605" expanded="false" />
+            <element signature="method#setupTags#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="class#5870:6928" expanded="false" />
+            <element signature="method#actionPerformed#0;class#5870:6928" expanded="false" />
+            <element signature="method#setupTagLabel#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="class#7987:8326" expanded="false" />
+            <element signature="method#mouseEntered#0;class#7987:8326" expanded="false" />
+            <element signature="method#mouseExited#0;class#7987:8326" expanded="false" />
+            <element signature="class#8536:8871" expanded="false" />
+            <element signature="method#actionPerformed#0;class#8536:8871" expanded="false" />
+            <element signature="method#setupTagsPanelSize#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="method#createInputField#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="method#saveReview#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="class#11578:11847" expanded="false" />
+            <element signature="method#keyTyped#0;class#11578:11847" expanded="false" />
+            <element signature="method#getContent#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="class#13526:13750" expanded="false" />
+            <element signature="method#hyperlinkActivated#0;class#13526:13750" expanded="false" />
+            <element signature="method#requestFocus#0;class#EditReviewForm#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/reviewresult/persistent/ReviewItem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="83" column="26" selection-start="1816" selection-end="1816" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="method#saveReview#0;class#EditReviewForm#0" expanded="false" />
-            <element signature="method#requestFocus#0;class#EditReviewForm#0" expanded="false" />
+            <element signature="method#isMine#0;class#ReviewItem#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/Util.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="128" column="18" selection-start="4542" selection-end="4542" vertical-scroll-proportion="-0.07725322">
+          <folding>
+            <element signature="method#getCheckSum#0;class#Util#0" expanded="false" />
+            <element signature="method#getFileContents#0;class#Util#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1136,7 +1450,7 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>IDEA IU-108.1112</last-edited>
+          <last-edited>IDEA IU-108.1317</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

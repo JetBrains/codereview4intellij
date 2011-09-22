@@ -1,3 +1,4 @@
+/*
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -18,11 +19,13 @@ import java.util.Set;
 
 
 
+*/
 /**
  * User: Alisa.Afonina
  * Date: 7/26/11
  * Time: 12:22 PM
- */
+ *//*
+
 
 
 public class ReviewManagerTest extends IdeaTestCase {
@@ -50,7 +53,8 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertReviewsEquals(review, addedReview);
 
     }
-   /*
+   */
+/*
     public void testAddReviewAfterAnotherSameFile() throws Exception {
         Project project = getProject();
         VirtualFile firstFile = project.getBaseDir();
@@ -268,6 +272,8 @@ public class ReviewManagerTest extends IdeaTestCase {
     }
 
     private void assertIncorrectReview(VirtualFile projectFile, Review review) {
+*//*
+
 */
 /*
         assertFalse(review.isValid());
@@ -275,7 +281,8 @@ public class ReviewManagerTest extends IdeaTestCase {
         assertFalse(reviewManager.getReviewPoints().containsKey(review));
         assertNullOrEmpty(reviewManager.getValidReviews(projectFile));
         assertFalse(reviewManager.getState().reviews.contains(review.getReviewBean()));
-*/
+*//*
+
 
 
 
@@ -310,7 +317,8 @@ public class ReviewManagerTest extends IdeaTestCase {
         return review;
     }
 }
-     /*
+     */
+/*
      private Review addNewReviewPoint(VirtualFile file, String name, int start, int end) {
         assertNotNull(file);
         Document document = FileDocumentManager.getInstance().getDocument(file);
@@ -326,3 +334,4 @@ public class ReviewManagerTest extends IdeaTestCase {
 }
 
 */
+

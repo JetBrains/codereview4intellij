@@ -6,7 +6,9 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.spellchecker.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +18,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: Alisa.Afonina
@@ -23,9 +27,10 @@ import java.security.NoSuchAlgorithmException;
  * Time: 3:01 PM
  */
 public class Util extends AbstractProjectComponent implements DumbAware {
-
+    private Map<String, String> issue2URL = new HashMap<String, String>();
     protected Util(Project project) {
         super(project);
+        issue2URL.put("PLUGIN-", "http://codereview4intellij.myjetbrains.com/youtrack/issue/");
     }
 
     public static Util getInstance(@NotNull Project project) {
@@ -115,12 +120,33 @@ public class Util extends AbstractProjectComponent implements DumbAware {
         String[] parts = text.split("\\s");
         String result = text;
         for(String part : parts) {
+            for(String prefix: issue2URL.keySet()) {
+                if(part.startsWith(prefix)) {
+                    String issueNumber = getFirstInt(part.substring(prefix.length()));
+                    final CharSequence url = "<a href=\"" + issue2URL.get(prefix);
+                    final String target = prefix + issueNumber;
+                    result = result.replace(target, url + target + "\">" + target + "</a>");
+                }
+            }
             try {
                 URL url = new URL(part);
                 result = result.replace(part, "<a href=\"" + url + "\">"+ url + "</a>");
             } catch (MalformedURLException e) {}
         }
         return result;
+    }
+
+    private String getFirstInt(String string) {
+        String number = "";
+        for(int i = 0; i < string.length(); ++i) {
+            final char digit = string.charAt(i);
+            if(Character.isDigit(digit)) {
+                number += digit;
+            } else {
+                break;
+            }
+        }
+        return number;
     }
 }
 

@@ -149,6 +149,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             @Override
             public void actionPerformed(ActionEvent e) {
                 settings.setSearchEnabled(false);
+                settings.setSearchEnabled(false);
                 Searcher.getInstance(project).emptyFilter();
                 updateUI();
             }

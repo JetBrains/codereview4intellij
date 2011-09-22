@@ -45,7 +45,7 @@ public class SmartTextFieldWithAutoComplete extends EditorTextField implements D
     private String delimiter = " ";
     private String inactivePrefix = "";
 
-    public SmartTextFieldWithAutoComplete(Project project) {
+    public SmartTextFieldWithAutoComplete(final Project project) {
         super(createDocument(project), project, PlainTextLanguage.INSTANCE.getAssociatedFileType());
         new VariantsCompletionAction();
 
@@ -73,7 +73,7 @@ public class SmartTextFieldWithAutoComplete extends EditorTextField implements D
                     setDelimiter("\"");
                 }
                 if (text.endsWith(" ") || "".equals(text)/*|| text.endsWith("\"")*/) {
-                    variants = allVariants;
+                    variants = Searcher.getInstance(project).getFilterKeywords();
                     setDelimiter(" ");
                 }
 
