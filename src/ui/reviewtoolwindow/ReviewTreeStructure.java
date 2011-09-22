@@ -10,10 +10,13 @@ import com.intellij.ui.treeStructure.SimpleTreeStructure;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
+import ui.reviewtoolwindow.filter.Searcher;
 import ui.reviewtoolwindow.nodes.*;
 import utils.Util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * User: Alisa.Afonina

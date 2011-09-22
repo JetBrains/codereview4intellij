@@ -40,7 +40,7 @@ public class ReviewPointManager extends AbstractProjectComponent implements Dumb
             if(review.isValid())
                 reviewPoint = createReviewPoint(review);
         }else {
-            if(review.getReviewBean().isDeleted())
+            if(review.isDeleted())
                 reviewPoints.remove(review);
         }
         if(reviewPoint != null)

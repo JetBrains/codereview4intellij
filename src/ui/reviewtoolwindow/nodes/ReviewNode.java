@@ -9,11 +9,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
-import com.intellij.util.text.DateFormatUtil;
 import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
-import ui.reviewtoolwindow.Searcher;
+import ui.reviewtoolwindow.filter.Searcher;
 import utils.Util;
 
 /**
@@ -58,7 +57,6 @@ public class ReviewNode extends PlainNode implements Navigatable{
             }
             else {
                 presentationData.addText(presentationInfo, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-
             }
             int line = review.getLineNumber();
             if(line < 0) {
@@ -67,19 +65,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
             }
             int lineNumber = line + 1;
             if(!getSettings().isGroupByFile()) {
-               /* if(getSettings().isSortByAuthor()) {
-                    presentationData.addText(" (" + review.getAuthor() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                } else {
-                    if(getSettings().isSortByDate()) {
-                        presentationData.addText(" (" + DateFormatUtil.formatPrettyDateTime(review.getFirstDate()) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                    } else {
-                        if(getSettings().isSortByLastCommenter()) {
-                            presentationData.addText(" (" + review.getLastCommenter() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                        } else {*/
-                            presentationData.addText( " (" + review.getFileName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
-                /*        }
-                    }
-                }*/
+                presentationData.addText( " (" + review.getFileName() + " : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             } else {
                 presentationData.addText(" (line : " + String.valueOf(lineNumber) + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
             }

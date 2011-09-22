@@ -1,9 +1,9 @@
 package reviewresult.persistent;
 
 
-import com.intellij.util.xmlb.annotations.Attribute;
+import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.xmlb.annotations.Tag;
-import reviewresult.ReviewStatus;
+import ui.reviewtoolwindow.filter.Searcher;
 
 import java.util.Date;
 
@@ -17,16 +17,15 @@ public class ReviewItem {
     private Date date = new Date();
     private String author;
     private String text = "";
-    private ReviewStatus status;
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public ReviewItem() {
     }
 
-    public ReviewItem(String text, ReviewStatus status) {
+    public ReviewItem(String text) {
         this.author = System.getProperty("user.name");
         this.text = text;
         this.date = new Date();
-        this.status = status;
     }
 
     @Tag("author")
@@ -34,6 +33,7 @@ public class ReviewItem {
         return author;
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public void setAuthor(String author) {
         this.author = author;
     }
@@ -45,15 +45,6 @@ public class ReviewItem {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    @Attribute("status")
-    public ReviewStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ReviewStatus status) {
-        this.status = status;
     }
 
     @Tag("date")
@@ -72,10 +63,9 @@ public class ReviewItem {
 
         ReviewItem that = (ReviewItem) o;
 
-        if (!author.equals(that.author)) return false;
-        if (!date.equals(that.date)) return false;
-        if (status != that.status) return false;
-        return text.equals(that.text);
+        return author.equals(that.getAuthor())
+                && date.equals(that.getDate())
+                && text.equals(that.getText());
 
     }
 
@@ -84,11 +74,22 @@ public class ReviewItem {
         int result = date.hashCode();
         result = 31 * result + author.hashCode();
         result = 31 * result + text.hashCode();
-        result = 31 * result + status.hashCode();
         return result;
     }
 
     public boolean isMine() {
         return author.equals(System.getProperty("user.name"));
+    }
+
+    public String getHtmlReport(Searcher searcher) {
+        final String filter = searcher.getFilter();
+        String result = text;
+        if(!"".equals(filter)) {
+             result = result.replace(filter, "<span class=\"highlight\">" + filter + "</span>");
+        }
+        result = "<strong>" + author + "</strong> at " +
+                 DateFormatUtil.formatPrettyDateTime(date) +  " added: <br/> " +
+                 result + " <br/>";
+        return result;
     }
 }

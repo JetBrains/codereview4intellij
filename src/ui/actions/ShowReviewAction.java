@@ -20,6 +20,7 @@ import javax.swing.*;
 public class ShowReviewAction extends AnAction implements DumbAware{
     private static final Icon ICON = IconLoader.getIcon("/images/note_edit.png");
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public ShowReviewAction() {
     }
 

@@ -5,6 +5,7 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
@@ -52,7 +53,8 @@ public class ModuleNode extends PlainNode implements Navigatable{
             }
         } else {
             for(PlainNode node : children) {
-                if(node.getChildrenCount() != 0) {
+                final List<SimpleNode> grandChildren = Arrays.asList(node.getChildren());
+                if(!grandChildren.isEmpty()) {
                     newChildren.add(node);
                 }
             }
@@ -69,11 +71,9 @@ public class ModuleNode extends PlainNode implements Navigatable{
     @Override
     public void update(PresentationData data) {
         data.addText(module.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        //Icon icon  = module.getPicoContainer()getModuleType().getNodeIcon(true);
-        //data.setIcons(icon);
-
+        Icon icon  = ModuleType.get(module).getNodeIcon(true);
+        data.setIcons(icon);
     }
-
 
     @Override
     public void navigate(boolean requestFocus) {

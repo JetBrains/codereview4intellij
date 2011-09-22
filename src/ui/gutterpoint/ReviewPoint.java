@@ -1,6 +1,9 @@
 package ui.gutterpoint;
 
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
@@ -39,7 +42,6 @@ public class ReviewPoint{
     private final Review review;
     private GutterIconRenderer gutterIconRenderer;
     private RangeHighlighter highlighter = null;
-    //public static final DataKey<ReviewPoint> REVIEW_POINT_DATA_KEY = DataKey.create("ReviewPoint");
 
     public ReviewPoint(Review review) {
         this.review = review;
@@ -55,9 +57,11 @@ public class ReviewPoint{
                 int line = review.getLineNumber();
                 if(line < 0) return;
                 OpenFileDescriptor openFileDescriptor = Util.getInstance(project).getOpenFileDescriptor(review.getFilePath(), review.getStart());
-                Editor editor = FileEditorManagerEx.getInstance(project).openTextEditor(openFileDescriptor, true);
+                final Editor editor = FileEditorManagerEx.getInstance(project).openTextEditor(openFileDescriptor, true);
                 if(editor == null) return;
+
                 MarkupModelEx markup = (MarkupModelEx) editor.getMarkupModel();
+                //
                 highlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
                 if(highlighter == null) return;
                 gutterIconRenderer = new ReviewGutterIconRenderer();
@@ -72,8 +76,8 @@ public class ReviewPoint{
                             review.setValid(false);
                         }
                         else {
-                            review.getReviewBean().getContext().setStart(newStart);
-                            review.getReviewBean().getContext().setEnd(newEnd);
+                            review.setStart(newStart);
+                            review.setEnd(newEnd);
                         }
                         ReviewManager.getInstance(project).changeReview(review);
                     }
@@ -84,7 +88,7 @@ public class ReviewPoint{
                 return;
             }
         }
-        if(review.getReviewBean().isDeleted() && highlighter != null) {
+        if(review.isDeleted() && highlighter != null) {
             highlighter.dispose();
         }
         ReviewManager.getInstance(review.getProject()).logInvalidReview(review);
@@ -100,7 +104,8 @@ public class ReviewPoint{
 
     private class ReviewGutterIconRenderer extends GutterIconRenderer{
         private final Icon icon = IconLoader.getIcon("/images/note.png");
-        private boolean activated = false;
+
+
         @NotNull
         @Override
         public Icon getIcon() {
@@ -121,6 +126,11 @@ public class ReviewPoint{
         }
 
         @Override
+        public boolean isNavigateAction() {
+            return true;
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -131,27 +141,28 @@ public class ReviewPoint{
         @Override
         public AnAction getClickAction() {
             final BalloonWithSelection activeBalloon = ReviewActionManager.getInstance().getActiveBalloon();
-            if(activeBalloon.compare(review) && (activated ^ review.isActivated())) {
-                return new AnAction() {
-                    @Override
-                    public void actionPerformed(AnActionEvent e) {
-                        review.setActivated(false);
-                        activated = false;
-                        activeBalloon.dispose();
-                    }
-                };
-            }
 
-            if(!activeBalloon.isValid() ||  !review.isActivated()) {
+            if(!activeBalloon.isValid() ||  !review.isActivated() || activeBalloon.isClosed()) {
                 final ReviewItem lastReviewItem = review.getLastReviewItem();
+                review.setActivated(true);
                 if(lastReviewItem == null) return null;
-                activated = true;
                 if(lastReviewItem.isMine()) {
                     return new ShowReviewAction("View review");
                 } else {
                     return new AddReviewItemAction("Add review");
                 }
             }
+
+            if(activeBalloon.compare(review) && (activeBalloon.isClosed() || review.isActivated())) {
+                return new AnAction() {
+                    @Override
+                    public void actionPerformed(AnActionEvent e) {
+                        review.setActivated(false);
+                        activeBalloon.dispose();
+                    }
+                };
+            }
+
             return null;
         }
 
@@ -200,10 +211,10 @@ public class ReviewPoint{
         newHighlighter.setGutterIconRenderer(highlighter.getGutterIconRenderer());
         highlighter.dispose();
         highlighter = newHighlighter;
-        review.getReviewBean().getContext().setStart(document.getLineStartOffset(line));
-        review.getReviewBean().getContext().setEnd(document.getLineEndOffset(line));
+        review.changeContext(document.getLineStartOffset(line), document.getLineEndOffset(line));
         ReviewManager.getInstance(review.getProject()).changeReview(review);
         return true;
     }
+
 
 }

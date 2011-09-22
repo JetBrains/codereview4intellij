@@ -29,7 +29,6 @@ public class DeleteReviewAction extends AnAction  implements DumbAware {
     public void actionPerformed(AnActionEvent e) {
         Project project = e.getData(PlatformDataKeys.PROJECT);
         if(project == null) return;
-        //ReviewManager instance = ;
         Review review = ActionManager.getInstance().getReviewForAction(e);
 
         if(review == null) {

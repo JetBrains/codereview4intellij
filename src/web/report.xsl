@@ -14,6 +14,7 @@
                         <style type="text/css">
                             div.review {
                                 border: 1px solid black;
+                                font-size: 12pt;
                             }
                             div.tag_wrapper {
                                 border-bottom: 1px solid #CBCBCB;
@@ -85,7 +86,7 @@
     <xsl:template name="tag" match="tag">
         <div class="tag_wrapper">
             <div class="tag_text">
-                <xsl:value-of select="@value"/> <xsl:text> </xsl:text>
+                <xsl:value-of select="@value" disable-output-escaping="yes"/> <xsl:text> </xsl:text>
              </div>
         </div>
     </xsl:template>
@@ -103,7 +104,11 @@
         </pre>
     </xsl:template>
 
-     <xsl:template name="review_item" match="review_item">
+
+    <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'" />
+    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
+
+    <xsl:template name="review_item" match="review_item">
          <p>
              <div class="review_item">
                 <strong><xsl:value-of select="author"/></strong>
@@ -113,8 +118,9 @@
                         <xsl:with-param name="timestamp"><xsl:value-of select="date"/></xsl:with-param>
                     </xsl:call-template>
                 </strong>
-                <xsl:text> added: </xsl:text><br/><xsl:text> </xsl:text>
-                <xsl:value-of select="text"/><xsl:text> </xsl:text><br/>
+                <xsl:text> added: </xsl:text>
+                <!--<xsl:value-of select="translate(@status, $uppercase, $smallcase)"/><xsl:text>: </xsl:text><br/>-->
+                <xsl:text> </xsl:text><xsl:value-of select="text"/><xsl:text> </xsl:text><br/>
              </div>
          </p>
      </xsl:template>

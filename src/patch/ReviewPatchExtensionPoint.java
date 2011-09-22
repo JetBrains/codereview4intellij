@@ -3,6 +3,8 @@ package patch;
 import com.intellij.openapi.diff.impl.patch.PatchEP;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vcs.changes.CommitContext;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -22,9 +24,15 @@ public class ReviewPatchExtensionPoint implements PatchEP{
     }
 
 
+    @Override
+    public void consumeContentBeforePatchApplied(@NotNull String path, @NotNull CharSequence content, CommitContext commitContext) {
+        //todo do i need it?
+    }
+
+
     @Nullable
     @Override
-    public CharSequence provideContent(@NotNull String path) {
+    public CharSequence provideContent(@NotNull String path, CommitContext commitContext) {
         StringBuilder result = new StringBuilder();
         for(Project project : ProjectManager.getInstance().getOpenProjects()) {
             VirtualFile baseDir = project.getBaseDir();
@@ -37,9 +45,13 @@ public class ReviewPatchExtensionPoint implements PatchEP{
     }
 
     @Override
-    public void consumeContent(@NotNull String path, @NotNull CharSequence content) {
-        for(Project project : ProjectManager.getInstance().getOpenProjects()) {
-            ReviewManager.getInstance(project).importReviewsForFile(path, content.toString());
+    public void consumeContent(@NotNull String path, @NotNull CharSequence content, CommitContext commitContext) {
+        if(Messages.showYesNoDialog("Do you want to import reviews from this patch?",
+                                    "Import Reviews",
+                                    Messages.getQuestionIcon()) == Messages.YES) {
+            for(Project project : ProjectManager.getInstance().getOpenProjects()) {
+                ReviewManager.getInstance(project).importReviewsForFile(path, content.toString());
+            }
         }
     }
 

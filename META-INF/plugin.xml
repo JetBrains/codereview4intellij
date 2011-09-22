@@ -14,7 +14,7 @@
             <implementation-class>reviewresult.ReviewManager</implementation-class>
       </component>
       <component>
-            <implementation-class>ui.reviewtoolwindow.Searcher</implementation-class>
+            <implementation-class>ui.reviewtoolwindow.filter.Searcher</implementation-class>
       </component>
       <component>
             <implementation-class>utils.Util</implementation-class>

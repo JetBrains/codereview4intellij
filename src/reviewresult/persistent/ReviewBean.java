@@ -3,6 +3,7 @@ package reviewresult.persistent;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
+import reviewresult.ReviewStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,13 @@ import java.util.UUID;
  * Time: 6:14 PM
  */
 
+@SuppressWarnings({"AssignmentToCollectionOrArrayFieldFromParameter", "ReturnOfCollectionOrArrayField"})
 @Tag("review")
+
 public class ReviewBean {
     private String guid = UUID.randomUUID().toString();
     private String name;
+    private ReviewStatus status;
     private Context context;
     private boolean isValid = true;
     private boolean isDeleted;
@@ -25,7 +29,7 @@ public class ReviewBean {
     private List<ReviewItem> reviewItems = new ArrayList<ReviewItem>();
     private List<String> tags = new ArrayList<String>();
 
-
+    @SuppressWarnings({"UnusedDeclaration"})
     public ReviewBean() {}
 
     public ReviewBean(String name, int start, int end) {
@@ -49,6 +53,7 @@ public class ReviewBean {
         return name;
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public void setName(String name) {
         this.name = name;
     }
@@ -60,7 +65,7 @@ public class ReviewBean {
         return reviewItems;
     }
 
-
+    @SuppressWarnings({"UnusedDeclaration"})
     public void setReviewItems(List<ReviewItem> reviewItems) {
         this.reviewItems = reviewItems;
     }
@@ -70,15 +75,13 @@ public class ReviewBean {
         reviewItems.add(reviewItem);
     }
 
-    public void addReviewItems(List<ReviewItem> reviewItems) {
-        reviewItems.addAll(reviewItems);
-    }
-
     @Attribute("id")
+    @SuppressWarnings({"UnusedDeclaration"})
     public String getGuid() {
         return guid;
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public void setGuid(String guid) {
         this.guid = guid;
     }
@@ -102,27 +105,24 @@ public class ReviewBean {
         isDeleted = deleted;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ReviewBean that = (ReviewBean) o;
-
-        return !(guid != null ? !guid.equals(that.guid) : that.guid != null);
-
+    @Tag("status")
+    public ReviewStatus getStatus() {
+        return status;
     }
 
-    @Override
-    public int hashCode() {
-        return guid != null ? guid.hashCode() : 0;
+    @SuppressWarnings({"UnusedDeclaration"})
+    public void setStatus(ReviewStatus status) {
+        this.status = status;
     }
+
+
 
     @Tag("context")
     public Context getContext() {
         return context;
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public void setContext(Context context) {
         this.context = context;
     }
@@ -138,7 +138,18 @@ public class ReviewBean {
         this.tags = tags;
     }
 
-    public void removeReviewItem(ReviewItem item) {
-        reviewItems.remove(item);
+      @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReviewBean that = (ReviewBean) o;
+        return !(guid != null ? !guid.equals(that.getGuid()) : that.getGuid() != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return guid != null ? guid.hashCode() : 0;
     }
 }

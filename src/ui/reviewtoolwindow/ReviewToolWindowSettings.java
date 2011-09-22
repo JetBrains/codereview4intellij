@@ -19,7 +19,6 @@ public class ReviewToolWindowSettings {
     private boolean enabled = true;
 
     private boolean sortByDate = true;
-    private boolean sortByStatus = false;
     private boolean sortByAuthor = false;
     private boolean sortByOffset = false;
     private boolean sortByLastCommenter = false;
@@ -69,6 +68,11 @@ public class ReviewToolWindowSettings {
         PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.fileEnabled", String.valueOf(groupByFile));
         PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.moduleEnabled", String.valueOf(groupByModule));
         PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.previewEnabled", String.valueOf(showPreviewEnabled));
+
+        PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.sortByAuthor", String.valueOf(sortByAuthor));
+        PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.sortByDate", String.valueOf(sortByDate));
+        PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.sortByOffset", String.valueOf(sortByOffset));
+        PropertiesComponent.getInstance(project).setValue("ReviewToolWindowSettings.sortByLastCommenter", String.valueOf(sortByLastCommenter));
     }
 
 
@@ -76,6 +80,11 @@ public class ReviewToolWindowSettings {
         groupByFile = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.fileEnabled", false);
         groupByModule = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.moduleEnabled", false);
         showPreviewEnabled = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.previewEnabled", false);
+
+        sortByAuthor = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.sortByAuthor", false);
+        sortByDate = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.sortByDate", false);
+        sortByOffset = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.sortByOffset", false);
+        sortByLastCommenter = PropertiesComponent.getInstance(project).getBoolean("ReviewToolWindowSettings.sortByLastCommenter", false);
     }
 
     public void setEnabled(boolean enabled) {
@@ -87,7 +96,7 @@ public class ReviewToolWindowSettings {
     }
 
     public boolean isSortByDate() {
-        return !sortByLastCommenter && !sortByAuthor && sortByDate;
+        return sortByDate;
     }
 
     public void setSortByDate(boolean sortByDate) {
@@ -96,7 +105,7 @@ public class ReviewToolWindowSettings {
     }
 
     public boolean isSortByAuthor() {
-        return !sortByLastCommenter && sortByAuthor && !sortByDate;
+        return sortByAuthor;
     }
 
     public void setSortByAuthor(boolean sortByAuthor) {
@@ -104,30 +113,21 @@ public class ReviewToolWindowSettings {
         this.sortByAuthor = sortByAuthor;
     }
 
-    public boolean isSortByStatus() {
-        return sortByStatus;
-    }
-
-    public void setSortByStatus(boolean sortByStatus) {
-        disableAllSorting();
-        this.sortByStatus = sortByStatus;
-    }
-
     public boolean isSortByOffset() {
         return sortByOffset;
     }
 
     public void setSortByOffset(boolean sortByOffset) {
-        //disableAllSorting();
+        disableAllSorting();
         this.sortByOffset = sortByOffset;
     }
 
     public boolean isSortByLastCommenter() {
-        return sortByLastCommenter && !sortByAuthor && !sortByDate;
+        return sortByLastCommenter;
     }
 
     public void setSortByLastCommenter(boolean sortByLastCommenter) {
-        //disableAllSorting();
+        disableAllSorting();
         this.sortByLastCommenter = sortByLastCommenter;
     }
 

@@ -1,6 +1,7 @@
 package patch;
 
 import com.intellij.openapi.vcs.CheckinProjectPanel;
+import com.intellij.openapi.vcs.changes.CommitContext;
 import com.intellij.openapi.vcs.checkin.CheckinHandler;
 import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory;
 import com.intellij.openapi.vcs.ui.RefreshableOnComponent;
@@ -22,7 +23,7 @@ public class ReviewCommitHandlerFactory  extends CheckinHandlerFactory {
 
     @NotNull
     @Override
-    public CheckinHandler createHandler(CheckinProjectPanel panel) {
+    public CheckinHandler createHandler(CheckinProjectPanel panel, CommitContext commitContext) {
         return new ReviewCommitHandler(panel);
     }
 

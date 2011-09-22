@@ -1,14 +1,11 @@
 package ui.actions;
 
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
 import com.intellij.openapi.project.DumbAware;
 import reviewresult.Review;
-import reviewresult.persistent.ReviewItem;
 import ui.forms.EditReviewForm;
 import ui.gutterpoint.BalloonWithSelection;
 import ui.gutterpoint.ReviewPoint;
@@ -45,11 +42,10 @@ public class ReviewActionManager implements DumbAware {
             editReviewForm = new EditReviewForm(review, true, true);
             JComponent content = editReviewForm.getContent();
             Point docPoint = editor.visualPositionToXY(editor.offsetToVisualPosition(review.getEnd()));
-            final int iconsAreaWidth = gutterComponent.getIconsAreaWidth();
-            final Point balloonPoint = new Point(docPoint.x + iconsAreaWidth, docPoint.y + editor.getLineHeight());
+            final Point balloonPoint = new Point(docPoint.x, docPoint.y + editor.getLineHeight());
             activeBalloon.dispose();
             activeBalloon = new BalloonWithSelection(review, editor, balloonPoint, content, "Add Comment");
-            activeBalloon.showBalloon(gutterComponent);
+            activeBalloon.showBalloon(editor.getContentComponent());
             editReviewForm.requestFocus();
         }
     }

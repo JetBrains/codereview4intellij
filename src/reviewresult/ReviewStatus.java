@@ -9,8 +9,9 @@ import java.util.List;
  * Time: 6:38 PM
  */
 public enum ReviewStatus {
-    BUG,
-    COMMENT;
+    bug,
+    comment,
+    info;
 
     public static String[] getVariants() {
         List<String> variants = new ArrayList<String>();

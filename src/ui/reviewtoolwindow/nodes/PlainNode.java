@@ -6,6 +6,7 @@ import com.intellij.ui.treeStructure.SimpleNode;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
  * Time: 1:13 PM
  */
 public abstract class PlainNode extends SimpleNode {
-    final List<PlainNode> children = new ArrayList<PlainNode>();
+    protected final List<PlainNode> children = new ArrayList<PlainNode>();
     private PlainNode parent;
     private final ReviewToolWindowSettings settings;
 
@@ -24,7 +25,7 @@ public abstract class PlainNode extends SimpleNode {
     }
 
     public List<PlainNode> getPlainChildren() {
-        return children;
+        return Collections.unmodifiableList(children);
     }
 
     void removeChild(PlainNode childToRemove) {
@@ -51,10 +52,7 @@ public abstract class PlainNode extends SimpleNode {
     }
 
     int getChildrenCount() {
-        if(/*getChildren().length == 0 ||*/ children.isEmpty()) {
-            return 0;
-        }
-        else return children.size();
+        return children.size();
     }
 
     ReviewToolWindowSettings getSettings() {

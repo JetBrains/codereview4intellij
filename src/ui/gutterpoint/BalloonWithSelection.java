@@ -25,12 +25,12 @@ public class BalloonWithSelection{
     private Balloon balloon = null;
     private Editor editor;
     private Point target;
-    final private RangeHighlighter highlighter;
-    private static final TextAttributes REVIEW_ATTRIBUTES = new TextAttributes(null, new Color(224,255,204), null, null, Font.PLAIN);
+    private boolean closed;
+    private RangeHighlighter highlighter = null;
+    private static final TextAttributes REVIEW_ATTRIBUTES =
+                                new TextAttributes(null, new Color(224,255,204), null, null, Font.PLAIN);
 
-    public BalloonWithSelection() {
-        highlighter = null;
-    }
+    public BalloonWithSelection() {}
 
     public BalloonWithSelection(final Review review, Editor editor, Point target, JComponent balloonContent, String title) {
         this.review = review;
@@ -45,11 +45,12 @@ public class BalloonWithSelection{
         BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(balloonContent, title);
         balloonBuilder.setHideOnClickOutside(true);
         balloonBuilder.setHideOnKeyOutside(true);
+        this.closed = false;
         balloon = balloonBuilder.createBalloon();
         this.balloon.addListener(new JBPopupAdapter() {
             @Override
             public void onClosed(LightweightWindowEvent event) {
-                    BalloonWithSelection.this.review.setActivated(false);
+                    BalloonWithSelection.this.closed = true;
                     if(highlighter.isValid()) {
                         highlighter.dispose();
                     }
@@ -61,8 +62,9 @@ public class BalloonWithSelection{
     public void dispose() {
         if(balloon != null && !balloon.isDisposed())
             balloon.dispose();
-        if(review != null)
-            review.setActivated(false);
+        closed = true;
+        /*if(review != null)
+            review.setActivated(false);*/
         if(highlighter != null) {
                     if(highlighter.isValid()) {
                         highlighter.dispose();
@@ -77,19 +79,16 @@ public class BalloonWithSelection{
     public void showBalloon( final JComponent contentComponent) {
         if(!review.isValid()) return;
         if(balloon == null) return;
-        this.review.setActivated(true);
+       // this.review.setActivated(true);
         balloon.show(new ReviewPositionTracker(editor, contentComponent, target), Balloon.Position.below);
     }
 
-    public Review getReview() {
-        return review;
+    public boolean compare(Review review) {
+        return this.review != null && review.equals(this.review);
     }
 
-    public boolean compare(Review review) {
-        if(this.review != null) {
-            return review.equals(this.review);
-        }
-        return false;
+    public boolean isClosed() {
+        return closed;
     }
 
 
@@ -108,30 +107,35 @@ public class BalloonWithSelection{
 
         @Override
         public RelativePoint recalculateLocation(final Balloon object) {
-            if (!editor.getScrollingModel().getVisibleArea().contains(point)) {
+            //final Rectangle visibleArea = editor.getScrollingModel().getVisibleArea();
+            final Rectangle visibleArea = editor.getScrollingModel().getVisibleAreaOnScrollingFinished();
+            if (!visibleArea.contains(point)) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         object.hide();
-                        //disposeActiveBalloon();
                     }
                 });
-                 if(!object.isDisposed()) {
-                    final PositionTracker<Balloon> tracker = this;
-                    final VisibleAreaListener listener = new VisibleAreaListener() {
-                       @Override
-                       public void visibleAreaChanged(VisibleAreaEvent e) {
-                            if(e.getNewRectangle().contains(point) && object.isDisposed() && !balloon.isDisposed()) {
-                                balloon.show(tracker, Balloon.Position.above);
-                                editor.getScrollingModel().removeVisibleAreaListener(this);
-                            }
-                       }
-                    };
-                    editor.getScrollingModel().addVisibleAreaListener(listener);
-                 }
+
+                final PositionTracker<Balloon> tracker = this;
+                final VisibleAreaListener listener = new VisibleAreaListener() {
+                   @Override
+                   public void visibleAreaChanged(VisibleAreaEvent e) {
+                        if(e.getNewRectangle().contains(point) && object.isDisposed() && !balloon.isDisposed()) {
+                            final VisibleAreaListener listener = this;
+                            SwingUtilities.invokeLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    balloon.show(tracker, Balloon.Position.below);
+                                    editor.getScrollingModel().removeVisibleAreaListener(listener);
+                                }
+                            });
+                        }
+                   }
+                };
+                editor.getScrollingModel().addVisibleAreaListener(listener);
             }
             return new RelativePoint(component, point);
-        }
-
+           }
     }
 }

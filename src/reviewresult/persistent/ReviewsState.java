@@ -23,7 +23,7 @@ import java.util.List;
     }
 )
 public class ReviewsState extends AbstractProjectComponent implements PersistentStateComponent<ReviewsState.State> {
-        State state = new State();
+        private State state = new State();
 
         protected ReviewsState(Project project) {
             super(project);
@@ -31,24 +31,23 @@ public class ReviewsState extends AbstractProjectComponent implements Persistent
 
         @Override
         public State getState() {
-            state.reviews = ReviewManager.getInstance(myProject).getState();
+            state.setReviews(ReviewManager.getInstance(myProject).getState());
             return this.state;
         }
 
         @Override
         public void loadState(State state) {
             this.state = state;
-            ReviewManager.getInstance(myProject).loadState(state.reviews);
+            ReviewManager.getInstance(myProject).loadState(state.getReviews());
         }
 
+        @SuppressWarnings({"AssignmentToCollectionOrArrayFieldFromParameter", "ReturnOfCollectionOrArrayField"})
         public static class FileReviewsList {
             private String filePath;
             private String checksum;
-            private List<ReviewBean> reviewBeans = new ArrayList<ReviewBean>(
+            private List<ReviewBean> reviewBeans = new ArrayList<ReviewBean>();
 
-            );
-
-
+            @SuppressWarnings({"UnusedDeclaration"})
             public FileReviewsList() {
             }
 
@@ -64,6 +63,7 @@ public class ReviewsState extends AbstractProjectComponent implements Persistent
                 return reviewBeans;
             }
 
+            @SuppressWarnings({"UnusedDeclaration"})
             public void setReviewBeans(List<ReviewBean> reviewBeans) {
                 this.reviewBeans = reviewBeans;
             }
@@ -73,6 +73,7 @@ public class ReviewsState extends AbstractProjectComponent implements Persistent
                 return filePath;
             }
 
+            @SuppressWarnings({"UnusedDeclaration"})
             public void setFilePath(String filePath) {
                 this.filePath = filePath;
             }
@@ -82,14 +83,25 @@ public class ReviewsState extends AbstractProjectComponent implements Persistent
                 return checksum;
             }
 
+            @SuppressWarnings({"UnusedDeclaration"})
             public void setChecksum(String checksum) {
                 this.checksum = checksum;
             }
         }
-        public static class State {
-            @Tag("all_reviews")
-            @AbstractCollection(surroundWithTag = false)
-            public List<FileReviewsList> reviews = new ArrayList<FileReviewsList>();
 
+        @SuppressWarnings({"ReturnOfCollectionOrArrayField", "AssignmentToCollectionOrArrayFieldFromParameter", "UnusedDeclaration"})
+        public static class State {
+
+            private List<FileReviewsList> reviews = new ArrayList<FileReviewsList>();
+
+             @Tag("all_reviews")
+            @AbstractCollection(surroundWithTag = false)
+            public List<FileReviewsList> getReviews() {
+                return reviews;
+            }
+
+            public void setReviews(List<FileReviewsList> reviews) {
+                this.reviews = reviews;
+            }
         }
 }

@@ -15,11 +15,10 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
-import com.intellij.openapi.wm.IdeFocusManager;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.TextFieldWithAutoCompletion;
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
 import com.intellij.ui.treeStructure.SimpleNode;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -27,12 +26,16 @@ import com.intellij.ui.treeStructure.SimpleTreeBuilder;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.ui.tree.TreeUtil;
-import com.sun.jna.Structure;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import reviewresult.*;
+import reviewresult.Review;
+import reviewresult.ReviewChangedTopics;
+import reviewresult.ReviewManager;
+import reviewresult.ReviewsChangedListener;
 import ui.actions.ReviewActionManager;
+import ui.reviewtoolwindow.filter.Searcher;
+import ui.reviewtoolwindow.filter.SmartTextFieldWithAutoComplete;
 import ui.reviewtoolwindow.nodes.*;
 
 import javax.swing.*;
@@ -52,6 +55,7 @@ import java.util.Set;
  * Date: 7/13/11
  * Time: 2:39 PM
  */
+
 public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator, Disposable, DumbAware {
     private static final String ACTION_GROUP = "TreeReviewItemActions";
 
@@ -62,7 +66,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
     @Nullable
     private OccurenceNavigatorSupport reviewNavigatorSupport;
-    private final TextFieldWithAutoCompletion searchLine;
+    private JPanel searchPanel;
     private ReviewTreeStructure reviewTreeStructure;
 
     private final ReviewToolWindowSettings settings;
@@ -73,75 +77,14 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         settings = new ReviewToolWindowSettings(project);
         initTree();
         JPanel mainPanel = new JPanel(new BorderLayout());
-        searchLine = new TextFieldWithAutoCompletion(project);
+
         mainPanel.add(new ReviewToolWindowActionManager(this, settings).createLeftMenu(), BorderLayout.WEST);
 
         JScrollPane scrollPane = ScrollPaneFactory.createScrollPane(reviewTree);
         mainPanel.add(scrollPane);
 
         previewPanel.setVisible(settings.isShowPreviewEnabled() && settings.isEnabled());
-
-
-        searchLine.setVisible(settings.isSearchEnabled() && settings.isEnabled());
-        final String[] variants = Searcher.getInstance(project).getFilterKeywords();
-        searchLine.setVariants(variants);
-        searchLine.setRequestFocusEnabled(true);
-        searchLine.setOneLineMode(true);
-
-        searchLine.addDocumentListener(new DocumentAdapter() {
-            @Override
-            public void documentChanged(DocumentEvent e) {
-                if(e.getNewFragment().toString().endsWith("\n")) {
-                    final Searcher instance = Searcher.getInstance(project);
-                    instance.createFilter(searchLine.getText());
-                    reviewTreeBuilder.getUi().doUpdateFromRoot();
-                    if (instance.getFilteredFileNames().isEmpty()) {
-                        settings.setEnabled(false);
-                        previewPanel.setVisible(false);
-                    } else {
-                        settings.setEnabled(true);
-                    }
-                    if (settings.isShowPreviewEnabled()) {
-                        showPreview();
-                        //previewPanel.updateSelection();
-                    }
-                }
-            }
-        });
-        searchLine.registerKeyboardAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    final Searcher instance = Searcher.getInstance(project);
-                    instance.createFilter(searchLine.getText());
-                    reviewTreeBuilder.getUi().doUpdateFromRoot();
-                    if (instance.getFilteredFileNames().isEmpty()) {
-                        settings.setEnabled(false);
-                        previewPanel.setVisible(false);
-                    } else {
-                        settings.setEnabled(true);
-                    }
-                    if (settings.isShowPreviewEnabled() && settings.isEnabled()) {
-                        showPreview();
-                        //previewPanel.updateSelection();
-                    }
-                }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        searchLine.registerKeyboardAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    searchLine.getCaretModel().moveToOffset(searchLine.getText().length());
-                    searchLine.setText(searchLine.getText() + "\"");
-            }
-        } , KeyStroke.getKeyStroke(KeyEvent.VK_QUOTEDBL, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        searchLine.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                searchLine.getCaretModel().moveToOffset(searchLine.getText().length());
-            }
-        });
-        mainPanel.add(searchLine, BorderLayout.NORTH);
+        setupSearchLine(project, mainPanel);
         Splitter pane = new Splitter();
         pane.setFirstComponent(mainPanel);
         pane.setSecondComponent(previewPanel);
@@ -153,23 +96,79 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         connection.subscribe(ReviewChangedTopics.REVIEW_STATUS, new ReviewsListener());
     }
 
+    private void setupSearchLine(final Project project, JPanel mainPanel) {
+        searchPanel = new JPanel( new BorderLayout());
+        final SmartTextFieldWithAutoComplete searchLine = new SmartTextFieldWithAutoComplete(project);
+        searchPanel.setVisible(settings.isSearchEnabled() && settings.isEnabled());
+        searchLine.registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final Searcher searcher = Searcher.getInstance(project);
+                searcher.createFilter(searchLine.extractSuffix());
+
+                reviewTreeBuilder.getUi().doUpdateFromRoot();
+                if (searcher.getFilteredFileNames().isEmpty()) {
+                    settings.setEnabled(false);
+                    previewPanel.setVisible(false);
+                } else {
+                    settings.setEnabled(true);
+                }
+                if (settings.isShowPreviewEnabled() && settings.isEnabled()) {
+                    updateUI();
+                }
+                String filtersText = searcher.getAdditionalFilterText();
+                searchLine.setInactivePrefix(filtersText);
+                searchLine.setText(filtersText + searcher.getFilter());
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        searchLine.addDocumentListener(new DocumentAdapter() {
+            @Override
+            public void beforeDocumentChange(DocumentEvent event) {
+                if("".equals(searchLine.getText().trim())) {
+                    Searcher.getInstance(project).emptyFilter();
+                }
+            }
+        });
+        final Icon icon = IconLoader.getIcon("/actions/close.png");
+        final Icon hoveredIcon = IconLoader.getIcon("/actions/closeHovered.png");
+        final JButton closeSearchButton = new JButton(icon);
+        closeSearchButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+               closeSearchButton.setIcon(hoveredIcon);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+               closeSearchButton.setIcon(icon);
+            }
+        });
+        closeSearchButton.setBorder(BorderFactory.createEmptyBorder());
+        closeSearchButton.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
+        closeSearchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settings.setSearchEnabled(false);
+                Searcher.getInstance(project).emptyFilter();
+                updateUI();
+            }
+        });
+        searchPanel.add(searchLine);
+        searchPanel.add(closeSearchButton, BorderLayout.EAST);
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
+    }
+
     private void initTree() {
         createTreeStructure();
 
         PatchedDefaultMutableTreeNode root = new PatchedDefaultMutableTreeNode();
         final DefaultTreeModel model = new DefaultTreeModel(root);
         reviewTree = new SimpleTree(model);
-
         reviewTreeBuilder = new SimpleTreeBuilder(reviewTree, model, reviewTreeStructure, null);
-
-
         reviewTree.revalidate();
-
         TreeUtil.expandAll(reviewTree);
         reviewTree.setRootVisible(false);
         PopupHandler.installPopupHandler(reviewTree, ACTION_GROUP, ActionPlaces.TODO_VIEW_POPUP);
-
-
 
         reviewTree.addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent e) {
@@ -229,9 +228,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                     if(o1.getElement() instanceof ReviewNode && o1.getElement() instanceof ReviewNode) {
                         Review r1 = ((Review)((ReviewNode) o1.getElement()).getObject());
                         Review r2 = ((Review)((ReviewNode) o2.getElement()).getObject());
-                        final String firstAuthor = r1.getReviewBean().getReviewItems().get(0).getAuthor();
-                        final String secondAuthor = r2.getReviewBean().getReviewItems().get(0).getAuthor();
-                        return firstAuthor.compareTo(secondAuthor);
+                        final String firstAuthor = r1.getFirstCommenter();
+                        final String secondAuthor = r2.getFirstCommenter();
+                        if(secondAuthor != null && firstAuthor != null)
+                            return firstAuthor.compareTo(secondAuthor);
                     }
                     return -1;
                 }
@@ -272,22 +272,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             };
         }
 
-        if(settings.isSortByAuthor()){
-            comparator = new Comparator<NodeDescriptor>() {
-                @Override
-                public int compare(NodeDescriptor o1, NodeDescriptor o2) {
-                     if(o1.getElement() instanceof ReviewNode && o1.getElement() instanceof ReviewNode) {
-                        Review r1 = ((Review)((ReviewNode) o1.getElement()).getObject());
-                        Review r2 = ((Review)((ReviewNode) o2.getElement()).getObject());
-                        final String firstAuthor = r1.getReviewBean().getReviewItems().get(0).getAuthor();
-                        final String secondAuthor = r2.getReviewBean().getReviewItems().get(0).getAuthor();
-                        return firstAuthor.compareTo(secondAuthor);
-                     }
-                    return -1;
-                }
-            };
-        }
-
         if(settings.isSortByDate()) {
             comparator = new Comparator<NodeDescriptor>() {
                 @Override
@@ -295,8 +279,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                      if(o1.getElement() instanceof ReviewNode && o1.getElement() instanceof ReviewNode) {
                         Review r1 = ((Review)((ReviewNode) o1.getElement()).getObject());
                         Review r2 = ((Review)((ReviewNode) o2.getElement()).getObject());
-                        final Date firstDate = r1.getFirstDate();
-                        final Date secondDate = r2.getFirstDate();
+                        final Date firstDate = r1.getDateOfCreation();
+                        final Date secondDate = r2.getDateOfCreation();
                         return firstDate.compareTo(secondDate);
                      }
                     return -1;
@@ -310,12 +294,12 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         DataContext dataContext = DataManager.getInstance().getDataContext(reviewTree);
         Project project = PlatformDataKeys.PROJECT.getData(dataContext);
         if (project == null) return;
-        OpenSourceUtil.openSourcesFrom(dataContext, true);
         SimpleNode selectedNode = reviewTree.getSelectedNode();
         if(selectedNode == null) return;
         SimpleNode node = (SimpleNode) selectedNode.getElement();
         if(node instanceof ReviewNode) {
             final Review review = (Review) ((ReviewNode) node).getObject();
+            OpenSourceUtil.openSourcesFrom(dataContext, true);
             final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -323,6 +307,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                     ReviewActionManager.getInstance().showExistingComments(editor, review);
                 }
             });
+
         }
     }
 
@@ -395,13 +380,11 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
     @Override
     public void updateUI() {
         if(settings != null) {
+            //if(settings.isSearchEnabled())
+              //  IdeFocusManager.getInstance(project).requestFocus(searchLine, true);
 
-
-            if(settings.isSearchEnabled())
-                IdeFocusManager.getInstance(project).requestFocus(searchLine, true);
-
-            searchLine.setVisible(settings.isSearchEnabled() && settings.isEnabled());
-            searchLine.setText(Searcher.getInstance(project).getFilter());
+            searchPanel.setVisible(settings.isSearchEnabled() && settings.isEnabled());
+            //searchLine.setText(Searcher.getInstance(project).getFilter());
 
             if(reviewTreeBuilder == null) return;
             reviewTreeBuilder.getUi().doUpdateFromRoot();

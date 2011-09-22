@@ -18,7 +18,6 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.awt.RelativePoint;
-import com.intellij.ui.switcher.SwitchTarget;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -26,6 +25,7 @@ import org.jdom.input.SAXBuilder;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewsState;
 import ui.forms.ReviewSaveForm;
+import ui.reviewtoolwindow.filter.Searcher;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -76,7 +76,6 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
-
             settings.setGroupByModule(state);
             updateUI();
         }
@@ -96,14 +95,11 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-            //final boolean sortingInNotFileMode = (settings.isSortByAuthor() || settings.isSortByDate() || settings.isSortByLastCommenter());
-            return settings.isGroupByFile();// && !sortingInNotFileMode;
+            return settings.isGroupByFile();
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
-            //final boolean sortingInNotFileMode = (settings.isSortByAuthor() || settings.isSortByDate() || settings.isSortByLastCommenter());
-            //if(!sortingInNotFileMode)
             settings.setGroupByFile(state);
             updateUI();
         }
@@ -123,15 +119,12 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-           ///System.out.println("Is sort by author selected: "  + settings.isSortByAuthor());
-            return true;
+            return settings.isSortByAuthor();
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
-                /*boolean selected = state && (!settings.isSortByDate()
-                                            || !settings.isSortByLastCommenter()
-                                            || !settings.isSortByOffset());*/
+                //settings.setSortByAuthor(state);
                 settings.setSortByAuthor(!settings.isSortByAuthor());
                 panel.rebuidTree();
         }
@@ -151,12 +144,13 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-            return true;
+            return settings.isSortByLastCommenter();
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
                 settings.setSortByLastCommenter(!settings.isSortByLastCommenter());
+                //settings.setSortByLastCommenter(state);
                 panel.rebuidTree();
         }
 
@@ -175,11 +169,12 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-            return true;
+            return settings.isSortByDate();
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
+                //settings.setSortByDate(state);
                 settings.setSortByDate(!settings.isSortByDate());
                 panel.rebuidTree();
         }
@@ -199,12 +194,12 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
         @Override
         public boolean isSelected(AnActionEvent e) {
-            return true;
+            return settings.isSortByOffset();
         }
 
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
-            settings.setSortByOffset(!settings.isSortByOffset());
+            settings.setSortByOffset(state);
             panel.rebuidTree();
         }
 
@@ -233,6 +228,12 @@ public class ReviewToolWindowActionManager implements DumbAware{
             if(state) {
                 popup = popupBuilder.createPopup();
                 popup.showUnderneathOf(e.getInputEvent().getComponent());
+                popup.addListener(new JBPopupAdapter() {
+                    @Override
+                    public void onClosed(LightweightWindowEvent event) {
+                        showSort = false;
+                    }
+                });
             }
             else {
                 settings.disableAllSorting();
@@ -275,8 +276,6 @@ public class ReviewToolWindowActionManager implements DumbAware{
             super("Preview reviews", "Preview reviews", IconLoader.getIcon("/actions/preview.png"));
         }
 
-
-
         @Override
         public boolean isSelected(AnActionEvent e) {
             return settings.isShowPreviewEnabled();
@@ -285,7 +284,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
         @Override
         public void setSelected(AnActionEvent e, boolean state) {
             settings.setShowPreviewEnabled(state);
-            panel.showPreview();
+            panel.updateUI();
         }
 
         @Override
@@ -397,7 +396,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
                 Element root = builder.build(new StringReader(contents)).getRootElement();
                 ReviewsState.State state = XmlSerializer.deserialize(root, ReviewsState.State.class);
                 ReviewManager reviewManager = ReviewManager.getInstance(project);
-                reviewManager.loadReviews(state.reviews, true);
+                reviewManager.loadReviews(state.getReviews(), true);
                 String htmlContent = /*successfullyLoaded + " of " + state.reviews.size() + */" Reviews successfully imported<br/>";
                 balloonBuilder = JBPopupFactory.getInstance().
                                             createHtmlTextBalloonBuilder(htmlContent, MessageType.INFO, null);

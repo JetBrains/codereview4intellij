@@ -3,7 +3,6 @@ package ui.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
@@ -42,11 +41,9 @@ public class AddReviewAction extends AnAction implements DumbAware{
         final VirtualFile virtualFile = (context == null) ? psiFile.getVirtualFile() : context.getContainingFile().getVirtualFile();
         if (virtualFile == null) return;
 
-        int start = editor.getSelectionModel().getSelectionStart();//document.getLineStartOffset(line);
-        int end = editor.getSelectionModel().getSelectionEnd();//document.getLineEndOffset(line);
+        int start = editor.getSelectionModel().getSelectionStart();
+        int end = editor.getSelectionModel().getSelectionEnd();
 
-        CaretModel caretModel = editor.getCaretModel();
-        //int offset = caretModel.getOffset();
         int line = document.getLineNumber(start);
         if(start == end) {
             start = document.getLineStartOffset(line);

@@ -9,6 +9,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 
@@ -29,13 +30,14 @@ public class ActionManager implements DumbAware {
         return instance;
     }
 
+    @Nullable
     public Review getReviewForAction(AnActionEvent e) {
         Project project = e.getProject();
         if(project == null) return null;
         Editor editor = PlatformDataKeys.EDITOR.getData(e.getDataContext());
         if(editor != null) {
             Document document = editor.getDocument();
-            int offset = -1;
+            int offset;
             if(editor.getSelectionModel().hasSelection()) {
                offset  = editor.getSelectionModel().getSelectionStart();
             } else {
@@ -46,6 +48,7 @@ public class ActionManager implements DumbAware {
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
             VirtualFile baseDir = project.getBaseDir();
             if(baseDir == null)  {return null;}
+            if(virtualFile == null) {return null;}
             String relativePath = VfsUtil.getRelativePath(virtualFile, baseDir, '/');
             return ReviewManager.getInstance(project).getReviewInLine(relativePath, line);
         }

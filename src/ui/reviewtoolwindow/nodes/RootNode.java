@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
-import ui.reviewtoolwindow.Searcher;
+import ui.reviewtoolwindow.filter.Searcher;
 
 import java.util.ArrayList;
 import java.util.Arrays;

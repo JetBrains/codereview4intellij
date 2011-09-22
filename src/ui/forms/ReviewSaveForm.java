@@ -34,6 +34,7 @@ public class ReviewSaveForm extends DialogWrapper{
 
     public ReviewSaveForm(Project project) {
         super(project);
+        this.setTitle("Export Reviews To File");
         this.project = project;
         init();
     }

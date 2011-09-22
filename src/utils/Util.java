@@ -6,13 +6,9 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.xmlb.annotations.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ui.reviewtoolwindow.Searcher;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -20,7 +16,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 
 /**
  * User: Alisa.Afonina
@@ -118,12 +113,7 @@ public class Util extends AbstractProjectComponent implements DumbAware {
 
     public String getHTMLContents(String text) {
         String[] parts = text.split("\\s");
-        final Searcher searcher = Searcher.getInstance(myProject);
-        final String filter = searcher.getFilter();
         String result = text;
-        if(!"".equals(filter)) {
-             result = result.replace(filter, "<span class=\"highlight\">" + filter + "</span>");
-        }
         for(String part : parts) {
             try {
                 URL url = new URL(part);

@@ -10,6 +10,5 @@ import com.intellij.util.messages.Topic;
 public class ReviewChangedTopics {
     public static final Topic<ReviewsChangedListener> REVIEW_STATUS = new Topic<ReviewsChangedListener>("review", ReviewsChangedListener.class);
 
-    private ReviewChangedTopics() {
-    }
+    private ReviewChangedTopics() {}
 }
