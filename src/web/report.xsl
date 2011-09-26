@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <xsl:stylesheet version="1.0"
-                xmlns:date="date"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:date="date"
                 extension-element-prefixes="date">
+
     <xsl:output method="html" indent="yes" encoding="utf-8"/>
+
+
 
     <xsl:template match="all_reviews">
                 <html>
@@ -114,37 +118,22 @@
                 <strong><xsl:value-of select="author"/></strong>
                 <xsl:text> at </xsl:text>
                 <strong>
-                    <xsl:call-template name="date:date-time">
+                    <xsl:call-template name="date-time">
                         <xsl:with-param name="timestamp"><xsl:value-of select="date"/></xsl:with-param>
                     </xsl:call-template>
                 </strong>
-                <xsl:text> added: </xsl:text>
+                <xsl:text> added: </xsl:text> <br/>
                 <!--<xsl:value-of select="translate(@status, $uppercase, $smallcase)"/><xsl:text>: </xsl:text><br/>-->
                 <xsl:text> </xsl:text><xsl:value-of select="text"/><xsl:text> </xsl:text><br/>
              </div>
          </p>
      </xsl:template>
 
-     <date:month>
-        <january>31</january>
-        <february>28</february>
-        <march>31</march>
-        <april>30</april>
-        <may>31</may>
-        <june>30</june>
-        <july>31</july>
-        <august>31</august>
-        <september>30</september>
-        <october>31</october>
-        <november>30</november>
-        <december>31</december>
-    </date:month>
-
-    <xsl:variable name="date:month"
-              select="document('')//date:month"/>
-
-    <xsl:template name="date:date-time">
+    <xsl:template name="date-time">
         <xsl:param name="timestamp"/>
+
+        <xsl:variable name="datemonth"
+              select="document('file://month.xsl')//date:month" />
 
         <xsl:if test="not(format-number($timestamp,0)='NaN')">
             <xsl:variable name="days"
@@ -166,7 +155,7 @@
                  +floor($days)"/>
             <xsl:variable name="month"
                           select="
-                 count($date:month
+                 count($datemonth
                        /*[$year-offset>=sum(preceding-sibling::*)][last()]
                        /preceding-sibling::*)"/>
             <xsl:variable name="hours"
@@ -175,23 +164,22 @@
                           select="floor($time div 60-$hours*60)"/>
             <xsl:variable name="sec"
                           select="floor($time -$hours*3600-$min*60)"/>
-            <xsl:variable name="x" select="
+            <xsl:variable name="result" select="
                  concat(
-                     format-number($year,'0000'),'-',
-                     format-number($month+1,'00'),'-',
+                     format-number($hours,'00'),':',
+                     format-number($min,'00'),' ',
                      format-number(
                          $year-offset
-                         -sum($date:month/*[$month>=position()])
+                         -sum($datemonth/*[$month>=position()])
                          +(2>$month and (($year mod 4=0 and
                                           $year mod 100!=0) or
                                           $year mod 400=0)),
-                         '00'),' ',
-                     format-number($hours,'00'),':',
-                     format-number($min,'00'))"/>
-            <xsl:value-of select="$x"/>
+                         '00'),'.',
+                         format-number($month+1,'00'), '.',
+                         format-number($year,'0000'), ' '
+                         )"/>
+            <xsl:value-of select="$result"/>
         </xsl:if>
     </xsl:template>
-
-
 
 </xsl:stylesheet>

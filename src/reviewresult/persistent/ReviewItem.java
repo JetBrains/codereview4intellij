@@ -1,8 +1,11 @@
 package reviewresult.persistent;
 
 
+import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.xmlb.annotations.Tag;
+import org.jdom.CDATA;
+import org.jdom.Element;
 import ui.reviewtoolwindow.filter.Searcher;
 
 import java.util.Date;
@@ -43,9 +46,24 @@ public class ReviewItem {
         return text;
     }
 
+
     public void setText(String text) {
         this.text = text;
     }
+
+    /*@Tag("text")
+    public Element getTextElement() {
+        if(text.contains("\n"))
+            System.out.println(text);
+        Element e = new Element("text");
+        CDATA cdata= new CDATA(text.replace("\n", "\r\n"));
+        e.addContent(cdata);
+        return e;
+    }
+
+    public void setTextElement(Element element) {
+        this.text = element.getText();
+    }*/
 
     @Tag("date")
     public Date getDate() {
@@ -83,12 +101,12 @@ public class ReviewItem {
 
     public String getHtmlReport(Searcher searcher) {
         final String filter = searcher.getFilter();
-        String result = text;
+        String result = text.replace("\n", " <br/> ");
         if(!"".equals(filter)) {
              result = result.replace(filter, "<span class=\"highlight\">" + filter + "</span>");
         }
-        result = "<strong>" + author + "</strong> at " +
-                 DateFormatUtil.formatPrettyDateTime(date) +  " added: <br/> " +
+        result = "<strong>" + author + "</strong> added " +
+                 DateFormatUtil.formatPrettyDateTime(date) +  ": <br/> " +
                  result + " <br/>";
         return result;
     }

@@ -6,9 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.spellchecker.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,8 +48,10 @@ public class Util extends AbstractProjectComponent implements DumbAware {
         return p;
     }
 
-    public static int find(String text, String pattern) {
-        if(text == null || pattern == null) return -1;
+    public static int find(String textCaseSensitive, String patternCaseSensitive) {
+        if(textCaseSensitive == null || patternCaseSensitive == null) return -1;
+        String text = textCaseSensitive.toLowerCase();
+        String pattern = patternCaseSensitive.toLowerCase();
         int patternLength = pattern.length();
         int textLength = text.length();
         int k = 0;
@@ -131,7 +131,7 @@ public class Util extends AbstractProjectComponent implements DumbAware {
             try {
                 URL url = new URL(part);
                 result = result.replace(part, "<a href=\"" + url + "\">"+ url + "</a>");
-            } catch (MalformedURLException e) {}
+            } catch (MalformedURLException ignored) {}
         }
         return result;
     }

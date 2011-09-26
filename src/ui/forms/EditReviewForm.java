@@ -41,7 +41,9 @@ public class EditReviewForm {
     private List<String> tags = new ArrayList<String>();
 
     private final Review review;
-    private final boolean addOrEditItem;
+    private boolean addItem;
+    private boolean editItem;
+    //private final boolean addOrEditItem;
     private static final int TAG_LENGTH = 20;
     private static final int BALLOON_WIDTH = 250;
     private static final int BALLOON_HEIGHT = 400;
@@ -52,15 +54,17 @@ public class EditReviewForm {
     private static final long FADEOUT_TIME = 1000;
     private JPanel tagsPanel;
 
-    public EditReviewForm(final Review review, boolean addOrEditItem, boolean spellCheck) {
+    public EditReviewForm(final Review review, boolean addItem, boolean editItem, boolean spellCheck) {
         this.review = review;
-        this.addOrEditItem = addOrEditItem;
+        this.addItem = addItem;
+        this.editItem = editItem;
+
         this.tags.addAll(review.getTags());
 
         setupTags();
         setupItemsContent();
 
-        if(addOrEditItem) {
+        if(addItem || editItem) {
             setupLastItem(spellCheck);
         }
 
@@ -172,7 +176,7 @@ public class EditReviewForm {
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         mainTagsPanel.add(tagsPanel);
-        if(addOrEditItem){
+        if(addItem || editItem){
             mainTagsPanel.add(tagsField, BorderLayout.SOUTH);
         }
         mainPanel.add(mainTagsPanel, BorderLayout.SOUTH);
@@ -188,7 +192,7 @@ public class EditReviewForm {
         }
         tagLabel.setFont(new Font("Verdana", Font.PLAIN, SIZE));
         oneTagPanel.add(tagLabel);
-        if(addOrEditItem) {
+        if(addItem || editItem) {
             final Icon icon = IconLoader.getIcon("/actions/close.png");
             final Icon hoveredIcon = IconLoader.getIcon("/actions/closeHovered.png");
             final JButton deleteTagButton = new JButton(icon);
@@ -253,10 +257,11 @@ public class EditReviewForm {
     }
 
     public void saveReview() {
-        ReviewManager.getInstance(review.getProject()).addTags(tags);
+        final ReviewManager instance = ReviewManager.getInstance(review.getProject());
+        instance.addTags(tags);
         review.setTags(tags);
 
-        if(addOrEditItem) {
+        if(addItem || editItem) {
             String text = newReviewItemText.getText().trim();
             if ("".equals(text)) {
                 newReviewItemText.setBorder(BorderFactory.createEtchedBorder(Color.RED, Color.WHITE));
@@ -285,10 +290,13 @@ public class EditReviewForm {
         }
 
         ReviewActionManager.getInstance().disposeActiveBalloon();
-        if (addOrEditItem && review.getReviewItems().size() == 1) {
-                ReviewManager.getInstance(review.getProject()).placeReview(review);
+        if (review.getReviewItems().size() == 1) {
+                if(addItem)
+                    instance.placeReview(review);
+                if(editItem)
+                    instance.updateReview(review);
         } else {
-            ReviewManager.getInstance(review.getProject()).changeReview(review);
+            instance.changeReview(review);
         }
     }
 
@@ -314,7 +322,7 @@ public class EditReviewForm {
         if(reviewItems.isEmpty())return;
         for (int i = 0; i < reviewItems.size(); i++) {
             ReviewItem reviewItem = reviewItems.get(i);
-            if(!(i == reviewItems.size() - 1 && reviewItem.isMine() && addOrEditItem)) {
+            if(!(i == reviewItems.size() - 1 && reviewItem.isMine() && (addItem || editItem))) {
                 result += reviewItem.getHtmlReport(Searcher.getInstance(review.getProject()));
             }
         }
@@ -330,7 +338,7 @@ public class EditReviewForm {
 
         JScrollPane pane = ScrollPaneFactory.createScrollPane(itemsText);
         pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        if(addOrEditItem) {
+        if(addItem || editItem) {
             mainPanel.add(pane, BorderLayout.NORTH);
         }
         else {
@@ -339,7 +347,7 @@ public class EditReviewForm {
     }
 
     public void requestFocus() {
-        if(addOrEditItem) {
+        if(addItem || editItem) {
             IdeFocusManager.
                         findInstanceByComponent(newReviewItemText).
                             requestFocus(newReviewItemText, true);

@@ -1,6 +1,7 @@
 package ui.forms;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diff.impl.util.LabeledEditor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileChooser.FileChooserFactory;
 import com.intellij.openapi.fileChooser.FileTextField;
@@ -41,7 +42,8 @@ public class ReviewSaveForm extends DialogWrapper{
 
     @Override
     protected JComponent createCenterPanel() {
-        JPanel mainPanel = new JPanel(new GridLayout(0, 1));
+        JPanel mainPanel = new JPanel(new GridLayout(0, 2, 5, 10));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         ButtonGroup formatGroup = new ButtonGroup();
         final JRadioButton xmlButton = new JRadioButton("XML");
         formatGroup.add(xmlButton);
@@ -87,12 +89,32 @@ public class ReviewSaveForm extends DialogWrapper{
             }
         });
 
-        mainPanel.add(new JLabel("Select output format: "));
-        mainPanel.add(xmlButton);
-        mainPanel.add(htmlButton);
+        JPanel fileNamePanel = new JPanel(new BorderLayout(5, 10));
+        JPanel folderPanel = new JPanel(new BorderLayout(5, 10));
+        //JPanel wrapperFileNamePanel = new JPanel(new GridLayout(0, 1));
 
-        mainPanel.add(LabeledComponent.create(fileName, "File name"));
-        mainPanel.add(LabeledComponent.create(targetFolderTextField, "File folder"));
+        //wrapperFileNamePanel.add(fileNamePanel);
+        mainPanel.add(new JLabel("Select output format: "));
+        buttonPanel.add(xmlButton);
+        buttonPanel.add(htmlButton);
+        mainPanel.add(buttonPanel);
+
+        mainPanel.add(new JLabel("File:"));
+        mainPanel.add(fileName);
+
+        mainPanel.add(new JLabel("Target folder:"));
+        mainPanel.add(targetFolderTextField);
+        //LabeledComponent<JTextField> fileComponent = new LabeledComponent<JTextField>();
+        //fileComponent.setComponent(fileName);
+        //fileComponent.setLabelLocation(BorderLayout.WEST);
+        //fileComponent.setText("File name:");
+        //mainPanel.add(fileComponent);
+        //mainPanel.add(wrapperFileNamePanel);
+        //LabeledComponent<TextFieldWithBrowseButton> folderComponent = new LabeledComponent<TextFieldWithBrowseButton>();
+        //folderComponent.setText("Target folder ");
+        //folderComponent.setLabelLocation(BorderLayout.WEST);
+        //folderComponent.setComponent(targetFolderTextField);
+        //mainPanel.add(folderComponent);
 
         return mainPanel;
     }

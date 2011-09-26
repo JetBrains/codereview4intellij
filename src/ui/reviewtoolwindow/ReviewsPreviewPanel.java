@@ -24,7 +24,7 @@ class ReviewsPreviewPanel extends JPanel {
     public void update(Review review) {
         removeAll();
         if(review.isValid()) {
-            EditReviewForm previewReviewForm = new EditReviewForm(review, false, false);
+            EditReviewForm previewReviewForm = new EditReviewForm(review, false, false, false);
             add(previewReviewForm.getContent());
             setupContextPanel(review);
 

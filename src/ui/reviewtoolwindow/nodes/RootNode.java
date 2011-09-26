@@ -32,11 +32,16 @@ public class RootNode extends PlainNode {
     @Override
     public SimpleNode[] getChildren() {
         List<SimpleNode> newChildren = new ArrayList<SimpleNode>();
-        final Searcher instance = Searcher.getInstance(myProject);
-        if(instance.isEmpty()) return new SimpleNode[]{new SimpleNode() {
+        final Searcher searcher = Searcher.getInstance(myProject);
+        if(searcher.isEmpty()) return new SimpleNode[]{new SimpleNode() {
             @Override
             protected void update(PresentationData presentation) {
-                presentation.addText("No occurences of " + instance.getFilter() + " found", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                if(!searcher.additionalFilterIsSet()) {
+                    presentation.addText("No occurences of " + searcher.getFilter() + " found", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                } else {
+                    presentation.addText("No reviews with these parameters found", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                }
+
             }
 
             @Override

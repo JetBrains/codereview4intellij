@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.pom.Navigatable;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
@@ -100,6 +101,25 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         searchPanel = new JPanel( new BorderLayout());
         final SmartTextFieldWithAutoComplete searchLine = new SmartTextFieldWithAutoComplete(project);
         searchPanel.setVisible(settings.isSearchEnabled() && settings.isEnabled());
+        searchPanel.setFocusable(true);
+        searchPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                IdeFocusManager.
+                        findInstanceByComponent(searchLine).
+                            requestFocus(searchLine, true);
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                settings.setSearchEnabled(false);
+                final Searcher searcher = Searcher.getInstance(project);
+                searcher.emptyFilter();
+                final boolean enabled = !searcher.getFilteredFileNames().isEmpty();
+                settings.setEnabled(enabled);
+                updateUI();
+            }
+        });
         searchLine.registerKeyboardAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -107,11 +127,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 searcher.createFilter(searchLine.extractSuffix());
 
                 reviewTreeBuilder.getUi().doUpdateFromRoot();
-                if (searcher.getFilteredFileNames().isEmpty()) {
-                    settings.setEnabled(false);
-                    previewPanel.setVisible(false);
-                } else {
-                    settings.setEnabled(true);
+                final boolean enabled = !searcher.getFilteredFileNames().isEmpty();
+                if(!enabled) {
+                    settings.setEnabled(enabled);
+                    previewPanel.setVisible(enabled);
                 }
                 if (settings.isShowPreviewEnabled() && settings.isEnabled()) {
                     updateUI();
@@ -126,6 +145,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             public void beforeDocumentChange(DocumentEvent event) {
                 if("".equals(searchLine.getText().trim())) {
                     Searcher.getInstance(project).emptyFilter();
+                    updateUI();
                 }
             }
         });
@@ -149,8 +169,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             @Override
             public void actionPerformed(ActionEvent e) {
                 settings.setSearchEnabled(false);
-                settings.setSearchEnabled(false);
-                Searcher.getInstance(project).emptyFilter();
                 updateUI();
             }
         });

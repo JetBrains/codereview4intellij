@@ -39,7 +39,7 @@ public class ReviewActionManager implements DumbAware {
         final Point point = gutterComponent.getPoint(reviewPoint.getGutterIconRenderer());
         if (point != null) {
             final Review review = reviewPoint.getReview();
-            editReviewForm = new EditReviewForm(review, true, true);
+            editReviewForm = new EditReviewForm(review, false, true, true);
             JComponent content = editReviewForm.getContent();
             Point docPoint = editor.visualPositionToXY(editor.offsetToVisualPosition(review.getEnd()));
             final Point balloonPoint = new Point(docPoint.x, docPoint.y + editor.getLineHeight());
@@ -57,7 +57,7 @@ public class ReviewActionManager implements DumbAware {
     public void addNewComment(final Editor editor, Review review) {
         Point point = editor.visualPositionToXY(editor.offsetToVisualPosition(review.getEnd()));
         point = new Point(point.x, point.y + editor.getLineHeight());
-        editReviewForm = new EditReviewForm(review, true, true);
+        editReviewForm = new EditReviewForm(review, true, false, true);
         JComponent content = editReviewForm.getContent();
         activeBalloon.dispose();
         activeBalloon = new BalloonWithSelection(review, editor, point, content, "Add Comment");
@@ -71,7 +71,7 @@ public class ReviewActionManager implements DumbAware {
         final EditorGutterComponentEx gutterComponent = ((EditorEx)editor).getGutterComponentEx();
         final Point point = gutterComponent.getPoint(reviewPoint.getGutterIconRenderer());
         if (point != null) {
-            editReviewForm = new EditReviewForm(reviewPoint.getReview(), false, true);
+            editReviewForm = new EditReviewForm(reviewPoint.getReview(), false, false, true);
             JComponent content = editReviewForm.getContent();
             Point docPoint = editor.visualPositionToXY(editor.offsetToVisualPosition(review.getEnd()));
             final Point balloonPoint = new Point(docPoint.x, docPoint.y + editor.getLineHeight());

@@ -8,8 +8,10 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.ui.popup.*;
+import com.intellij.psi.search.PsiElementProcessor;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.PositionTracker;
+import com.sun.org.apache.bcel.internal.generic.IFEQ;
 import reviewresult.Review;
 
 import javax.swing.*;
@@ -25,10 +27,12 @@ public class BalloonWithSelection{
     private Balloon balloon = null;
     private Editor editor;
     private Point target;
+    private String title;
     private boolean closed;
     private RangeHighlighter highlighter = null;
     private static final TextAttributes REVIEW_ATTRIBUTES =
                                 new TextAttributes(null, new Color(224,255,204), null, null, Font.PLAIN);
+    private JComponent balloonContent;
 
     public BalloonWithSelection() {}
 
@@ -36,12 +40,18 @@ public class BalloonWithSelection{
         this.review = review;
         this.editor = editor;
         this.target = target;
-
+        this.title = title;
+        this.balloonContent = balloonContent;
         this.highlighter = editor.getMarkupModel().addRangeHighlighter(review.getStart(),
                                                                        review.getEnd(),
                                                                        HighlighterLayer.SELECTION - 12,
                                                                        REVIEW_ATTRIBUTES,
                                                                        HighlighterTargetArea.EXACT_RANGE);
+        createBalloon();
+    }
+
+    private void createBalloon() {
+
         BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createDialogBalloonBuilder(balloonContent, title);
         balloonBuilder.setHideOnClickOutside(true);
         balloonBuilder.setHideOnKeyOutside(true);
@@ -103,17 +113,32 @@ public class BalloonWithSelection{
             this.editor = editor;
             this.component = component;
             this.point = point;
+            final Rectangle visibleArea = editor.getScrollingModel().getVisibleArea();
+            if(point.x > visibleArea.getWidth()) {
+                            point.x = (int) (visibleArea.getX() + visibleArea.getWidth()
+                                                    - balloon.getPreferredSize().getWidth()/2);
+            }
+            /*if(point.y > visibleArea.getHeight()) {
+                            point.y = (int) (visibleArea.getY() + visibleArea.getHeight()
+                                                    - balloon.getPreferredSize().getHeight());
+            }*/
         }
 
         @Override
         public RelativePoint recalculateLocation(final Balloon object) {
-            //final Rectangle visibleArea = editor.getScrollingModel().getVisibleArea();
-            final Rectangle visibleArea = editor.getScrollingModel().getVisibleAreaOnScrollingFinished();
+            final Rectangle visibleArea = editor.getScrollingModel().getVisibleArea();
+            //final Rectangle visibleArea = editor.getScrollingModel().getVisibleAreaOnScrollingFinished();
+            /*if(visibleArea.getBounds().getWidth() == 0 || visibleArea.getHeight() == 0) {
+            }*/
             if (!visibleArea.contains(point)) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         object.hide();
+                        /*if(point.y > visibleArea.getHeight()) {
+                            point.y = (int) (visibleArea.getY() + visibleArea.getHeight()
+                                                    - balloon.getPreferredSize().getHeight());
+                        }*/
                     }
                 });
 
@@ -121,11 +146,14 @@ public class BalloonWithSelection{
                 final VisibleAreaListener listener = new VisibleAreaListener() {
                    @Override
                    public void visibleAreaChanged(VisibleAreaEvent e) {
-                        if(e.getNewRectangle().contains(point) && object.isDisposed() && !balloon.isDisposed()) {
+                           //final Rectangle newRectangle = e.getNewRectangle();
+                           final Rectangle newRectangle = e.getEditor().getScrollingModel().getVisibleAreaOnScrollingFinished();
+                           if(newRectangle.contains(point) && object.isDisposed() && !balloon.isDisposed()) {
                             final VisibleAreaListener listener = this;
                             SwingUtilities.invokeLater(new Runnable() {
                                 @Override
                                 public void run() {
+                                    //createBalloon();
                                     balloon.show(tracker, Balloon.Position.below);
                                     editor.getScrollingModel().removeVisibleAreaListener(listener);
                                 }

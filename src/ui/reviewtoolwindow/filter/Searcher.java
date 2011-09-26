@@ -43,7 +43,11 @@ public class Searcher  extends AbstractProjectComponent {
     }
 
     public boolean filterIsSet(){
-        return authorSpecified || statusSpecified || tagSpecified || !"".equals(filterText);
+        return additionalFilterIsSet() || !"".equals(filterText);
+    }
+
+    public boolean additionalFilterIsSet(){
+        return authorSpecified || statusSpecified || tagSpecified;
     }
 
     public Set<String> getFilteredFileNames() {

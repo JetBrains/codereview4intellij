@@ -16,7 +16,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.jdom.transform.JDOMSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
@@ -24,13 +23,10 @@ import reviewresult.persistent.ReviewsState;
 import ui.gutterpoint.ReviewPointManager;
 import utils.Util;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -180,13 +176,13 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         if(Messages.showYesNoDialog("This review already exists. Would you like to overwrite it?",
                 "Review Exists",
                 Messages.getInformationIcon()) == Messages.OK) {
-            updateReview(oldReview, newReview);
+            oldReview.setReviewBean(newReview.getReviewBean());
+            updateReview(oldReview);
         }
     }
 
-    private void updateReview(Review oldReview, Review newReview) {
-        oldReview.setReviewBean(newReview.getReviewBean());
-        eventPublisher.reviewChanged(oldReview);
+    public void updateReview(Review review) {
+        eventPublisher.reviewChanged(review);
     }
 
     private void selectReviewState(Review oldReview/*, Review newReview*/) {
@@ -298,20 +294,34 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         final String reportText = serialize(state);
         if(prettyFormat) {
             if(state.getReviews().isEmpty()) return null;
-            return "<!--" + reportText + "-->"
-                    + getHTMLReport(XmlSerializer.serialize(state));
+            return /*"<!--" + reportText + "-->"
+                    +*/ getHTMLReport(reportText/*XmlSerializer.serialize(state)*/);
         }
         return reportText;
    }
 
-    public String getHTMLReport(Element element) {
+   public String getHTMLReport(String reportText) {
         try {
             URL xsltUrl = getClass().getResource("/web/report.xsl");
             Source xslSource = new StreamSource(URLUtil.openStream(xsltUrl));
-            SAXTransformerFactory transformerFactory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
-            TransformerHandler handler = transformerFactory.newTransformerHandler(xslSource);
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setURIResolver(new URIResolver() {
+                @Override
+                public Source resolve(String href, String base) throws TransformerException {
+                    URL url = getClass().getResource("/web/" + href.substring(7));
+                    try {
+                        return new StreamSource(URLUtil.openStream(url));
+                    } catch (IOException e) {
+                        LOG.error(e);
+                    }
+                    return null;
+                }
+            });
             StringWriter stringWriter = new StringWriter();
-            handler.getTransformer().transform(new JDOMSource(element), new StreamResult(stringWriter));
+            transformerFactory.newTransformer(xslSource).transform(
+                    new StreamSource(new StringReader(reportText)),
+                    new StreamResult(stringWriter)
+            );
             return Util.getInstance(myProject).getHTMLContents(stringWriter.toString());
         } catch (IOException e) {
            // todo
@@ -378,8 +388,8 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     private class ReviewVirtualFileListener extends VirtualFileAdapter {
         @Override
         public void beforeFileMovement(VirtualFileMoveEvent event) {
-            String  url  = getFilePath(event.getOldParent()) + "/" + event.getFileName();
-            String  newUrl  = getFilePath(event.getNewParent()) + "/"  + event.getFileName();
+            String  url  = getFilePath(event.getOldParent()) + File.pathSeparator + event.getFileName();
+            String  newUrl  = getFilePath(event.getNewParent()) + File.pathSeparator  + event.getFileName();
             List<Review> reviewList = filePath2reviews.get(url);
             if(!(reviewList == null || reviewList.isEmpty())) {
                 filePath2reviews.remove(url);
@@ -393,7 +403,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
         @Override
         public void fileMoved(VirtualFileMoveEvent event) {
-            String  newUrl  = getFilePath(event.getNewParent()) + "/"  + event.getFileName();
+            String  newUrl  = getFilePath(event.getNewParent()) + File.pathSeparator  + event.getFileName();
             List<Review> reviewList = filePath2reviews.get(newUrl);
             if(!(reviewList == null || reviewList.isEmpty())) {
                 for (Review review : reviewList) {
