@@ -31,11 +31,11 @@ public class Searcher  extends AbstractProjectComponent {
     private Filter filter = new Filter();
     private String filterText = "";
     private Searcher.AdditionalFilter additionalFilter  = new AdditionalFilter();
+    private boolean caseSensitive = false;
 
     protected Searcher(Project project) {
         super(project);
         this.project = project;
-        //issues.add("PLUGIN-\\d+");//, "<a href=\"http://codereview4intellij.myjetbrains.com/youtrack/issue/PLUGIN-*\">CR-*</a>");
     }
 
     public static Searcher getInstance(@NotNull Project project) {
@@ -78,7 +78,7 @@ public class Searcher  extends AbstractProjectComponent {
     }
 
     private void extractTag() {
-        final int tagIndex = Util.find(filterText, additionalFilter.TAG);
+        final int tagIndex = Util.find(filterText, additionalFilter.TAG, caseSensitive);
         if(tagIndex != -1) {
             tagSpecified = true;
             final int beginTagName = tagIndex + additionalFilter.TAG.length();
@@ -128,7 +128,7 @@ public class Searcher  extends AbstractProjectComponent {
     }*/
 
     private void extractAuthor() {
-        final int authorIndex = Util.find(filterText, additionalFilter.AUTHOR);
+        final int authorIndex = Util.find(filterText, additionalFilter.AUTHOR, caseSensitive);
         if(authorIndex != -1) {
             authorSpecified = true;
             final int beginAuthorName = authorIndex + additionalFilter.AUTHOR.length();
@@ -195,7 +195,7 @@ public class Searcher  extends AbstractProjectComponent {
             }
             final boolean filterExists = !(additionalFiltersSpecified ^ additionalFiltersExist);
             if(!(filter == null || "".equals(filterText)) && filterExists) {
-                int itemStart = Util.find(item.getText(), filterText);
+                int itemStart = Util.find(item.getText(), filterText, caseSensitive);
                 int itemEnd;
                 if(itemStart != -1) {
                     contains = true;
@@ -210,7 +210,7 @@ public class Searcher  extends AbstractProjectComponent {
         if(contains) {
             Pair<Integer, Integer> reviewResult = new Pair<Integer, Integer>(-2, -2);
             if(filter != null && !"".equals(filterText) ) {
-                int reviewStart = Util.find(review.getPresentationInfo(false), filterText);
+                int reviewStart = Util.find(review.getPresentationInfo(false), filterText, caseSensitive);
                 int reviewEnd;
 
                 if(reviewStart >= 0) {
@@ -270,6 +270,11 @@ public class Searcher  extends AbstractProjectComponent {
     public String[] getFilterKeywords() {
         return additionalFilter.getFilterKeywords();
     }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
+
 
     private class AdditionalFilter {
     public final String AUTHOR = "author:";

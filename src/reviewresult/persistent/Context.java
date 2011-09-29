@@ -120,10 +120,10 @@ public class Context {
         //int start = context.getStart();
         //int end = context.getEnd();
 
-        final int beforeOffset = Util.find(text, getLineBefore());
-        final int afterOffset = Util.find(text, getLineAfter());
+        final int beforeOffset = Util.find(text, getLineBefore(), true);
+        final int afterOffset = Util.find(text, getLineAfter(), true);
         if(!getLine().equals(document.getText(new TextRange(getStart(), getEnd())))) {
-            int offset = Util.find(text, getLine());
+            int offset = Util.find(text, getLine(), true);
             if(offset > 0) {
                 if(offset != getStart()) {
                     // todo check context around

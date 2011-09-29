@@ -294,8 +294,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         final String reportText = serialize(state);
         if(prettyFormat) {
             if(state.getReviews().isEmpty()) return null;
-            return /*"<!--" + reportText + "-->"
-                    +*/ getHTMLReport(reportText/*XmlSerializer.serialize(state)*/);
+            return  getHTMLReport(reportText);
         }
         return reportText;
    }
@@ -322,7 +321,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                     new StreamSource(new StringReader(reportText)),
                     new StreamResult(stringWriter)
             );
-            return Util.getInstance(myProject).getHTMLContents(stringWriter.toString());
+            return "<!--" + reportText + "-->" + Util.getInstance(myProject).getHTMLContents(stringWriter.toString());
         } catch (IOException e) {
            // todo
         } catch (TransformerConfigurationException e) {

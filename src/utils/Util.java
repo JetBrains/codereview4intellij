@@ -48,10 +48,10 @@ public class Util extends AbstractProjectComponent implements DumbAware {
         return p;
     }
 
-    public static int find(String textCaseSensitive, String patternCaseSensitive) {
-        if(textCaseSensitive == null || patternCaseSensitive == null) return -1;
-        String text = textCaseSensitive.toLowerCase();
-        String pattern = patternCaseSensitive.toLowerCase();
+    public static int find(String originalText, String originalPattern, boolean caseSensitive) {
+        if(originalText == null || originalPattern == null) return -1;
+        String text = caseSensitive ? originalText : originalText.toLowerCase();
+        String pattern = caseSensitive ? originalPattern : originalPattern.toLowerCase();
         int patternLength = pattern.length();
         int textLength = text.length();
         int k = 0;

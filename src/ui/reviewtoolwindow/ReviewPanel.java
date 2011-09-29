@@ -120,6 +120,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 updateUI();
             }
         });
+
         searchLine.registerKeyboardAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -140,6 +141,15 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 searchLine.setText(filtersText + searcher.getFilter());
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        searchLine.registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settings.setSearchEnabled(false);
+                updateUI();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
         searchLine.addDocumentListener(new DocumentAdapter() {
             @Override
             public void beforeDocumentChange(DocumentEvent event) {
@@ -149,6 +159,8 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 }
             }
         });
+        searchLine.setCenterByHeight(true);
+
         final Icon icon = IconLoader.getIcon("/actions/close.png");
         final Icon hoveredIcon = IconLoader.getIcon("/actions/closeHovered.png");
         final JButton closeSearchButton = new JButton(icon);
@@ -172,8 +184,22 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 updateUI();
             }
         });
-        searchPanel.add(searchLine);
+
+        final JCheckBox caseSensitive = new JCheckBox("Case Sensitive");
+
+        caseSensitive.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Searcher.getInstance(project).setCaseSensitive(caseSensitive.isSelected());
+            }
+        });
+
+        JPanel linePanel = new JPanel(new BorderLayout());
+        linePanel.add(searchLine);
+        linePanel.add(caseSensitive, BorderLayout.EAST);
+        searchPanel.add(linePanel);
         searchPanel.add(closeSearchButton, BorderLayout.EAST);
+
         mainPanel.add(searchPanel, BorderLayout.NORTH);
     }
 
@@ -200,6 +226,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             public void keyPressed(KeyEvent e) {
                 if (KeyEvent.VK_ENTER == e.getKeyCode()) {
                    openReview();
+                }
+                if(e.getKeyCode() == KeyEvent.VK_F  && e.getModifiers() == KeyEvent.CTRL_MASK) {
+                    settings.setSearchEnabled(true);
+                    updateUI();
                 }
             }
         });

@@ -88,7 +88,7 @@ public class SmartTextFieldWithAutoComplete extends EditorTextField implements D
     public String extractSuffix() {
         String text = getText();
         if(!"".equals(inactivePrefix)) {
-            int prefixStart = Util.find(text, inactivePrefix);
+            int prefixStart = Util.find(text, inactivePrefix, false);
             if(prefixStart >= 0) {
                 text = text.substring(prefixStart + inactivePrefix.length());
             } else {

@@ -24,7 +24,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewsState;
-import ui.forms.ReviewSaveForm;
+import ui.forms.SaveReviewsFormWrapper;
 import ui.reviewtoolwindow.filter.Searcher;
 
 import javax.swing.*;
@@ -308,7 +308,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
             final Component component = e.getInputEvent().getComponent();
             final Point centerPoint = new Point(component.getHeight()/ 2 ,component.getWidth()/ 2);
             if(project == null) {return;}
-            ReviewSaveForm saveDialog = new ReviewSaveForm(project);
+            SaveReviewsFormWrapper saveDialog = new SaveReviewsFormWrapper(project);
 
             saveDialog.show();
 

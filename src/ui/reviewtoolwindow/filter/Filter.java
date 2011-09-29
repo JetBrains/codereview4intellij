@@ -1,11 +1,5 @@
 package ui.reviewtoolwindow.filter;
 
-import com.intellij.openapi.project.Project;
-import reviewresult.ReviewManager;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * User: Alisa.Afonina
  * Date: 9/22/11
