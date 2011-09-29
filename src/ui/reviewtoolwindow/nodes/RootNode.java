@@ -9,6 +9,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.SimpleNode;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 import ui.reviewtoolwindow.filter.Searcher;
+import utils.ReviewsBundle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +38,11 @@ public class RootNode extends PlainNode {
             @Override
             protected void update(PresentationData presentation) {
                 if(!searcher.additionalFilterIsSet()) {
-                    presentation.addText("No occurences of " + searcher.getFilter() + " found", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                    presentation.addText(ReviewsBundle.message("reviews.noReviewsWithParameters", searcher.getFilter()),
+                                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
-                    presentation.addText("No reviews with these parameters found", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                    presentation.addText(ReviewsBundle.message("reviews.noReviewsWithParameters"),
+                                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 }
 
             }

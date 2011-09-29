@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
+import utils.ReviewsBundle;
 import utils.Util;
 
 import java.util.ArrayList;
@@ -123,7 +124,7 @@ public class Review{
 
     public String getPresentationInfo(boolean full) {
         if(reviewBean.getReviewItems().isEmpty())
-            return "EMPTY COMMENT";
+            return ReviewsBundle.message("reviews.noReviewItems");
         final String text = reviewBean.getReviewItems().get(0).getText();
         if(full) return text;
         String infoText = text.split("\n")[0];
@@ -191,11 +192,9 @@ public class Review{
         return result.toString();
     }
 
-    @Nullable
-    public ReviewItem getLastReviewItem() {
+    public boolean isLastReviewItemMine() {
         final List<ReviewItem> reviewItems = reviewBean.getReviewItems();
-        if(reviewItems.isEmpty()) return null;
-        return reviewItems.get(reviewItems.size() - 1);
+        return !reviewItems.isEmpty() && reviewItems.get(reviewItems.size() - 1).isMine();
     }
 
     public String getLastCommenter() {
@@ -263,4 +262,15 @@ public class Review{
        return reviewBean != null ? reviewBean.hashCode() : 0;
     }
 
+    public String getLastReviewItemText() {
+        final List<ReviewItem> reviewItems = reviewBean.getReviewItems();
+        if(reviewItems.isEmpty()) return "";
+        return reviewItems.get(reviewItems.size() - 1).getText();
+    }
+    @Nullable
+    public ReviewItem getLastReviewItem() {
+        final List<ReviewItem> reviewItems = reviewBean.getReviewItems();
+        if(reviewItems.isEmpty()) return null;
+        return reviewItems.get(reviewItems.size() - 1);
+    }
 }

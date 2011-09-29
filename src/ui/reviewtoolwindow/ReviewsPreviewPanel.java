@@ -2,6 +2,7 @@ package ui.reviewtoolwindow;
 
 import reviewresult.Review;
 import ui.forms.EditReviewForm;
+import utils.ReviewsBundle;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicTextUI;
@@ -18,7 +19,7 @@ import java.awt.*;
 class ReviewsPreviewPanel extends JPanel {
     public ReviewsPreviewPanel() {
         super(new BorderLayout());
-        add(new JLabel("Select element to preview from a tree"));
+        add(new JLabel(ReviewsBundle.message("reviews.selectElementToPreview")));
     }
 
     public void update(Review review) {
@@ -29,7 +30,7 @@ class ReviewsPreviewPanel extends JPanel {
             setupContextPanel(review);
 
         } else {
-            add(new JLabel("This element became invalid"));
+            add(new JLabel(ReviewsBundle.message("reviews.elementBecameInvalid")));
         }
         revalidate();
         repaint();

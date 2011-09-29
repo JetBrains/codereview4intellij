@@ -4,6 +4,7 @@
     <description>Plugin allows to exchange source code comments with patch files.</description>
     <version>1.0</version>
     <vendor>JetBrains</vendor>
+    <resource-bundle>utils.ReviewsBundle</resource-bundle>
     <idea-version since-build="8000"/>
     <!--<depends optional="true" config-file="IdeTalk" />-->
   <application-components>

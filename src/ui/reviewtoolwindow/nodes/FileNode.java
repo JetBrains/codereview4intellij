@@ -82,7 +82,8 @@ public class FileNode extends PlainNode implements Navigatable{
         if(!file.isDirectory()) {
             VirtualFile baseDir = project.getBaseDir();
             if(baseDir == null) {return;}
-            List<Review> reviews = ReviewManager.getInstance(project).getValidReviews(VfsUtil.getRelativePath(file, baseDir, '/'));
+            List<Review> reviews = ReviewManager.getInstance(project).
+                                                getValidReviews(VfsUtil.getRelativePath(file, baseDir, '/'));
             if(reviews == null || reviews.isEmpty()) {
                 return;
             }

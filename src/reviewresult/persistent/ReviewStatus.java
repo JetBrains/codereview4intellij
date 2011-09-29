@@ -1,4 +1,4 @@
-package reviewresult;
+package reviewresult.persistent;
 
 import java.util.ArrayList;
 import java.util.List;

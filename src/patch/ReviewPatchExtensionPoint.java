@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.ReviewManager;
+import utils.ReviewsBundle;
 
 /**
  * User: Alisa.Afonina
@@ -46,8 +47,8 @@ public class ReviewPatchExtensionPoint implements PatchEP{
 
     @Override
     public void consumeContent(@NotNull String path, @NotNull CharSequence content, CommitContext commitContext) {
-        if(Messages.showYesNoDialog("Do you want to import reviews from this patch?",
-                                    "Import Reviews",
+        if(Messages.showYesNoDialog(ReviewsBundle.message("reviews.importFromPatchQuestion"),
+                                    ReviewsBundle.message("reviews.importFromPatch"),
                                     Messages.getQuestionIcon()) == Messages.YES) {
             for(Project project : ProjectManager.getInstance().getOpenProjects()) {
                 ReviewManager.getInstance(project).importReviewsForFile(path, content.toString());

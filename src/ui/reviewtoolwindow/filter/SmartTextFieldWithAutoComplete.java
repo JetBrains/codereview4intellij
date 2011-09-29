@@ -27,7 +27,8 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.text.Matcher;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.ReviewManager;
-import reviewresult.ReviewStatus;
+import reviewresult.persistent.ReviewStatus;
+import utils.ReviewsBundle;
 import utils.Util;
 
 import java.util.ArrayList;
@@ -57,22 +58,18 @@ public class SmartTextFieldWithAutoComplete extends EditorTextField implements D
         addDocumentListener(new DocumentAdapter() {
             @Override
             public void documentChanged(DocumentEvent e) {
-                //String text = e.getDocument().getText().toLowerCase();
                 String text = extractSuffix();
                 String[] variants = null;
-                if (text.endsWith("author:")) {
+                if (text.endsWith(ReviewsBundle.message("reviews.author"))) {
                     variants = ReviewManager.getInstance(getProject()).getAuthors();
                     setDelimiter("\"");
                 }
-                if (text.endsWith("status:")) {
-                    variants = ReviewStatus.getVariants();
-                    setDelimiter(":");
-                }
-                if (text.endsWith("tag:")) {
+
+                if (text.endsWith(ReviewsBundle.message("reviews.tag"))) {
                     variants = ReviewManager.getInstance(getProject()).getAvailableTags();
                     setDelimiter("\"");
                 }
-                if (text.endsWith(" ") || "".equals(text)/*|| text.endsWith("\"")*/) {
+                if (text.endsWith(" ") || "".equals(text)) {
                     variants = Searcher.getInstance(project).getFilterKeywords();
                     setDelimiter(" ");
                 }
@@ -109,7 +106,8 @@ public class SmartTextFieldWithAutoComplete extends EditorTextField implements D
         assert fileType != null;
 
         final long stamp = LocalTimeCounter.currentTime();
-        final PsiFile psiFile = factory.createFileFromText("Dummy." + fileType.getDefaultExtension(), fileType, "", stamp, true, false);
+        final PsiFile psiFile = factory.createFileFromText("Dummy." + fileType.getDefaultExtension(),
+                                                            fileType, "", stamp, true, false);
         final Document document = PsiDocumentManager.getInstance(project).getDocument(psiFile);
         assert document != null;
         return document;

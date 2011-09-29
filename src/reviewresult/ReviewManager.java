@@ -1,5 +1,6 @@
 package reviewresult;
 
+import utils.ReviewsBundle;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -103,7 +104,8 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                 for(ReviewsState.FileReviewsList list : lists) {
                     String filePath = list.getFilePath();
 
-                    boolean checkSumIsCorrect = list.getChecksum().equals(Util.getInstance(myProject).getCheckSum(filePath));
+                    boolean checkSumIsCorrect = list.getChecksum().equals(
+                                                        Util.getInstance(myProject).getCheckSum(filePath));
                     for (ReviewBean reviewBean : list.getReviewBeans()) {
                         final Review review = new Review(reviewBean, myProject, filePath);
                         if(!checkSumIsCorrect)
@@ -173,8 +175,8 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     }
 
     private void mergeReviews(Review oldReview, Review newReview) {
-        if(Messages.showYesNoDialog("This review already exists. Would you like to overwrite it?",
-                "Review Exists",
+        if(Messages.showYesNoDialog(ReviewsBundle.message("reviews.reviewAlreadyExistsQuestion"),
+                ReviewsBundle.message("reviews.reviewAlreadyExists"),
                 Messages.getInformationIcon()) == Messages.OK) {
             oldReview.setReviewBean(newReview.getReviewBean());
             updateReview(oldReview);
@@ -196,21 +198,32 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         }
         eventPublisher.reviewDeleted(review);
         ReviewPointManager.getInstance(myProject).reloadReviewPoint(review);
-        if(!removed.contains(review))
-            removed.add(review);
+        removed.add(review);
         filePath2reviews.get(review.getFilePath()).remove(review);
     }
 
-    public void removeAll(VirtualFile file) {
-        List<Review> reviews = filePath2reviews.get(getFilePath(file));
+    public void undoReviewRemoval(Review review) {
+        if(review.isDeleted()) {
+            review.setDeleted(false);
+            review.setValid(true);
+            removed.remove(review);
+            filePath2reviews.get(review.getFilePath()).add(review);
+            placeReview(review);
+        }
+    }
+
+    public void removeAll(String filepath) {
+        List<Review> reviews = filePath2reviews.get(filepath);
         if(!(reviews == null || reviews.isEmpty())) {
             List<Review> removableReviews = new ArrayList<Review>(reviews);
             for (Review review : removableReviews) {
                 removeReview(review);
             }
         } else {
+            VirtualFile file = Util.getInstance(myProject).getVirtualFile(filepath);
+            if(file == null) return;
             for(VirtualFile child : file.getChildren()) {
-                removeAll(child);
+                removeAll(Util.getFilePath(myProject,child));
             }
         }
     }
@@ -248,7 +261,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         int reviewCount = 0;
         if(!saveReviewsToPatch) return reviewCount;
         for(VirtualFile file : virtualFiles) {
-                List<Review> reviews = filePath2reviews.get(getFilePath(file));
+                List<Review> reviews = filePath2reviews.get(Util.getFilePath(myProject, file));
                 if(!(reviews == null || reviews.isEmpty())) {
                     reviewCount += reviews.size();
                 }
@@ -269,20 +282,16 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     @NotNull
     @Override
     public String getComponentName() {
-        return "ReviewManager";
+        return ReviewsBundle.message("reviews.reviewManager");
     }
 
     public void logInvalidReview(Review review) {
-        String message = "Review with start offset " + String.valueOf(review.getStart())
-                    + " and file \"" + review.getFilePath() + "\" became invalid";
+        String message = ReviewsBundle.message("reviews.logInvalidReviews",
+                         String.valueOf(review.getStart()) +
+                         review.getFilePath());
         LOG.warn(message);
     }
 
-    private String getFilePath(VirtualFile file) {
-        VirtualFile baseDir = myProject.getBaseDir();
-        if(baseDir == null) return "";
-        return VfsUtil.getRelativePath(file, baseDir, '/');
-    }
 
     public void setSaveReviewsToPatch(boolean saveReviewsToPatch) {
         this.saveReviewsToPatch = saveReviewsToPatch;
@@ -384,11 +393,23 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         return availableTags.toArray(new String[availableTags.size()]);
     }
 
+    public void undoMultipleReviewRemoval(String filepath) {
+        for(Review review : removed) {
+            if(review.getFilePath().equals(filepath)) {
+                undoReviewRemoval(review);
+            }
+        }
+    }
+
     private class ReviewVirtualFileListener extends VirtualFileAdapter {
         @Override
         public void beforeFileMovement(VirtualFileMoveEvent event) {
-            String  url  = getFilePath(event.getOldParent()) + File.pathSeparator + event.getFileName();
-            String  newUrl  = getFilePath(event.getNewParent()) + File.pathSeparator  + event.getFileName();
+            String  url  = Util.getFilePath(myProject, event.getOldParent())
+                                                       + File.pathSeparator
+                                                       + event.getFileName();
+            String  newUrl  = Util.getFilePath(myProject, event.getNewParent())
+                                                          + File.pathSeparator
+                                                          + event.getFileName();
             List<Review> reviewList = filePath2reviews.get(url);
             if(!(reviewList == null || reviewList.isEmpty())) {
                 filePath2reviews.remove(url);
@@ -402,7 +423,9 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
         @Override
         public void fileMoved(VirtualFileMoveEvent event) {
-            String  newUrl  = getFilePath(event.getNewParent()) + File.pathSeparator  + event.getFileName();
+            String  newUrl  = Util.getFilePath(myProject, event.getNewParent())
+                                                          + File.pathSeparator
+                                                          + event.getFileName();
             List<Review> reviewList = filePath2reviews.get(newUrl);
             if(!(reviewList == null || reviewList.isEmpty())) {
                 for (Review review : reviewList) {
@@ -414,7 +437,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         @Override
         public void beforeFileDeletion(VirtualFileEvent event) {
             VirtualFile oldFile = event.getFile();
-            String url = getFilePath(oldFile);
+            String url = Util.getFilePath(myProject, oldFile);
             if(filePath2reviews.containsKey(url)) {
                 List<Review> reviewList = filePath2reviews.get(url);
                 filePath2reviews.remove(url);

@@ -7,6 +7,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import ui.forms.SaveReviewsForm;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 /**
  * User: Alisa.Afonina
@@ -21,7 +25,25 @@ public class SaveReviewsFormWrapper extends DialogWrapper{
         super(project);
         this.project = project;
         saveReviewsForm = new SaveReviewsForm(project);
+        setTitle("Export Reviews");
         init();
+        this.setOKActionEnabled(false);
+        saveReviewsForm.setKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                setOKActionEnabled(!"".equals(((JTextField)e.getComponent()).getText()));
+            }
+        });
+    }
+
+    @Override
+    protected String getDimensionServiceKey() {
+        return getClass().getName();
+    }
+
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return saveReviewsForm.getPreferredFocusedComponent();
     }
 
     @Override
@@ -31,15 +53,17 @@ public class SaveReviewsFormWrapper extends DialogWrapper{
 
     @Override
     protected void doOKAction() {
-        if(saveReviewsForm.fileExists()) {
-            if(Messages.showOkCancelDialog("This file already exists." +
-                    " Would you like to overwrite it?",
-                    "File Already Exists",
-                    Messages.getWarningIcon()) == Messages.OK) {
+        if(isOKActionEnabled()) {
+            if(saveReviewsForm.fileExists()) {
+                if(Messages.showOkCancelDialog("This file already exists." +
+                        " Would you like to overwrite it?",
+                        "File Already Exists",
+                        Messages.getWarningIcon()) == Messages.OK) {
+                    super.doOKAction();
+                }
+            } else {
                 super.doOKAction();
             }
-        } else {
-            super.doOKAction();
         }
     }
 

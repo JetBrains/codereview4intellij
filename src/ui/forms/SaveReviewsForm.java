@@ -10,12 +10,10 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
+import utils.ReviewsBundle;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.*;
 import java.io.IOException;
 
 /**
@@ -28,18 +26,15 @@ public class SaveReviewsForm {
     private JRadioButton xmlButton;
     private JTextField fileName;
     private TextFieldWithBrowseButton folderField;
-    //private JButton cancelButton;
-    //private JButton OKButton;
     private JPanel mainPanel;
+    private JLabel myFolderLabel;
 
     private Project project;
     private FileTextField field;
 
     public SaveReviewsForm(Project project) {
         this.project = project;
-        ButtonGroup formatGroup = new ButtonGroup();
-        formatGroup.add(xmlButton);
-        formatGroup.add(htmlButton);
+        myFolderLabel.setLabelFor(folderField.getChildComponent());
         xmlButton.setSelected(true);
 
         xmlButton.addActionListener(new ActionListener() {
@@ -71,21 +66,6 @@ public class SaveReviewsForm {
             }
         });
 
-
-        /*OKButton.addActionListener(new ActionListener(){
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(fileExists()) {
-                    if(Messages.showOkCancelDialog("This file already exists." +
-                            " Would you like to overwrite it?",
-                            "File Already Exists",
-                            Messages.getWarningIcon()) == Messages.OK) {
-
-                    }
-                }
-            }
-        });*/
     }
 
 private void setExtension(boolean isXML) {
@@ -165,16 +145,24 @@ private void setExtension(boolean isXML) {
     private void createUIComponents() {
         field = FileChooserFactory.getInstance().createFileTextField(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project);
         folderField = new TextFieldWithBrowseButton(field.getField());
-        folderField.addBrowseFolderListener("Save Reviews",
-                "Save reviews into file",
+        folderField.addBrowseFolderListener(ReviewsBundle.message("reviews.saveReviews"),
+                ReviewsBundle.message("reviews.saveReviewIntoFile"),
                 project, FileChooserDescriptorFactory.createSingleFolderDescriptor());
         final VirtualFile selectedFile = field.getSelectedFile();
         if(selectedFile != null) {
-            folderField.setText(selectedFile.getPath());
+            folderField.setText(selectedFile.getPresentableUrl());
         }
     }
 
     public JComponent getContents() {
         return mainPanel;
+    }
+
+    public JComponent getPreferredFocusedComponent() {
+        return fileName;
+    }
+
+    public void setKeyListener(KeyAdapter keyAdapter) {
+        fileName.addKeyListener(keyAdapter);
     }
 }

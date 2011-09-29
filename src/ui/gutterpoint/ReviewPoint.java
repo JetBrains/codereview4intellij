@@ -1,9 +1,11 @@
 package ui.gutterpoint;
 
+import com.intellij.lang.Commenter;
+import com.intellij.lang.LanguageCommenters;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
@@ -20,12 +22,18 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
-import ui.actions.*;
+import ui.actions.AddReviewItemAction;
+import ui.actions.ConvertToTextCommentAction;
+import ui.actions.DeleteReviewAction;
+import ui.actions.ReviewActionManager;
+import utils.ReviewsBundle;
 import utils.Util;
 
 import javax.swing.*;
@@ -56,8 +64,11 @@ public class ReviewPoint{
                 if(document == null) return;
                 int line = review.getLineNumber();
                 if(line < 0) return;
-                OpenFileDescriptor openFileDescriptor = Util.getInstance(project).getOpenFileDescriptor(review.getFilePath(), review.getStart());
-                final Editor editor = FileEditorManagerEx.getInstance(project).openTextEditor(openFileDescriptor, true);
+                OpenFileDescriptor openFileDescriptor = Util.getInstance(project).
+                                                        getOpenFileDescriptor(review.getFilePath(),
+                                                                review.getStart());
+                final Editor editor = FileEditorManagerEx.getInstance(project).
+                                                          openTextEditor(openFileDescriptor, true);
                 if(editor == null) return;
 
                 MarkupModelEx markup = (MarkupModelEx) editor.getMarkupModel();
@@ -140,30 +151,7 @@ public class ReviewPoint{
 
         @Override
         public AnAction getClickAction() {
-            final BalloonWithSelection activeBalloon = ReviewActionManager.getInstance().getActiveBalloon();
-
-            if(!activeBalloon.isValid() ||  !review.isActivated() || activeBalloon.isClosed()) {
-                final ReviewItem lastReviewItem = review.getLastReviewItem();
-                review.setActivated(true);
-                if(lastReviewItem == null) return null;
-                if(lastReviewItem.isMine()) {
-                    return new ShowReviewAction("View review");
-                } else {
-                    return new AddReviewItemAction("Add review");
-                }
-            }
-
-            if(activeBalloon.compare(review) && (activeBalloon.isClosed() || review.isActivated())) {
-                return new AnAction() {
-                    @Override
-                    public void actionPerformed(AnActionEvent e) {
-                        review.setActivated(false);
-                        activeBalloon.dispose();
-                    }
-                };
-            }
-
-            return null;
+            return ReviewActionManager.getInstance().getReviewPointClickAction(review);
         }
 
 
@@ -171,7 +159,8 @@ public class ReviewPoint{
         @Override
         public String getTooltipText() {
             List<ReviewItem> reviewItems = review.getReviewItems();
-            return "<b>Name:</b> " + review.getPresentationInfo(false) + "\n<b>Last edited by:</b> " + reviewItems.get(reviewItems.size()-1).getAuthor();
+            return review.getPresentationInfo(false) + "\n<b>Last edited by:</b> " +
+                   reviewItems.get(reviewItems.size()-1).getAuthor();
         }
 
         @Override
@@ -182,15 +171,31 @@ public class ReviewPoint{
         @Nullable
         public ActionGroup getPopupMenuActions() {
             DefaultActionGroup group = new DefaultActionGroup();
-            String title = "Add New Comment...";
-            final ReviewItem lastReviewItem = review.getLastReviewItem();
-            if(lastReviewItem == null) return null;
-            if(lastReviewItem.isMine()) {
-                title = "Edit Last Comment... ";
+            String title = ReviewsBundle.message("reviews.addNewCommentEllipsis");
+            if( review.isLastReviewItemMine()) {
+                title = ReviewsBundle.message("reviews.editLastCommentEllipsis");
             }
             group.add(new AddReviewItemAction(title));
-            group.add(new DeleteReviewAction());
-            group.add(new ConvertToTextCommentAction("Convert Review To Text Comment"));
+            final DeleteReviewAction deleteReviewAction = new DeleteReviewAction();
+            UndoManager.getInstance(review.getProject()).undoableActionPerformed(deleteReviewAction);
+            group.add(deleteReviewAction);
+
+            final ConvertToTextCommentAction textCommentAction =
+                    new ConvertToTextCommentAction(ReviewsBundle.message("reviews.convertReviewToText"));
+            UndoManager.getInstance(review.getProject()).undoableActionPerformed(textCommentAction);
+
+            Project project = review.getProject();
+            Document document = Util.getInstance(project).getDocument(review.getFilePath());
+            if(document == null) return null;
+            final PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(document);
+            if(psiFile == null) return null;
+            final Commenter commenter = LanguageCommenters.INSTANCE.forLanguage(psiFile.getLanguage());
+
+            String commentPrefix = commenter.getBlockCommentPrefix();
+            String lineCommentPrefix = commenter.getLineCommentPrefix();
+            if(!(lineCommentPrefix == null && commentPrefix == null)) {
+                group.add(textCommentAction);
+            }
             return group;
         }
     }
@@ -206,7 +211,8 @@ public class ReviewPoint{
         if(editor == null) return false;
         MarkupModelEx markup = (MarkupModelEx) editor.getMarkupModel();
         if(line < 0) return false;
-        RangeHighlighter newHighlighter = markup.addPersistentLineHighlighter(line, HighlighterLayer.ERROR + 1, null);
+        RangeHighlighter newHighlighter = markup.addPersistentLineHighlighter(line,
+                                                                            HighlighterLayer.ERROR + 1, null);
         if(newHighlighter == null || !newHighlighter.isValid()) return false;
         newHighlighter.setGutterIconRenderer(highlighter.getGutterIconRenderer());
         highlighter.dispose();

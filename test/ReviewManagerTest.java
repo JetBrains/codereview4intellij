@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.IdeaTestCase;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
-import reviewresult.ReviewStatus;
+import reviewresult.persistent.ReviewStatus;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewItem;
 import ui.gutterpoint.ReviewPoint;

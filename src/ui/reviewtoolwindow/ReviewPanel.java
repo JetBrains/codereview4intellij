@@ -38,6 +38,7 @@ import ui.actions.ReviewActionManager;
 import ui.reviewtoolwindow.filter.Searcher;
 import ui.reviewtoolwindow.filter.SmartTextFieldWithAutoComplete;
 import ui.reviewtoolwindow.nodes.*;
+import utils.ReviewsBundle;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -58,7 +59,7 @@ import java.util.Set;
  */
 
 public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider, OccurenceNavigator, Disposable, DumbAware {
-    private static final String ACTION_GROUP = "TreeReviewItemActions";
+    private static final String ACTION_GROUP = ReviewsBundle.message("reviews.treeReviewActionGroup");
 
     private final Project project;
     private SimpleTree reviewTree;
@@ -102,6 +103,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         final SmartTextFieldWithAutoComplete searchLine = new SmartTextFieldWithAutoComplete(project);
         searchPanel.setVisible(settings.isSearchEnabled() && settings.isEnabled());
         searchPanel.setFocusable(true);
+        final Searcher searcher = Searcher.getInstance(project);
         searchPanel.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentShown(ComponentEvent e) {
@@ -113,7 +115,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             @Override
             public void componentHidden(ComponentEvent e) {
                 settings.setSearchEnabled(false);
-                final Searcher searcher = Searcher.getInstance(project);
                 searcher.emptyFilter();
                 final boolean enabled = !searcher.getFilteredFileNames().isEmpty();
                 settings.setEnabled(enabled);
@@ -124,7 +125,6 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         searchLine.registerKeyboardAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                final Searcher searcher = Searcher.getInstance(project);
                 searcher.createFilter(searchLine.extractSuffix());
 
                 reviewTreeBuilder.getUi().doUpdateFromRoot();
@@ -154,7 +154,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             @Override
             public void beforeDocumentChange(DocumentEvent event) {
                 if("".equals(searchLine.getText().trim())) {
-                    Searcher.getInstance(project).emptyFilter();
+                    searcher.emptyFilter();
                     updateUI();
                 }
             }
@@ -185,12 +185,12 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
             }
         });
 
-        final JCheckBox caseSensitive = new JCheckBox("Case Sensitive");
+        final JCheckBox caseSensitive = new JCheckBox(ReviewsBundle.message("reviews.caseSensitive"));
 
         caseSensitive.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Searcher.getInstance(project).setCaseSensitive(caseSensitive.isSelected());
+                searcher.setCaseSensitive(caseSensitive.isSelected());
             }
         });
 

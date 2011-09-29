@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
+import utils.ReviewsBundle;
 import utils.Util;
 
 import java.util.*;
@@ -19,7 +20,8 @@ import java.util.*;
  */
 public class Searcher  extends AbstractProjectComponent {
     private Map<Review, Pair<Integer, Integer>> review2searchresult = new HashMap<Review, Pair<Integer, Integer>>();
-    private Map<ReviewItem, Pair<Integer, Integer>> reviewitem2searchresult = new HashMap<ReviewItem, Pair<Integer, Integer>>();
+    private Map<ReviewItem, Pair<Integer, Integer>> reviewitem2searchresult =
+                                                            new HashMap<ReviewItem, Pair<Integer, Integer>>();
     private Set<String> filteredFileNames = new HashSet<String>();
 
     private final Project project;
@@ -85,19 +87,22 @@ public class Searcher  extends AbstractProjectComponent {
 
             final int beginIndex = filterText.indexOf("\"", beginTagName);
             if(beginIndex < 0)  {
-                Messages.showWarningDialog("Tag should be enclosed into quotes", "Quotes missing");
+                Messages.showWarningDialog(ReviewsBundle.message("reviews.tagQuotesMissingMessage"),
+                                           ReviewsBundle.message("reviews.tagQuotesMissing"));
                 return;
             }
 
             final int endIndex = filterText.indexOf("\"", beginIndex + 1);
             if(endIndex == beginIndex)  {
-                Messages.showWarningDialog("Tag wasn't properly closed, simple search applied", "Tag wasn't propely closed");
+                Messages.showWarningDialog(ReviewsBundle.message("reviews.tagNotClosedMessage"),
+                                                                 ReviewsBundle.message("reviews.tagNotClosed"));
                 return;
             }
 
             filter.setTag(filterText.substring(beginIndex + 1, endIndex));
             if("".equals(filter.getTag().trim())) {
-                Messages.showErrorDialog("No tag was specified for selection", "No Tag");
+                Messages.showErrorDialog(ReviewsBundle.message("reviews.noTagMessage"),
+                                                                ReviewsBundle.message("reviews.noTag"));
                 if(tagIndex > 0) {
                     filterText = filterText.substring(0, tagIndex);
                 }
@@ -135,19 +140,22 @@ public class Searcher  extends AbstractProjectComponent {
 
             final int beginIndex = filterText.indexOf("\"", beginAuthorName);
             if(beginIndex < 0)  {
-                Messages.showWarningDialog("Author's name should be enclosed into quotes", "Quotes missing");
+                Messages.showWarningDialog(ReviewsBundle.message("reviews.authorQuotesMissingMessage"),
+                                           ReviewsBundle.message("reviews.authorQuotesMissing"));
                 return;
             }
 
             final int endIndex = filterText.indexOf("\"", beginIndex + 1);
             if(endIndex == beginIndex)  {
-                Messages.showWarningDialog("Author's name wasn't properly closed, simple search applied", "Name wasn't propely closed");
+                Messages.showWarningDialog(ReviewsBundle.message("reviews.authorNameNotClosedMessage"),
+                                                                 ReviewsBundle.message("reviews.authorNameNotClosed"));
                 return;
             }
 
             filter.setAuthor(filterText.substring(beginIndex + 1, endIndex));
             if("".equals(filter.getAuthor().trim())) {
-                Messages.showErrorDialog("No author was specified for selection", "No Author");
+                Messages.showErrorDialog(ReviewsBundle.message("reviews.noAuthorMessage"),
+                                         ReviewsBundle.message("reviews.noAuthor"));
                 if(authorIndex > 0) {
                     filterText = filterText.substring(0, authorIndex);
                 }
@@ -235,9 +243,8 @@ public class Searcher  extends AbstractProjectComponent {
 
     public String getAdditionalFilterText() {
         String result = "";
-        result += (tagSpecified) ? "Tag: " + filter.getTag() + " ": "";
-        result += (authorSpecified) ? "Author: " + filter.getAuthor() + " ": "";
-        result += (statusSpecified) ? "Status: " + filter.getStatus() + " ": "";
+        result += (tagSpecified) ? ReviewsBundle.message("reviews.tag") + " " + filter.getTag() + " ": "";
+        result += (authorSpecified) ? ReviewsBundle.message("reviews.author") + " " + filter.getAuthor() + " ": "";
         return result;
     }
     public Pair<Integer, Integer> getReviewSearchResult(Review review) {
@@ -277,9 +284,9 @@ public class Searcher  extends AbstractProjectComponent {
 
 
     private class AdditionalFilter {
-    public final String AUTHOR = "author:";
+    public final String AUTHOR = ReviewsBundle.message("reviews.author");
     //public static final String STATUS = "status:";
-    public final String TAG = "tag:";
+    public final String TAG = ReviewsBundle.message("reviews.tag");
 
     private String[] getFilterKeywords() {
         List<String> keywords = new ArrayList<String>();

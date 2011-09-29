@@ -37,10 +37,11 @@ public class AddReviewItemAction extends AnAction  implements DumbAware {
         if (project == null) return;
         Editor editor = PlatformDataKeys.EDITOR.getData(e.getDataContext());
         if(editor != null) {
-            Review review = ActionManager.getInstance().getReviewForAction(e);
+            final ReviewActionManager instance = ReviewActionManager.getInstance();
+            Review review = instance.getReviewForAction(e);
             if(review == null || !review.isValid()) {return;}
             ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(review);
-            ReviewActionManager.getInstance().addToExistingComments(editor, reviewPoint);
+            instance.addToExistingComments(editor, reviewPoint);
         }
     }
 }

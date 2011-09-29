@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -148,6 +149,13 @@ public class Util extends AbstractProjectComponent implements DumbAware {
         }
         return number;
     }
+
+    public static String getFilePath(Project project, VirtualFile file) {
+        VirtualFile baseDir = project.getBaseDir();
+        if(baseDir == null) return "";
+        return VfsUtil.getRelativePath(file, baseDir, '/');
+    }
+
 }
 
 

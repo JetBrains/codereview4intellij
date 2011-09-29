@@ -6,7 +6,7 @@ package ui.reviewtoolwindow.filter;
  * Time: 3:38 PM
  */
 
-public class Filter {
+class Filter {
     private String status = "";
     private String author = "";
     private String tag = "";

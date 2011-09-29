@@ -51,20 +51,6 @@ public class ReviewItem {
         this.text = text;
     }
 
-    /*@Tag("text")
-    public Element getTextElement() {
-        if(text.contains("\n"))
-            System.out.println(text);
-        Element e = new Element("text");
-        CDATA cdata= new CDATA(text.replace("\n", "\r\n"));
-        e.addContent(cdata);
-        return e;
-    }
-
-    public void setTextElement(Element element) {
-        this.text = element.getText();
-    }*/
-
     @Tag("date")
     public Date getDate() {
         return date;

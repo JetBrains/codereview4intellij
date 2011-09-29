@@ -3,6 +3,7 @@ package ui.forms;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
@@ -18,6 +19,7 @@ import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewItem;
 import ui.actions.ReviewActionManager;
 import ui.reviewtoolwindow.filter.Searcher;
+import utils.ReviewsBundle;
 import utils.Util;
 
 import javax.swing.*;
@@ -43,14 +45,12 @@ public class EditReviewForm {
     private final Review review;
     private boolean addItem;
     private boolean editItem;
-    //private final boolean addOrEditItem;
     private static final int TAG_LENGTH = 20;
     private static final int BALLOON_WIDTH = 250;
     private static final int BALLOON_HEIGHT = 400;
     private static final int MIN_BALLOON_WIDTH = 450;
     private static final int MIN_BALLOON_HEIGHT = 400;
     private TextFieldWithAutoCompletion tagsField;
-    //private JComboBox statusCombo;
     private static final long FADEOUT_TIME = 1000;
     private JPanel tagsPanel;
 
@@ -71,13 +71,13 @@ public class EditReviewForm {
         mainPanel.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK), "saveReview");
         mainPanel.getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "exitReview");
 
-        mainPanel.getActionMap().put("saveReview", new AbstractAction() {
+        mainPanel.getActionMap().put(ReviewsBundle.message("reviews.saveReviewKey"), new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveReview();
             }
         });
-        mainPanel.getActionMap().put("exitReview", new AbstractAction() {
+        mainPanel.getActionMap().put(ReviewsBundle.message("reviews.exitReviewKey"), new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                  ReviewActionManager.getInstance().disposeActiveBalloon();
@@ -107,9 +107,9 @@ public class EditReviewForm {
 
     private void setupLastItem(boolean spellCheck) {
         newReviewItemText = createInputField(spellCheck);
-        final ReviewItem lastReviewItem = review.getLastReviewItem();
-        if(lastReviewItem != null && lastReviewItem.isMine()) {
-            newReviewItemText.setText(lastReviewItem.getText());
+
+        if(review.isLastReviewItemMine()) {
+            newReviewItemText.setText(review.getLastReviewItemText());
         }
         newReviewItemText.setBackground(Color.WHITE);
         newReviewItemText.setFont(new Font("Verdana", Font.PLAIN, SIZE));
@@ -120,19 +120,17 @@ public class EditReviewForm {
             editor.getComponent();
         }
 
-        newReviewItemText.addKeyListener(new KeyAdapter() {
+        newReviewItemText.addDocumentListener(new com.intellij.openapi.editor.event.DocumentAdapter() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                newReviewItemText.setBorder(BorderFactory.createEmptyBorder());
-                newReviewItemText.invalidate();
+            public void documentChanged(DocumentEvent e) {
+                if (!"".equals(newReviewItemText.getText())) {
+                    newReviewItemText.setBorder(BorderFactory.createEmptyBorder());
+                    newReviewItemText.revalidate();
+                }
             }
         });
-
-        //statusCombo = new JComboBox(ReviewStatus.values());
         JPanel newReviewItemPanel = new JPanel(new BorderLayout());
         newReviewItemPanel.add(newReviewItemText);
-        //newReviewItemPanel.add(statusCombo, BorderLayout.SOUTH);
-        //final List<ReviewItem> reviewItems = review.getReviewItems();
         mainPanel.add(newReviewItemPanel);
     }
 
@@ -161,7 +159,7 @@ public class EditReviewForm {
                 if("".equals(tag.trim()) || tags.contains(tag)) {
                     BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().
                             createHtmlTextBalloonBuilder(
-                                    "Tag already exists", MessageType.WARNING, null);
+                                    ReviewsBundle.message("reviews.tagAlreayExists"), MessageType.WARNING, null);
                     balloonBuilder.setFadeoutTime(FADEOUT_TIME);
                     balloonBuilder.setHideOnKeyOutside(true);
                     balloonBuilder.setHideOnClickOutside(true);
@@ -269,8 +267,8 @@ public class EditReviewForm {
                 return;
             }
             final ReviewItem lastReviewItem = review.getLastReviewItem();
-
-            if(lastReviewItem != null && lastReviewItem.isMine()) {
+            if(lastReviewItem == null)return;
+            if(review.isLastReviewItemMine()) {
                 lastReviewItem.setText(text);
                 lastReviewItem.setDate(new Date());
             } else {
@@ -278,15 +276,6 @@ public class EditReviewForm {
             }
             final JScrollPane newItemScrollPane = ScrollPaneFactory.createScrollPane(new JPanel());
             newItemScrollPane.add(newReviewItemText);
-
-
-            newReviewItemText.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    newItemScrollPane.setPreferredSize(newReviewItemText.getPreferredSize());
-                    newItemScrollPane.revalidate();
-                }
-            });
         }
 
         ReviewActionManager.getInstance().disposeActiveBalloon();
@@ -312,8 +301,7 @@ public class EditReviewForm {
 
         final HTMLEditorKit htmlEditorKit = UIUtil.getHTMLEditorKit();
         final StyleSheet styleSheet = htmlEditorKit.getStyleSheet();
-        styleSheet.addRule(" span.highlight {background-color:FFFF00}");
-        //styleSheet.addRule("html body div.review_item {font-size: 12pt; }");
+        styleSheet.addRule(ReviewsBundle.message("reviews.searchResultHighlightRule"));
         htmlEditorKit.setStyleSheet(styleSheet);
         itemsText.setEditorKit(htmlEditorKit);
         String result = "";

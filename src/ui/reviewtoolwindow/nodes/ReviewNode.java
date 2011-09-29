@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import reviewresult.Review;
 import ui.reviewtoolwindow.ReviewToolWindowSettings;
 import ui.reviewtoolwindow.filter.Searcher;
+import utils.ReviewsBundle;
 import utils.Util;
 
 /**
@@ -50,17 +51,22 @@ public class ReviewNode extends PlainNode implements Navigatable{
             presentationData.setTooltip(review.getPresentationInfo(true));
             if(searchStart >= 0) {
                 EditorColorsManager colorManager = EditorColorsManager.getInstance();
-                TextAttributes attributes = colorManager.getGlobalScheme().getAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
-                presentationData.addText(presentationInfo.substring(0, searchStart), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-                presentationData.addText(presentationInfo.substring(searchStart, searchEnd), SimpleTextAttributes.fromTextAttributes(attributes));
-                presentationData.addText(presentationInfo.substring(searchEnd, presentationInfo.length()), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                TextAttributes attributes = colorManager.getGlobalScheme().
+                                                    getAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
+                presentationData.addText(presentationInfo.substring(0, searchStart),
+                                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                presentationData.addText(presentationInfo.substring(searchStart, searchEnd),
+                                         SimpleTextAttributes.fromTextAttributes(attributes));
+                presentationData.addText(presentationInfo.substring(searchEnd, presentationInfo.length()),
+                                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
             else {
                 presentationData.addText(presentationInfo, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
             int line = review.getLineNumber();
             if(line < 0) {
-                presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
+                presentationData.addText(new ColoredFragment(ReviewsBundle.message("reviews.invalidNode"),
+                                         SimpleTextAttributes.ERROR_ATTRIBUTES));
                 return;
             }
             int lineNumber = line + 1;
@@ -72,7 +78,7 @@ public class ReviewNode extends PlainNode implements Navigatable{
         } else {
             presentationData.addText(review.getPresentationInfo(false), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             presentationData.setTooltip(review.getPresentationInfo(true));
-            presentationData.addText(new ColoredFragment("(INVALID)", SimpleTextAttributes.ERROR_ATTRIBUTES));
+            presentationData.addText(new ColoredFragment(ReviewsBundle.message("reviews.invalidNode"), SimpleTextAttributes.ERROR_ATTRIBUTES));
         }
     }
 

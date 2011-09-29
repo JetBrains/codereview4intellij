@@ -26,6 +26,7 @@ import reviewresult.ReviewManager;
 import reviewresult.persistent.ReviewsState;
 import ui.forms.SaveReviewsFormWrapper;
 import ui.reviewtoolwindow.filter.Searcher;
+import utils.ReviewsBundle;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -58,13 +59,17 @@ public class ReviewToolWindowActionManager implements DumbAware{
         sortGroup.addAction(new SortByOffsetAction());
         final ActionToolbar sortToolbar = ActionManager.getInstance()
                 .createActionToolbar(ActionPlaces.TODO_VIEW_TOOLBAR, sortGroup, true);
-        popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(sortToolbar.getComponent(), panel);
+        popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(
+                                                                            sortToolbar.getComponent(),
+                                                                            panel);
     }
 
     private final class GroupByModuleAction extends ToggleAction implements DumbAware {
 
         private GroupByModuleAction() {
-             super("Group reviews by module", "Group reviews by module", IconLoader.getIcon("/objectBrowser/showModules.png"));///actions/modul.png"));
+             super(ReviewsBundle.message("reviews.groupByModule"),
+                   ReviewsBundle.message("reviews.groupByModule"),
+                   IconLoader.getIcon("/objectBrowser/showModules.png"));///actions/modul.png"));
             this.setEnabledInModalContext(false);
         }
 
@@ -89,7 +94,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class GroupByFileAction extends ToggleAction  implements DumbAware {
 
         private GroupByFileAction() {
-             super("Group reviews by file","Group reviews by file", IconLoader.getIcon("/fileTypes/text.png"));
+             super(ReviewsBundle.message("reviews.groupByFile"),
+                    ReviewsBundle.message("reviews.groupByFile"),
+                   IconLoader.getIcon("/fileTypes/text.png"));
         }
 
 
@@ -113,7 +120,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class SortByAuthorAction extends ToggleAction  implements DumbAware {
 
         private SortByAuthorAction() {
-             super("Sort reviews by author","Sort reviews by author", IconLoader.getIcon("/icons/inspector/sortByName.png"));
+             super(ReviewsBundle.message("reviews.sortByAuthor"),
+                   ReviewsBundle.message("reviews.sortByAuthor"),
+                   IconLoader.getIcon("/icons/inspector/sortByName.png"));
         }
 
 
@@ -138,7 +147,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class SortByLastCommenterAction extends ToggleAction  implements DumbAware {
 
         private SortByLastCommenterAction() {
-             super("Sort reviews by author of last comment","Sort reviews by author of last comment", IconLoader.getIcon("/icons/inspector/sortByName.png"));
+             super(ReviewsBundle.message("reviews.sortByAuthorOfLastComment"),
+                   ReviewsBundle.message("reviews.sortByAuthorOfLastComment"),
+                   IconLoader.getIcon("/icons/inspector/sortByName.png"));
         }
 
 
@@ -163,7 +174,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class SortByDateAction extends ToggleAction  implements DumbAware {
 
         private SortByDateAction() {
-             super("Sort reviews by date of creation","Sort reviews by date of creation", IconLoader.getIcon("/actions/analyze.png"));
+             super(ReviewsBundle.message("reviews.sortByDateOfCreation"),
+                   ReviewsBundle.message("reviews.sortByDateOfCreation"),
+                   IconLoader.getIcon("/actions/analyze.png"));
         }
 
 
@@ -188,7 +201,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class SortByOffsetAction extends ToggleAction  implements DumbAware {
 
         private SortByOffsetAction() {
-             super("Sort reviews by offset in file","Sort reviews by offset in file", IconLoader.getIcon("/icons/inspector/sortByCategory.png"));
+             super(ReviewsBundle.message("reviews.sortByOffset"),
+                   ReviewsBundle.message("reviews.sortByOffset"),
+                   IconLoader.getIcon("/icons/inspector/sortByCategory.png"));
         }
 
 
@@ -214,7 +229,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
         private JBPopup popup;
 
         private ShowSortingFuctionsAction() {
-            super("Sorting functions...", "Sort reviews", IconLoader.getIcon("/general/secondaryGroup.png"));
+            super(ReviewsBundle.message("reviews.sortingFunctionsEllipsis"),
+                  ReviewsBundle.message("reviews.sortingFunctionsMessage"),
+                  IconLoader.getIcon("/general/secondaryGroup.png"));
         }
 
         @Override
@@ -245,7 +262,8 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class SearchAction extends ToggleAction  implements DumbAware {
 
         private SearchAction() {
-             super("Search in reviews", "Search in reviews", IconLoader.getIcon("/actions/find.png"));
+             super(ReviewsBundle.message("reviews.searchReviews"),
+                   ReviewsBundle.message("reviews.searchReviews"), IconLoader.getIcon("/actions/find.png"));
         }
 
         @Override
@@ -273,7 +291,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private final class PreviewAction extends ToggleAction  implements DumbAware {
 
         public PreviewAction() {
-            super("Preview reviews", "Preview reviews", IconLoader.getIcon("/actions/preview.png"));
+            super(ReviewsBundle.message("reviews.previewReviews"),
+                  ReviewsBundle.message("reviews.previewReviews"),
+                  IconLoader.getIcon("/actions/preview.png"));
         }
 
         @Override
@@ -298,7 +318,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
         private static final int FADEOUT_TIME = 3000;
 
         public ExportToFileAction() {
-            super("Export to file...", "Export reviews to file", IconLoader.getIcon("/actions/export.png"));
+            super(ReviewsBundle.message("reviews.exportToFileEllipsis"),
+                  ReviewsBundle.message("reviews.exportToFile"),
+                  IconLoader.getIcon("/actions/export.png"));
         }
 
         @Override
@@ -318,28 +340,31 @@ public class ReviewToolWindowActionManager implements DumbAware{
                 final boolean xmlFormat = saveDialog.isXMLFormat();
                 String text = ReviewManager.getInstance(project).getExportText(!xmlFormat);
 
-                if(text == null || "".equals(text)) Messages.showInfoMessage("There are no reviews to export", "Nothing To Export");
+                if(text == null || "".equals(text)) Messages.showInfoMessage(
+                                               ReviewsBundle.message("reviews.noReviewsToExportMessage"),
+                                               ReviewsBundle.message("reviews.noReviewsToExport"));
 
                 if(createReport(selectedFile, text)) {
-                    final String htmlContent ="Reviews successfully exported to a file <br/>" +
-                                              "<a href= \"" + selectedFile.getPath() + "\">Show reviews</a>";
+                    final String htmlContent = ReviewsBundle.message("reviews.successfullyExported") + "<br/>" +
+                                              "<a href= \"" + selectedFile.getPath() + "\">" +
+                                              ReviewsBundle.message("reviews.showReviews") + "</a>";
                      balloonBuilder = JBPopupFactory.getInstance().
-                                                    createHtmlTextBalloonBuilder(
-                                                            htmlContent,
-                                                            MessageType.INFO,
-                                                            new HyperlinkAdapter() {
-                                                                @Override
-                                                                protected void hyperlinkActivated(HyperlinkEvent e) {
-                                                                    if(xmlFormat)
-                                                                        ShowFilePathAction.open(VfsUtil.virtualToIoFile(selectedFile), null);
-                                                                    else
-                                                                        BrowserUtil.launchBrowser(selectedFile.getPath());
-                                                                }
-                                                            });
+                                    createHtmlTextBalloonBuilder(
+                                            htmlContent,
+                                            MessageType.INFO,
+                                            new HyperlinkAdapter() {
+                                                @Override
+                                                protected void hyperlinkActivated(HyperlinkEvent e) {
+                                                    if(xmlFormat)
+                                                        ShowFilePathAction.open(VfsUtil.virtualToIoFile(selectedFile), null);
+                                                    else
+                                                        BrowserUtil.launchBrowser(selectedFile.getPath());
+                                                }
+                                            });
                     balloonBuilder.setFadeoutTime(FADEOUT_TIME);
 
                 } else {
-                    showErrorBalloon("While saving " + selectedFile.getName() + " error occured", component, centerPoint);
+                    showErrorBalloon( ReviewsBundle.message("reviews.savingError", selectedFile.getName()), component, centerPoint);
                     return;
                 }
             } else {
@@ -369,7 +394,9 @@ public class ReviewToolWindowActionManager implements DumbAware{
     private static final class ImportFromFileAction extends AnAction  implements DumbAware {
 
         public ImportFromFileAction() {
-            super("Import from file...", "Import reviews from file", IconLoader.getIcon("/actions/import.png"));
+            super(ReviewsBundle.message("reviews.importFromFileEllipsis"),
+                  ReviewsBundle.message("reviews.importFromFile"),
+                  IconLoader.getIcon("/actions/import.png"));
         }
 
         @Override
@@ -379,8 +406,10 @@ public class ReviewToolWindowActionManager implements DumbAware{
             final Point centerPoint = new Point(component.getHeight()/ 2 ,component.getWidth()/ 2);
             Project project = e.getData(PlatformDataKeys.PROJECT);
             if(project == null) {return;}
-            FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false, false, false, false);
-            FileChooserDialog chooserDialog = FileChooserFactory.getInstance().createFileChooser(descriptor, project);
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(true, false, false,
+                                                                         false, false, false);
+            FileChooserDialog chooserDialog = FileChooserFactory.getInstance().
+                                                                        createFileChooser(descriptor, project);
             VirtualFile[] files = chooserDialog.choose(null, project);
             if(files == null || files.length != 1) {return;} //may be show warning message?
             VirtualFile virtualFile = files[0];
@@ -397,16 +426,16 @@ public class ReviewToolWindowActionManager implements DumbAware{
                 ReviewsState.State state = XmlSerializer.deserialize(root, ReviewsState.State.class);
                 ReviewManager reviewManager = ReviewManager.getInstance(project);
                 reviewManager.loadReviews(state.getReviews(), true);
-                String htmlContent = /*successfullyLoaded + " of " + state.reviews.size() + */" Reviews successfully imported<br/>";
+                String htmlContent = ReviewsBundle.message("reviews.successfullyImported");
                 balloonBuilder = JBPopupFactory.getInstance().
                                             createHtmlTextBalloonBuilder(htmlContent, MessageType.INFO, null);
                 showBalloon(balloonBuilder, component, centerPoint);
             } catch(JDOMException e2) {
-                showErrorBalloon("While importing reviews from " + virtualFile.getName() + " error occured", component, centerPoint);
+                showErrorBalloon(ReviewsBundle.message("reviews.importingError", virtualFile.getName()), component, centerPoint);
             } catch(NullPointerException e2) {
-                showErrorBalloon("File is empty or doesn't exist", component, centerPoint);
+                showErrorBalloon(ReviewsBundle.message("reviews.fileError"), component, centerPoint);
             } catch (IOException e2) {
-                showErrorBalloon("While importing reviews " + virtualFile.getName() + " error occured", component, centerPoint);
+                showErrorBalloon( ReviewsBundle.message("reviews.importingError" ,virtualFile.getName()), component, centerPoint);
             }
         }
     }

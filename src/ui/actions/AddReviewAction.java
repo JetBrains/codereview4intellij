@@ -18,6 +18,7 @@ import reviewresult.Review;
 import reviewresult.ReviewManager;
 import ui.gutterpoint.ReviewPoint;
 import ui.gutterpoint.ReviewPointManager;
+import utils.ReviewsBundle;
 
 /**
  * User: Alisa.Afonina
@@ -50,9 +51,8 @@ public class AddReviewAction extends AnAction implements DumbAware{
             end = document.getLineEndOffset(line);
         }
         if("".equals(document.getText(new TextRange(start, end)).trim())){
-            if(Messages.showYesNoDialog("You adding comment to empty selection." +
-                                        " Do you want to proceed?",
-                                        "Empty Selection",
+            if(Messages.showYesNoDialog(ReviewsBundle.message("reviews.addToAnEmptySelectionQuestion"),
+                                        ReviewsBundle.message("reviews.addToAnEmptySelection"),
                                         Messages.getWarningIcon()) == Messages.NO) {
                 return;
             }
@@ -62,10 +62,11 @@ public class AddReviewAction extends AnAction implements DumbAware{
         if(baseDir == null) {return;}
         Review oldReview = instance.getReviewInLine(VfsUtil.getRelativePath(virtualFile, baseDir, '/'), line);
 
+        final ReviewActionManager reviewActionManager = ReviewActionManager.getInstance();
         if(oldReview != null){
             //ReviewView.showTwoCommentsOnOnewLineMessage(oldReview);
             ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(oldReview);
-            ReviewActionManager.getInstance().addToExistingComments(editor, reviewPoint);
+            reviewActionManager.addToExistingComments(editor, reviewPoint);
             return;
         }
 
@@ -75,9 +76,9 @@ public class AddReviewAction extends AnAction implements DumbAware{
         if(review.isValid()) {
             ReviewPoint reviewPoint = ReviewPointManager.getInstance(project).findReviewPoint(review);
             if(reviewPoint != null) {
-                ReviewActionManager.getInstance().addToExistingComments(editor, reviewPoint);
+                reviewActionManager.addToExistingComments(editor, reviewPoint);
             } else {
-                 ReviewActionManager.getInstance().addNewComment(editor, review);
+                 reviewActionManager.addNewComment(editor, review);
             }
         }
         else {
