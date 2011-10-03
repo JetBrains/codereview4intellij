@@ -81,19 +81,15 @@ public class ReviewActionManager implements DumbAware {
      public void showExistingComments(final Editor editor, Review review) {
         ReviewPoint reviewPoint = ReviewPointManager.getInstance(review.getProject()).findReviewPoint(review);
         if(reviewPoint == null) return;
-        final EditorGutterComponentEx gutterComponent = ((EditorEx)editor).getGutterComponentEx();
-        final Point point = gutterComponent.getPoint(reviewPoint.getGutterIconRenderer());
-        if (point != null) {
-            editReviewForm = new EditReviewForm(reviewPoint.getReview(), false, false, true);
-            JComponent content = editReviewForm.getContent();
-            Point docPoint = editor.visualPositionToXY(editor.offsetToVisualPosition(review.getEnd()));
-            final Point balloonPoint = new Point(docPoint.x, docPoint.y + editor.getLineHeight());
-            activeBalloon.dispose();
-            activeBalloon = new BalloonWithSelection(review, editor, balloonPoint, content,
-                                                     ReviewsBundle.message("reviews.review"));
-            activeBalloon.showBalloon(editor.getContentComponent());
-            editReviewForm.requestFocus();
-        }
+        editReviewForm = new EditReviewForm(reviewPoint.getReview(), false, false, true);
+        JComponent content = editReviewForm.getContent();
+        Point docPoint = editor.visualPositionToXY(editor.offsetToVisualPosition(review.getEnd()));
+        final Point balloonPoint = new Point(docPoint.x, docPoint.y + editor.getLineHeight());
+        activeBalloon.dispose();
+        activeBalloon = new BalloonWithSelection(review, editor, balloonPoint, content,
+                                                 ReviewsBundle.message("reviews.review"));
+        activeBalloon.showBalloon(editor.getContentComponent());
+        editReviewForm.requestFocus();
     }
 
 

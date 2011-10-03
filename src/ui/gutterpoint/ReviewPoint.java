@@ -5,7 +5,8 @@ import com.intellij.lang.LanguageCommenters;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.command.undo.UndoManager;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.undo.UnexpectedUndoException;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
@@ -177,13 +178,22 @@ public class ReviewPoint{
             }
             group.add(new AddReviewItemAction(title));
             final DeleteReviewAction deleteReviewAction = new DeleteReviewAction();
-            UndoManager.getInstance(review.getProject()).undoableActionPerformed(deleteReviewAction);
+            //UndoManager.getInstance(review.getProject()).undoableActionPerformed(deleteReviewAction);
             group.add(deleteReviewAction);
 
             final ConvertToTextCommentAction textCommentAction =
                     new ConvertToTextCommentAction(ReviewsBundle.message("reviews.convertReviewToText"));
-            UndoManager.getInstance(review.getProject()).undoableActionPerformed(textCommentAction);
-
+            //UndoManager.getInstance(review.getProject()).undoableActionPerformed(textCommentAction);
+            /*CommandProcessor.getInstance().runUndoTransparentAction(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        textCommentAction.undo();
+                    } catch (UnexpectedUndoException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });*/
             Project project = review.getProject();
             Document document = Util.getInstance(project).getDocument(review.getFilePath());
             if(document == null) return null;

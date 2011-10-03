@@ -159,7 +159,7 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
                 }
             }
         });
-        searchLine.setCenterByHeight(true);
+        //searchLine.setCenterByHeight(true);
 
         final Icon icon = IconLoader.getIcon("/actions/close.png");
         final Icon hoveredIcon = IconLoader.getIcon("/actions/closeHovered.png");

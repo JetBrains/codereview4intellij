@@ -391,7 +391,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
 
     }
 
-    private static final class ImportFromFileAction extends AnAction  implements DumbAware {
+    private final class ImportFromFileAction extends AnAction  implements DumbAware {
 
         public ImportFromFileAction() {
             super(ReviewsBundle.message("reviews.importFromFileEllipsis"),
@@ -430,6 +430,7 @@ public class ReviewToolWindowActionManager implements DumbAware{
                 balloonBuilder = JBPopupFactory.getInstance().
                                             createHtmlTextBalloonBuilder(htmlContent, MessageType.INFO, null);
                 showBalloon(balloonBuilder, component, centerPoint);
+                updateUI();
             } catch(JDOMException e2) {
                 showErrorBalloon(ReviewsBundle.message("reviews.importingError", virtualFile.getName()), component, centerPoint);
             } catch(NullPointerException e2) {

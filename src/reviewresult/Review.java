@@ -35,7 +35,7 @@ public class Review{
     private boolean activated = false;
 
     //private static final Logger LOG = Logger.getInstance(Review.class.getName());
-    private static final int INFO_LENGTH = 20;
+    private static final int INFO_LENGTH = 50;
 
     public Review(@NotNull ReviewBean reviewBean, @NotNull Project project, @NotNull String filePath){
         this.reviewBean = reviewBean;

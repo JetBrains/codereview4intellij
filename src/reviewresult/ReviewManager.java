@@ -1,5 +1,6 @@
 package reviewresult;
 
+import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
 import utils.ReviewsBundle;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
@@ -130,11 +131,20 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                     reviewList = new ArrayList<Review>();
             }
             int existingReviewIndex = reviewList.indexOf(newReview);
+            int nonExistingReviewIndex = removed.indexOf(newReview);
+            if(nonExistingReviewIndex >= 0) {
+                Review review = removed.get(nonExistingReviewIndex);
+                if(newReview.isValid()) {
+                    selectReviewState(review, newReview);
+                    return;
+                }
+            }
             if(existingReviewIndex >= 0) {
                 Review review = reviewList.get(existingReviewIndex);
-                //state of review changed from invalid to valid or vice versa
-                if(!newReview.isValid() || !review.isValid()) {
-                    selectReviewState(review/*, newReview*/);
+                //state of review changed from valid to invalid
+                if(!newReview.isValid()) {
+                    //selectReviewState(review, newReview);
+                    removeReview(review);
                     return;
                 } else {
                     //review exists and is valid, but something changed
@@ -175,11 +185,13 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
     }
 
     private void mergeReviews(Review oldReview, Review newReview) {
-        if(Messages.showYesNoDialog(ReviewsBundle.message("reviews.reviewAlreadyExistsQuestion"),
-                ReviewsBundle.message("reviews.reviewAlreadyExists"),
-                Messages.getInformationIcon()) == Messages.OK) {
-            oldReview.setReviewBean(newReview.getReviewBean());
-            updateReview(oldReview);
+        if(!oldReview.getReviewBean().hasEqualContents(newReview.getReviewBean())) {
+            if(Messages.showYesNoDialog(ReviewsBundle.message("reviews.reviewAlreadyExistsQuestion"),
+                    ReviewsBundle.message("reviews.reviewAlreadyExists"),
+                    Messages.getInformationIcon()) == Messages.OK) {
+                oldReview.setReviewBean(newReview.getReviewBean());
+                updateReview(oldReview);
+            }
         }
     }
 
@@ -187,8 +199,16 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
         eventPublisher.reviewChanged(review);
     }
 
-    private void selectReviewState(Review oldReview/*, Review newReview*/) {
-        removeReview(oldReview);
+    private void selectReviewState(Review oldReview, Review newReview) {
+        if(oldReview.isDeleted()) {
+            if(Messages.showYesNoDialog(ReviewsBundle.message("reviews.restoreReview"),
+                                        ReviewsBundle.message("reviews.restoreReviewTitle"),
+                                        Messages.getQuestionIcon()) == Messages.YES) {
+
+                //oldReview.setReviewBean(newReview.getReviewBean());
+                undoReviewRemoval(oldReview);
+            }
+        }
     }
 
     public void removeReview(Review review) {
@@ -207,7 +227,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
             review.setDeleted(false);
             review.setValid(true);
             removed.remove(review);
-            filePath2reviews.get(review.getFilePath()).add(review);
+            //filePath2reviews.get(review.getFilePath()).add(review);
             placeReview(review);
         }
     }
@@ -287,7 +307,7 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
 
     public void logInvalidReview(Review review) {
         String message = ReviewsBundle.message("reviews.logInvalidReviews",
-                         String.valueOf(review.getStart()) +
+                         String.valueOf(review.getStart()),
                          review.getFilePath());
         LOG.warn(message);
     }

@@ -38,7 +38,7 @@ public class RootNode extends PlainNode {
             @Override
             protected void update(PresentationData presentation) {
                 if(!searcher.additionalFilterIsSet()) {
-                    presentation.addText(ReviewsBundle.message("reviews.noReviewsWithParameters", searcher.getFilter()),
+                    presentation.addText(ReviewsBundle.message("reviews.noReviewsWithText", searcher.getFilter()),
                                          SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
                     presentation.addText(ReviewsBundle.message("reviews.noReviewsWithParameters"),

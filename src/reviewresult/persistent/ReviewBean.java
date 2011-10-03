@@ -137,7 +137,7 @@ public class ReviewBean {
         this.tags = tags;
     }
 
-      @Override
+     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -150,5 +150,20 @@ public class ReviewBean {
     @Override
     public int hashCode() {
         return guid != null ? guid.hashCode() : 0;
+    }
+
+    public boolean hasEqualContents(ReviewBean o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReviewBean that = (ReviewBean) o;
+
+        if (!context.equals(that.context)) return false;
+        if (!name.equals(that.name)) return false;
+        if (!reviewItems.equals(that.reviewItems)) return false;
+        if (status != that.status) return false;
+        if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
+
+        return true;
     }
 }

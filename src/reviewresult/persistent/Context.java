@@ -171,4 +171,24 @@ public class Context {
                 getLine() +
                 getLineAfter();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Context context = (Context) o;
+
+        if (end != context.end) return false;
+        if (start != context.start) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = start;
+        result = 31 * result + end;
+        return result;
+    }
 }

@@ -3,8 +3,11 @@ package ui.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.command.undo.DocumentReference;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.command.undo.UndoableAction;
 import com.intellij.openapi.command.undo.UnexpectedUndoException;
 import com.intellij.openapi.project.DumbAware;
@@ -39,9 +42,15 @@ public class DeleteReviewAction extends AnAction  implements DumbAware, Undoable
     @Override
     public void actionPerformed(AnActionEvent e) {
 
-        Project project = e.getData(PlatformDataKeys.PROJECT);
+        final Project project = e.getData(PlatformDataKeys.PROJECT);
         //CommandProcessor.getInstance().executeCommand(project, , "", null);
         if(project == null) return;
+      /*  new WriteCommandAction(project) {
+             @Override
+             protected void run(Result result) throws Throwable {
+                UndoManager.getInstance(project).undoableActionPerformed(DeleteReviewAction.this);
+             }
+        }.execute();*/
         Review review = ReviewActionManager.getInstance().getReviewForAction(e);
 
         if(review == null) {

@@ -149,9 +149,22 @@ public class EditReviewForm {
         tagsField = new TextFieldWithAutoCompletion(review.getProject());
         tagsField.setVariants(ReviewManager.getInstance(review.getProject()).getAvailableTags());
         tagsField.setBackground(Color.WHITE);
+        tagsField.setPlaceholder(ReviewsBundle.message("reviews.addTagMessageEllipsis"));
         tagsPanel.setFocusable(true);
         tagsField.setRequestFocusEnabled(true);
         tagsField.setFont(new Font("Verdana", Font.PLAIN, SIZE));
+
+        tagsField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                tagsField.setText("");
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                tagsField.setText(ReviewsBundle.message("reviews.addTagMessageEllipsis"));
+            }
+        });
         tagsField.registerKeyboardAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -159,7 +172,7 @@ public class EditReviewForm {
                 if("".equals(tag.trim()) || tags.contains(tag)) {
                     BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().
                             createHtmlTextBalloonBuilder(
-                                    ReviewsBundle.message("reviews.tagAlreayExists"), MessageType.WARNING, null);
+                                    ReviewsBundle.message("reviews.tagAlreadyExists"), MessageType.WARNING, null);
                     balloonBuilder.setFadeoutTime(FADEOUT_TIME);
                     balloonBuilder.setHideOnKeyOutside(true);
                     balloonBuilder.setHideOnClickOutside(true);
@@ -173,6 +186,8 @@ public class EditReviewForm {
                 }
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+
         mainTagsPanel.add(tagsPanel);
         if(addItem || editItem){
             mainTagsPanel.add(tagsField, BorderLayout.SOUTH);
@@ -266,9 +281,10 @@ public class EditReviewForm {
                 newReviewItemText.invalidate();
                 return;
             }
-            final ReviewItem lastReviewItem = review.getLastReviewItem();
-            if(lastReviewItem == null)return;
+
             if(review.isLastReviewItemMine()) {
+                ReviewItem lastReviewItem = review.getLastReviewItem();
+                if(lastReviewItem == null) return;
                 lastReviewItem.setText(text);
                 lastReviewItem.setDate(new Date());
             } else {
