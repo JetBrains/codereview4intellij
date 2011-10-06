@@ -1,7 +1,6 @@
 package ui.actions;
 
 
-import utils.ReviewsBundle;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -21,6 +20,7 @@ import ui.forms.EditReviewForm;
 import ui.gutterpoint.BalloonWithSelection;
 import ui.gutterpoint.ReviewPoint;
 import ui.gutterpoint.ReviewPointManager;
+import utils.ReviewsBundle;
 
 import javax.swing.*;
 import java.awt.*;

@@ -3,7 +3,7 @@ package ui.forms;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;

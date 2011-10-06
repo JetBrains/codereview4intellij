@@ -3,13 +3,9 @@ package ui.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.command.undo.DocumentReference;
-import com.intellij.openapi.command.undo.UndoManager;
-import com.intellij.openapi.command.undo.UndoableAction;
-import com.intellij.openapi.command.undo.UnexpectedUndoException;
+import com.intellij.openapi.command.undo.*;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -27,11 +23,8 @@ import javax.swing.*;
  * Date: 7/25/11
  * Time: 1:41 PM
  */
-public class DeleteReviewAction extends AnAction  implements DumbAware, UndoableAction {
+public class DeleteReviewAction extends AnAction  implements DumbAware/*, UndoableAction*/ {
     private static final Icon ICON = IconLoader.getIcon("/images/note_delete.png");
-    private Review review = null;
-    private Project project;
-    private String filepath;
 
     public DeleteReviewAction() {
         super(ReviewsBundle.message("reviews.deleteReviewEllipsis"),
@@ -41,28 +34,19 @@ public class DeleteReviewAction extends AnAction  implements DumbAware, Undoable
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-
         final Project project = e.getData(PlatformDataKeys.PROJECT);
-        //CommandProcessor.getInstance().executeCommand(project, , "", null);
         if(project == null) return;
-      /*  new WriteCommandAction(project) {
-             @Override
-             protected void run(Result result) throws Throwable {
-                UndoManager.getInstance(project).undoableActionPerformed(DeleteReviewAction.this);
-             }
-        }.execute();*/
         Review review = ReviewActionManager.getInstance().getReviewForAction(e);
 
         if(review == null) {
             review = e.getData(Review.REVIEW_DATA_KEY);
         }
-        this.project = project;
+        String filepath = null;
         if(review != null) {
             if(Messages.showYesNoDialog(project, ReviewsBundle.message("reviews.deleteReviewQuestion"),
                                                  ReviewsBundle.message("reviews.deleteReview"),
                                                  Messages.getQuestionIcon()) == Messages.YES) {
                 ReviewManager.getInstance(project).removeReview(review);
-                this.review = review;
             }
         } else {
             VirtualFile file = PlatformDataKeys.VIRTUAL_FILE.getData(e.getDataContext());
@@ -80,35 +64,25 @@ public class DeleteReviewAction extends AnAction  implements DumbAware, Undoable
                 }
             }
         }
-    }
+        final Review finalReview = review;
+        final String finalFilepath = filepath;
 
-    @Override
-    public void undo() throws UnexpectedUndoException {
-        if(review != null)
-            ReviewManager.getInstance(project).undoReviewRemoval(review);
-        if(filepath != null)
-            ReviewManager.getInstance(project).undoMultipleReviewRemoval(filepath);
-    }
-
-    @Override
-    public void redo() throws UnexpectedUndoException {
-        if(review != null) {
-            if(!review.isDeleted()) {
-                ReviewManager.getInstance(project).removeReview(review);
+        CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+            public void run() {
+                if (finalReview != null) {
+                    final Document document = Util.getInstance(project).getDocument(finalReview.getFilePath());
+                    UndoManager.getInstance(project).
+                            undoableActionPerformed(
+                                    new UndoReviewRemovalAction(finalReview, document));
+                } else {
+                    if (finalFilepath != null) {
+                    final Document document = Util.getInstance(project).getDocument(finalFilepath);
+                    UndoManager.getInstance(project).
+                            undoableActionPerformed(
+                                    new UndoReviewRemovalAction(project, finalFilepath, document));
+                    }
+                }
             }
-        }
-        if(filepath != null && "".equals(filepath)) {
-            ReviewManager.getInstance(project).removeAll(filepath);
-        }
-    }
-
-    @Override
-    public DocumentReference[] getAffectedDocuments() {
-        return new DocumentReference[0];
-    }
-
-    @Override
-    public boolean isGlobal() {
-        return false;
+        }, "add review", null);
     }
 }

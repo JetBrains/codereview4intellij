@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:date="date"
                 extension-element-prefixes="date">
 
     <xsl:output method="html" indent="yes" encoding="utf-8"/>
-
 
 
     <xsl:template match="all_reviews">
@@ -33,13 +31,12 @@
                                color: #333333;
                             }
 
-                            tbody {
-                                background: #F5F5DC;
+                            div.context {
+                                background: #FFFFDE;
                             }
-                            td.line {
-                                background: lightBlue;
+                            span.context_line {
+                                background-color:EBFFED
                             }
-
                             div.deleted div.review_item {
                                     background: #FFCCCC;
                                  }
@@ -98,19 +95,22 @@
 
     <xsl:template match="context/Context">
         <pre>
-            <div>
-                <table align="left" frame="hsides">
-                 <tr><td><xsl:value-of select="line_before"/></td></tr>
-                 <tr><td class="line"><xsl:value-of select="line"/></td></tr>
-                 <tr><td><xsl:value-of select="line_after"/></td></tr>
-                </table>
+            <div class="context">
+                <xsl:call-template name="add_line_number">
+                    <xsl:with-param name="list" select="line_before" />
+                    <xsl:with-param name="starting_number"><xsl:value-of select="line_before_number"/></xsl:with-param>
+                </xsl:call-template>
+                <xsl:call-template name="add_line_number">
+                    <xsl:with-param name="list" select="line" />
+                    <xsl:with-param name="starting_number"><xsl:value-of select="line_number"/></xsl:with-param>
+                </xsl:call-template>
+                <xsl:call-template name="add_line_number">
+                    <xsl:with-param name="list" select="line_after" />
+                    <xsl:with-param name="starting_number"><xsl:value-of select="line_after_number"/></xsl:with-param>
+                </xsl:call-template>
             </div>
         </pre>
     </xsl:template>
-
-
-    <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'" />
-    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
 
     <xsl:template name="review_item" match="review_item">
          <p>
@@ -123,7 +123,6 @@
                     </xsl:call-template>
                 </strong>
                 <xsl:text> added: </xsl:text> <br/>
-                <!--<xsl:value-of select="translate(@status, $uppercase, $smallcase)"/><xsl:text>: </xsl:text><br/>-->
                 <xsl:text> </xsl:text><xsl:value-of select="text"/><xsl:text> </xsl:text><br/>
              </div>
          </p>
@@ -179,6 +178,21 @@
                          format-number($year,'0000'), ' '
                          )"/>
             <xsl:value-of select="$result"/>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="add_line_number">
+        <xsl:param name="list" />
+        <xsl:param name="starting_number" />
+        <xsl:variable name="newlist" select="concat(normalize-space($list), ' ')" />
+        <xsl:variable name="first" select="substring-before($newlist, '&lt;br/&gt;')" />
+        <xsl:variable name="remaining" select="substring-after($newlist, '&lt;br/&gt;')" />
+           <xsl:value-of select="$starting_number"/> <xsl:text>  </xsl:text> <xsl:value-of select="$first" disable-output-escaping="yes"/> <br/>
+        <xsl:if test="$remaining">
+            <xsl:call-template name="add_line_number">
+                    <xsl:with-param name="list" select="$remaining" />
+                    <xsl:with-param name="starting_number" select="$starting_number + 1" />
+            </xsl:call-template>
         </xsl:if>
     </xsl:template>
 

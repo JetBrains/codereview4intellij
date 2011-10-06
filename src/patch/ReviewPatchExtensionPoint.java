@@ -24,11 +24,8 @@ public class ReviewPatchExtensionPoint implements PatchEP{
         return "reviewresult.reviewpatchextensionpoint";
     }
 
-
     @Override
-    public void consumeContentBeforePatchApplied(@NotNull String path, @NotNull CharSequence content, CommitContext commitContext) {
-        //todo do i need it?
-    }
+    public void consumeContentBeforePatchApplied(@NotNull String path, @NotNull CharSequence content, CommitContext commitContext) {}
 
 
     @Nullable

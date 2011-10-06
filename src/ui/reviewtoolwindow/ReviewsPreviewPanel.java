@@ -1,14 +1,13 @@
 package ui.reviewtoolwindow;
 
+import com.intellij.util.ui.UIUtil;
 import reviewresult.Review;
 import ui.forms.EditReviewForm;
 import utils.ReviewsBundle;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicTextUI;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 
 /**
@@ -38,33 +37,18 @@ class ReviewsPreviewPanel extends JPanel {
 
 
      private void setupContextPanel(Review review) {
-        JTextArea contextField = new JTextArea();
-
+        JEditorPane contextField = new JEditorPane();
+        final HTMLEditorKit htmlEditorKit = UIUtil.getHTMLEditorKit();
+        final StyleSheet styleSheet = htmlEditorKit.getStyleSheet();
+        styleSheet.addRule(ReviewsBundle.message("reviews.viewContextHighlightRule"));
+        styleSheet.addRule("div.context {font-size:12pt}");
+        htmlEditorKit.setStyleSheet(styleSheet);
+        contextField.setEditorKit(htmlEditorKit);
         final String lineBefore = review.getLineBefore();
         final String line = review.getLine();
         final String lineAfter = review.getLineAfter();
-        contextField.setText(lineBefore + line + lineAfter);
-
+        contextField.setText("<div class=context>" + lineBefore + line +  lineAfter + "</div>");
         contextField.setEditable(false);
-
-        final Highlighter highlighter;
-        highlighter = new BasicTextUI.BasicHighlighter();
-        contextField.setHighlighter(highlighter);
-
-        if(highlighter.getHighlights().length > 0) {
-                highlighter.removeAllHighlights();
-        }
-
-        final int beforeLength = lineBefore.length();
-        final int lineLength = line.length();
-        try {
-            highlighter.addHighlight(beforeLength,
-                                     beforeLength + lineLength,
-                                     new DefaultHighlighter.DefaultHighlightPainter(new Color(224,255,204)));
-        } catch (BadLocationException e) {
-            // todo
-        }
-
         add(contextField, BorderLayout.SOUTH);
     }
 }

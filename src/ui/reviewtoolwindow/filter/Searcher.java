@@ -30,7 +30,6 @@ public class Searcher  extends AbstractProjectComponent {
     private boolean statusSpecified;
     private boolean tagSpecified;
 
-    private Filter filter = new Filter();
     private String filterText = "";
     private Searcher.AdditionalFilter additionalFilter  = new AdditionalFilter();
     private boolean caseSensitive = false;
@@ -99,8 +98,8 @@ public class Searcher  extends AbstractProjectComponent {
                 return;
             }
 
-            filter.setTag(filterText.substring(beginIndex + 1, endIndex));
-            if("".equals(filter.getTag().trim())) {
+            additionalFilter.setTag(filterText.substring(beginIndex + 1, endIndex));
+            if("".equals(additionalFilter.getTag().trim())) {
                 Messages.showErrorDialog(ReviewsBundle.message("reviews.noTagMessage"),
                                                                 ReviewsBundle.message("reviews.noTag"));
                 if(tagIndex > 0) {
@@ -126,8 +125,8 @@ public class Searcher  extends AbstractProjectComponent {
                 }
             }
             else {
-                filter.setStatus(split[0]);
-                filterText = filterText.substring(beginStatusName + filter.getStatus().length()).trim();
+                additionalFilter.setStatus(split[0]);
+                filterText = filterText.substring(beginStatusName + additionalFilter.getStatus().length()).trim();
             }
         }
     }*/
@@ -152,8 +151,8 @@ public class Searcher  extends AbstractProjectComponent {
                 return;
             }
 
-            filter.setAuthor(filterText.substring(beginIndex + 1, endIndex));
-            if("".equals(filter.getAuthor().trim())) {
+            additionalFilter.setAuthor(filterText.substring(beginIndex + 1, endIndex));
+            if("".equals(additionalFilter.getAuthor().trim())) {
                 Messages.showErrorDialog(ReviewsBundle.message("reviews.noAuthorMessage"),
                                          ReviewsBundle.message("reviews.noAuthor"));
                 if(authorIndex > 0) {
@@ -171,7 +170,7 @@ public class Searcher  extends AbstractProjectComponent {
         boolean containsTag = false;
         if(tagSpecified) {
             for(String existingTag : review.getTags()) {
-                if(existingTag.compareToIgnoreCase(filter.getTag()) == 0) {
+                if(existingTag.compareToIgnoreCase(additionalFilter.getTag()) == 0) {
                     containsTag = true;
                 }
             }
@@ -186,7 +185,7 @@ public class Searcher  extends AbstractProjectComponent {
 
             boolean containsAuthor = false;
             if(authorSpecified) {
-                if(item.getAuthor().compareToIgnoreCase(filter.getAuthor()) == 0) {
+                if(item.getAuthor().compareToIgnoreCase(additionalFilter.getAuthor()) == 0) {
                     containsAuthor = true;
                 }
             }
@@ -202,7 +201,7 @@ public class Searcher  extends AbstractProjectComponent {
                 contains = true;
             }
             final boolean filterExists = !(additionalFiltersSpecified ^ additionalFiltersExist);
-            if(!(filter == null || "".equals(filterText)) && filterExists) {
+            if(!(additionalFilter == null || "".equals(filterText)) && filterExists) {
                 int itemStart = Util.find(item.getText(), filterText, caseSensitive);
                 int itemEnd;
                 if(itemStart != -1) {
@@ -217,7 +216,7 @@ public class Searcher  extends AbstractProjectComponent {
         }
         if(contains) {
             Pair<Integer, Integer> reviewResult = new Pair<Integer, Integer>(-2, -2);
-            if(filter != null && !"".equals(filterText) ) {
+            if(additionalFilter != null && !"".equals(filterText) ) {
                 int reviewStart = Util.find(review.getPresentationInfo(false), filterText, caseSensitive);
                 int reviewEnd;
 
@@ -243,8 +242,8 @@ public class Searcher  extends AbstractProjectComponent {
 
     public String getAdditionalFilterText() {
         String result = "";
-        result += (tagSpecified) ? ReviewsBundle.message("reviews.tag") + " " + filter.getTag() + " ": "";
-        result += (authorSpecified) ? ReviewsBundle.message("reviews.author") + " " + filter.getAuthor() + " ": "";
+        result += (tagSpecified) ? ReviewsBundle.message("reviews.tag") + " " + additionalFilter.getTag() + " ": "";
+        result += (authorSpecified) ? ReviewsBundle.message("reviews.author") + " " + additionalFilter.getAuthor() + " ": "";
         return result;
     }
     public Pair<Integer, Integer> getReviewSearchResult(Review review) {
@@ -288,6 +287,34 @@ public class Searcher  extends AbstractProjectComponent {
     //public static final String STATUS = "status:";
     public final String TAG = ReviewsBundle.message("reviews.tag");
 
+    private String status = "";
+    private String author = "";
+    private String tag = "";
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+        
     private String[] getFilterKeywords() {
         List<String> keywords = new ArrayList<String>();
         final ReviewManager instance = ReviewManager.getInstance(project);

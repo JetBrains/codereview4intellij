@@ -17,6 +17,9 @@ public class Context {
     private String lineAfter = "";
     private int start = -1;
     private int end = -1;
+    private int lineNumber;
+    private int afterLineNumber;
+    private int beforeLineNumber;
 
     public Context() {
     }
@@ -28,16 +31,48 @@ public class Context {
 
     @Tag("line")
     public String getLine() {
-        return line;
+        return "<span class=\"context_line\">" +
+                    line.replaceAll("\n", "<br/>") +
+                     "</span>";
     }
 
     public void setLine(String line) {
         this.line = line;
     }
 
+    @Tag("line_number")
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
+
+    @Tag("line_after_number")
+    public int getAfterLineNumber() {
+        return afterLineNumber;
+    }
+
+    public void setAfterLineNumber(int lineNumber) {
+        this.afterLineNumber = lineNumber;
+    }
+
+
+    @Tag("line_before_number")
+    public int getBeforeLineNumber() {
+        return beforeLineNumber;
+    }
+
+    public void setBeforeLineNumber(int lineNumber) {
+        this.beforeLineNumber = lineNumber;
+    }
+
+
     @Tag("line_before")
     public String getLineBefore() {
-        return lineBefore;
+        return lineBefore.replaceAll("\n", "<br/>");
     }
 
     public void setLineBefore(String lineBefore) {
@@ -46,7 +81,7 @@ public class Context {
 
     @Tag("line_after")
     public String getLineAfter() {
-        return lineAfter;
+        return lineAfter.replaceAll("\n", "<br/>");
     }
 
     public void setLineAfter(String lineAfter) {
@@ -72,9 +107,8 @@ public class Context {
     }
 
     public void setLineText(Document document) {
-        //Document document = Util.getInstance(project).getDocument(filePath);
         if(document == null) return;
-        ///final Context context = reviewBean.getContext();
+        setLineNumber(document.getLineNumber(getStart()) + 1);
         setLine(document.getText(new TextRange(getStart(), getEnd())));
      }
 
@@ -86,40 +120,27 @@ public class Context {
 
     public void setBeforeLineText(Document document) {
         if(document == null) return;
-        //todo  add asserts
         int beforeLineNumber = document.getLineNumber(getStart()) - 1;
         if(beforeLineNumber >=0) {
-            //Document document = Util.getInstance(project).getDocument(filePath);
-
             int start = document.getLineStartOffset(beforeLineNumber);
-            //int end = document.getLineEndOffset(beforeLineNumber);
-            //final Context context = reviewBean.getContext();
+            setBeforeLineNumber(document.getLineNumber(start) + 1);
             setLineBefore(document.getText(new TextRange(start, getStart())));
         }
     }
 
     public void setAfterLineText(Document document) {
-        //Document document = Util.getInstance(project).getDocument(filePath);
         if(document == null) return;
-        //todo add asserts
         int afterLineNumber = document.getLineNumber(getEnd()) + 1;
         if(afterLineNumber < document.getLineCount()) {
-            //int start = document.getLineStartOffset(afterLineNumber);
             int end = document.getLineEndOffset(afterLineNumber);
-            //final Context context = reviewBean.getContext();
+            setAfterLineNumber(document.getLineNumber(getEnd()) + 1);
             setLineAfter(document.getText(new TextRange(getEnd(), end)));
         }
     }
 
     public void checkContext(Document document) {
-        //Document document = Util.getInstance(project).getDocument(filePath);
-        //add asserts
         if(document == null || "".equals(document.getText())) return;
         final String text = document.getText();
-        //final Context context = reviewBean.getContext();
-        //int start = context.getStart();
-        //int end = context.getEnd();
-
         final int beforeOffset = Util.find(text, getLineBefore(), true);
         final int afterOffset = Util.find(text, getLineAfter(), true);
         if(!getLine().equals(document.getText(new TextRange(getStart(), getEnd())))) {
@@ -166,23 +187,12 @@ public class Context {
         setEnd(end);
     }
 
-    public String getText() {
-        return  getLineBefore() +
-                getLine() +
-                getLineAfter();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Context context = (Context) o;
-
-        if (end != context.end) return false;
-        if (start != context.start) return false;
-
-        return true;
+        return end == context.getEnd() && start == context.getStart();
     }
 
     @Override

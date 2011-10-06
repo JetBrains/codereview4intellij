@@ -4,11 +4,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import ui.forms.SaveReviewsForm;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -18,12 +15,10 @@ import java.awt.event.KeyEvent;
  * Time: 11:54 AM
  */
 public class SaveReviewsFormWrapper extends DialogWrapper{
-    private Project project;
     private SaveReviewsForm saveReviewsForm;
 
     public SaveReviewsFormWrapper(Project project) {
         super(project);
-        this.project = project;
         saveReviewsForm = new SaveReviewsForm(project);
         setTitle("Export Reviews");
         init();

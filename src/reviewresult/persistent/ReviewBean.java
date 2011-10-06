@@ -156,14 +156,11 @@ public class ReviewBean {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ReviewBean that = (ReviewBean) o;
+        if (!context.equals(o.getContext())) return false;
+        if (!name.equals(o.getName())) return false;
+        if (!reviewItems.equals(o.getReviewItems())) return false;
+        //if (status != that.getStatus()) return false;
+        return !(tags != null ? !tags.equals(o.getTags()) : o.getTags() != null);
 
-        if (!context.equals(that.context)) return false;
-        if (!name.equals(that.name)) return false;
-        if (!reviewItems.equals(that.reviewItems)) return false;
-        if (status != that.status) return false;
-        if (tags != null ? !tags.equals(that.tags) : that.tags != null) return false;
-
-        return true;
     }
 }

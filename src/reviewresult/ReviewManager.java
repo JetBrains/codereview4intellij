@@ -1,7 +1,5 @@
 package reviewresult;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
-import utils.ReviewsBundle;
 import com.intellij.ide.startup.StartupManagerEx;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -23,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import reviewresult.persistent.ReviewBean;
 import reviewresult.persistent.ReviewsState;
 import ui.gutterpoint.ReviewPointManager;
+import utils.ReviewsBundle;
 import utils.Util;
 
 import javax.xml.transform.*;
@@ -352,11 +351,11 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
             );
             return "<!--" + reportText + "-->" + Util.getInstance(myProject).getHTMLContents(stringWriter.toString());
         } catch (IOException e) {
-           // todo
+           LOG.error(e);
         } catch (TransformerConfigurationException e) {
-           // todo
+           LOG.error(e);
         } catch (TransformerException e) {
-           // todo
+           LOG.error(e);
         }
         return null;
     }
@@ -390,11 +389,11 @@ public class ReviewManager extends AbstractProjectComponent implements DumbAware
                 ReviewManager reviewManager = ReviewManager.getInstance(myProject);
                 reviewManager.loadReviewsForFile(state.getReviews());
             } catch(JDOMException e) {
-                //todo e.printStackTrace();
+                LOG.error(e);
             } catch(NullPointerException e) {
-                //todo e.printStackTrace();
+                LOG.error(e);
             } catch (IOException e) {
-                //todo e.printStackTrace();
+                LOG.error(e);
             }
     }
 

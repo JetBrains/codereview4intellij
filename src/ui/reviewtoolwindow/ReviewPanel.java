@@ -129,8 +129,9 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
 
                 reviewTreeBuilder.getUi().doUpdateFromRoot();
                 final boolean enabled = !searcher.getFilteredFileNames().isEmpty();
+
+                settings.setEnabled(enabled);
                 if(!enabled) {
-                    settings.setEnabled(enabled);
                     previewPanel.setVisible(enabled);
                 }
                 if (settings.isShowPreviewEnabled() && settings.isEnabled()) {
@@ -211,6 +212,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         reviewTree = new SimpleTree(model);
         reviewTreeBuilder = new SimpleTreeBuilder(reviewTree, model, reviewTreeStructure, null);
         reviewTree.revalidate();
+        if(((PlainNode)reviewTreeStructure.getRootElement()).getChildren().length == 0) {
+            settings.setEnabled(false);
+            //updateUI();
+        }
         TreeUtil.expandAll(reviewTree);
         reviewTree.setRootVisible(false);
         PopupHandler.installPopupHandler(reviewTree, ACTION_GROUP, ActionPlaces.TODO_VIEW_POPUP);
@@ -483,7 +488,10 @@ public class ReviewPanel extends  SimpleToolWindowPanel implements DataProvider,
         @Override
         public void reviewAdded(Review review) {
             update(reviewTreeStructure.addReview(review));
-            if(!settings.isEnabled())settings.setEnabled(true);
+            if(!settings.isEnabled()) {
+                settings.setEnabled(true);
+                updateUI();
+            }
 
         }
 

@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.IssueNavigationConfiguration;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +18,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: Alisa.Afonina
@@ -26,10 +25,8 @@ import java.util.Map;
  * Time: 3:01 PM
  */
 public class Util extends AbstractProjectComponent implements DumbAware {
-    private Map<String, String> issue2URL = new HashMap<String, String>();
     protected Util(Project project) {
         super(project);
-        issue2URL.put("PLUGIN-", "http://codereview4intellij.myjetbrains.com/youtrack/issue/");
     }
 
     public static Util getInstance(@NotNull Project project) {
@@ -118,17 +115,15 @@ public class Util extends AbstractProjectComponent implements DumbAware {
 
 
     public String getHTMLContents(String text) {
-        String[] parts = text.split("\\s");
         String result = text;
-        for(String part : parts) {
-            for(String prefix: issue2URL.keySet()) {
-                if(part.startsWith(prefix)) {
-                    String issueNumber = getFirstInt(part.substring(prefix.length()));
-                    final CharSequence url = "<a href=\"" + issue2URL.get(prefix);
-                    final String target = prefix + issueNumber;
-                    result = result.replace(target, url + target + "\">" + target + "</a>");
-                }
-            }
+        for(IssueNavigationConfiguration.LinkMatch linkMatch :
+                IssueNavigationConfiguration.getInstance(myProject).findIssueLinks(text)) {
+                String target = linkMatch.getRange().substring(text);
+                if("".equals(target)) continue;
+                result = result.replace(target, "<a href=\"" +
+                            linkMatch.getTargetUrl() + "\">" + target + "</a>");
+        }
+        for(String part : text.split("\\s")) {
             try {
                 URL url = new URL(part);
                 result = result.replace(part, "<a href=\"" + url + "\">"+ url + "</a>");

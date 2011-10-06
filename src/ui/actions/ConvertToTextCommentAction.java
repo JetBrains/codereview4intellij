@@ -7,12 +7,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.undo.DocumentReference;
+import com.intellij.openapi.command.undo.UndoManager;
 import com.intellij.openapi.command.undo.UndoableAction;
 import com.intellij.openapi.command.undo.UnexpectedUndoException;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-//import com.intellij.tasks.actions.context.UndoableCommand;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -27,12 +28,14 @@ import utils.Util;
 
 import javax.swing.*;
 
+//import com.intellij.tasks.actions.context.UndoableCommand;
+
 /**
  * User: Alisa.Afonina
  * Date: 8/29/11
  * Time: 3:30 PM
  */
-public class ConvertToTextCommentAction extends AnAction implements DumbAware, UndoableAction {
+public class ConvertToTextCommentAction extends AnAction implements DumbAware{
     private static final Icon ICON = IconLoader.getIcon("/images/note_edit.png");
     private Review review;
     @SuppressWarnings({"UnusedDeclaration"})
@@ -111,28 +114,17 @@ public class ConvertToTextCommentAction extends AnAction implements DumbAware, U
             }
         });
         ReviewManager.getInstance(project).removeReview(review);
+        final Review finalReview = review;
+        CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+            public void run() {
+                if (finalReview != null) {
+                    UndoManager.getInstance(review.getProject()).
+                            undoableActionPerformed(
+                                    new UndoReviewRemovalAction(finalReview, finalOffset, finalReviewText, document));
+                }
+            }
+        }, "convert review", null);
     }
 
-    @Override
-    public void undo() throws UnexpectedUndoException {
-        ReviewManager.getInstance(review.getProject()).undoReviewRemoval(review);
-    }
-
-    @Override
-    public void redo() throws UnexpectedUndoException {
-        if(!review.isDeleted()) {
-            convert(Util.getInstance(review.getProject()).getDocument(review.getFilePath()));
-        }
-    }
-
-    @Override
-    public DocumentReference[] getAffectedDocuments() {
-        return new DocumentReference[0];
-    }
-
-    @Override
-    public boolean isGlobal() {
-        return false;
-    }
 }
 

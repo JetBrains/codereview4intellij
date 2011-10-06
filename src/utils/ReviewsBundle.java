@@ -26,7 +26,7 @@ public class ReviewsBundle {
     }
 
     public static String defaultableMessage(@PropertyKey(resourceBundle = BUNDLE)String key, Object... params) {
-        return CommonBundle.messageOrDefault(getBundle(), key, "default", true, (Object[])params);
+        return CommonBundle.messageOrDefault(getBundle(), key, "default", true, params);
     }
 
     private static ResourceBundle getBundle() {

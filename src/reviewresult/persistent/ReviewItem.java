@@ -1,11 +1,8 @@
 package reviewresult.persistent;
 
 
-import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.util.text.DateFormatUtil;
 import com.intellij.util.xmlb.annotations.Tag;
-import org.jdom.CDATA;
-import org.jdom.Element;
 import ui.reviewtoolwindow.filter.Searcher;
 
 import java.util.Date;

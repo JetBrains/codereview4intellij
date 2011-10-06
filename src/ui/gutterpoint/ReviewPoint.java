@@ -5,8 +5,6 @@ import com.intellij.lang.LanguageCommenters;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.command.undo.UnexpectedUndoException;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentAdapter;
@@ -59,10 +57,11 @@ public class ReviewPoint{
     public void updateUI() {
         final Project project = review.getProject();
         if(project == null) return;
+        final Document document = Util.getInstance(review.getProject()).getDocument(review.getFilePath());
+        if(document == null) return;
         if(review.isValid()) {
             if(highlighter == null) {
-                Document document = Util.getInstance(review.getProject()).getDocument(review.getFilePath());
-                if(document == null) return;
+
                 int line = review.getLineNumber();
                 if(line < 0) return;
                 OpenFileDescriptor openFileDescriptor = Util.getInstance(project).
@@ -78,22 +77,22 @@ public class ReviewPoint{
                 if(highlighter == null) return;
                 gutterIconRenderer = new ReviewGutterIconRenderer();
                 highlighter.setGutterIconRenderer(gutterIconRenderer);
-                document.addDocumentListener(new DocumentAdapter(){
+                DocumentAdapter listener = new DocumentAdapter() {
                     @Override
                     public void documentChanged(DocumentEvent event) {
 
                         int newStart = highlighter.getStartOffset();
                         int newEnd = highlighter.getEndOffset();
-                        if(!highlighter.isValid()) {
+                        if (!highlighter.isValid()) {
                             review.setValid(false);
-                        }
-                        else {
+                        } else {
                             review.setStart(newStart);
                             review.setEnd(newEnd);
                         }
                         ReviewManager.getInstance(project).changeReview(review);
                     }
-                },  project);
+                };
+                document.addDocumentListener(listener,  project);
                 return;
             }
             if(highlighter.isValid()) {
@@ -177,23 +176,11 @@ public class ReviewPoint{
                 title = ReviewsBundle.message("reviews.editLastCommentEllipsis");
             }
             group.add(new AddReviewItemAction(title));
-            final DeleteReviewAction deleteReviewAction = new DeleteReviewAction();
-            //UndoManager.getInstance(review.getProject()).undoableActionPerformed(deleteReviewAction);
-            group.add(deleteReviewAction);
+            group.add(new DeleteReviewAction());
 
             final ConvertToTextCommentAction textCommentAction =
                     new ConvertToTextCommentAction(ReviewsBundle.message("reviews.convertReviewToText"));
-            //UndoManager.getInstance(review.getProject()).undoableActionPerformed(textCommentAction);
-            /*CommandProcessor.getInstance().runUndoTransparentAction(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        textCommentAction.undo();
-                    } catch (UnexpectedUndoException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });*/
+
             Project project = review.getProject();
             Document document = Util.getInstance(project).getDocument(review.getFilePath());
             if(document == null) return null;
