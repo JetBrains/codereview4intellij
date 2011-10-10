@@ -94,22 +94,17 @@
 
 
     <xsl:template match="context/Context">
-        <pre>
             <div class="context">
-                <xsl:call-template name="add_line_number">
-                    <xsl:with-param name="list" select="line_before" />
-                    <xsl:with-param name="starting_number"><xsl:value-of select="line_before_number"/></xsl:with-param>
-                </xsl:call-template>
-                <xsl:call-template name="add_line_number">
-                    <xsl:with-param name="list" select="line" />
-                    <xsl:with-param name="starting_number"><xsl:value-of select="line_number"/></xsl:with-param>
-                </xsl:call-template>
-                <xsl:call-template name="add_line_number">
-                    <xsl:with-param name="list" select="line_after" />
-                    <xsl:with-param name="starting_number"><xsl:value-of select="line_after_number"/></xsl:with-param>
-                </xsl:call-template>
+                <!--<xsl:value-of select="line_before_number"/><xsl:value-of select="line_before" disable-output-escaping="yes"/>-->
+                <!--<span class="context_line">-->
+                   <xsl:call-template name="add_line_number">
+                       <xsl:with-param name="list" select="concat(line_before, line, line_after, '&lt;br/&gt;')" />
+                       <xsl:with-param name="starting_number"><xsl:value-of select="line_before_number"/></xsl:with-param>
+                       <xsl:with-param name="beginning_number"><xsl:value-of select="line_before_number"/></xsl:with-param>
+                   </xsl:call-template>
+                <!--</span>-->
+<!--                <xsl:value-of select="line_after_number"/><xsl:value-of select="line_after" disable-output-escaping="yes"/>-->
             </div>
-        </pre>
     </xsl:template>
 
     <xsl:template name="review_item" match="review_item">
@@ -184,14 +179,19 @@
     <xsl:template name="add_line_number">
         <xsl:param name="list" />
         <xsl:param name="starting_number" />
+        <xsl:param name="beginning_number" />
         <xsl:variable name="newlist" select="concat(normalize-space($list), ' ')" />
         <xsl:variable name="first" select="substring-before($newlist, '&lt;br/&gt;')" />
         <xsl:variable name="remaining" select="substring-after($newlist, '&lt;br/&gt;')" />
-           <xsl:value-of select="$starting_number"/> <xsl:text>  </xsl:text> <xsl:value-of select="$first" disable-output-escaping="yes"/> <br/>
         <xsl:if test="$remaining">
+            <xsl:if test="$starting_number != $beginning_number">
+            <br/>
+            </xsl:if>
+            <xsl:value-of select="$starting_number"/> <xsl:text>  </xsl:text> <xsl:value-of select="$first" disable-output-escaping="yes"/>
             <xsl:call-template name="add_line_number">
                     <xsl:with-param name="list" select="$remaining" />
                     <xsl:with-param name="starting_number" select="$starting_number + 1" />
+                    <xsl:with-param name="beginning_number" select="$beginning_number" />
             </xsl:call-template>
         </xsl:if>
     </xsl:template>

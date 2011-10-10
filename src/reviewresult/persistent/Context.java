@@ -31,9 +31,7 @@ public class Context {
 
     @Tag("line")
     public String getLine() {
-        return "<span class=\"context_line\">" +
-                    line.replaceAll("\n", "<br/>") +
-                     "</span>";
+        return "<span class=\"context_line\">" + line.replaceAll("\n", "<br/>") + "</span>";
     }
 
     public void setLine(String line) {
