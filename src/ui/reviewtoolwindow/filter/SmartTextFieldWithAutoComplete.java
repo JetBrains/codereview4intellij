@@ -141,7 +141,7 @@ public class SmartTextFieldWithAutoComplete extends EditorTextField implements D
           (LookupImpl)LookupManager.getInstance(getProject()).createLookup(editor,
                                                                            calcLookupItems(lookupPrefix),
                                                                            lookupPrefix != null ? lookupPrefix : "",
-                                                                           LookupArranger.DEFAULT);
+                                                                           new LookupArranger.DefaultArranger());
         lookup.showLookup();
         lookup.addLookupListener(new LookupAdapter() {
             @Override

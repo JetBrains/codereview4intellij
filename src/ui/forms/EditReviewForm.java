@@ -146,8 +146,8 @@ public class EditReviewForm {
             setupTagLabel(tag, tagsLabel);
         }
 
-        tagsField = new TextFieldWithAutoCompletion(review.getProject());
-        tagsField.setVariants(ReviewManager.getInstance(review.getProject()).getAvailableTags());
+        tagsField = new TextFieldWithAutoCompletion(review.getProject(), new TextFieldWithAutoCompletion.StringsCompletionProvider(Arrays.asList(ReviewManager.getInstance(review.getProject()).getAvailableTags()), null), true, null);
+
         tagsField.setBackground(Color.WHITE);
         tagsField.setPlaceholder(ReviewsBundle.message("reviews.addTagMessageEllipsis"));
         tagsPanel.setFocusable(true);
